@@ -46,9 +46,9 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Antlr4.Runtime.Standard": {
+            "pythonnet": {
               "target": "Package",
-              "version": "[4.13.1, )"
+              "version": "[3.0.5, )"
             }
           },
           "imports": [
@@ -68,6 +68,11 @@
             }
           },
           "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\8.0.413/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x64": {
+          "#import": []
         }
       }
     }

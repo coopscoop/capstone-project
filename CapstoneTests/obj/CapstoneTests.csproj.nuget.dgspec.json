@@ -46,9 +46,9 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Antlr4.Runtime.Standard": {
+            "pythonnet": {
               "target": "Package",
-              "version": "[4.13.1, )"
+              "version": "[3.0.5, )"
             }
           },
           "imports": [
@@ -68,6 +68,11 @@
             }
           },
           "runtimeIdentifierGraphPath": "c:\\program files\\dotnet\\sdk\\8.0.413/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x64": {
+          "#import": []
         }
       }
     },
@@ -120,6 +125,10 @@
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.8.0, )"
+            },
+            "Python.Runtime": {
+              "target": "Package",
+              "version": "[2.7.9, )"
             },
             "coverlet.collector": {
               "target": "Package",
