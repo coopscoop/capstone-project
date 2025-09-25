@@ -14,9 +14,9 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 
 ## IronPython3
 
--   Fork: https://github.com/IronLanguages/ironpython3 (branch: py3.8 or main).
--   DLLs in lib/ (built with .NET 6+).
--   Supports 3.x features: f-strings, async (e.g., security rules for user input in f-strings).
+-   Fork: https://github.com/IronLanguages/ironpython3 (branch: py3.6 or main)
+-   DLLs in lib/ (built with .NET 6+)
+-   Supports 3.x features: f-strings, async (e.g., security rules for user input in f-strings)
     -   The official version stops at python 2.7, IronPython3 is a community made branch so it needs to be compiled and added manually
 
 ## The general structure goes as follows (subject to change):
