@@ -1,0 +1,15 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Node/TS
+node_modules/
+.env*.local
+dist/
+*.log
+
+# Lib for IronPython - commit for the sake of simplicity and not grapping/updating it every build
+# lib/
