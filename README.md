@@ -1,4 +1,4 @@
-> [!note] Massive first commits were because I was working in another repo unintentionally, moved things over so it's massive chunks at once
+> [!NOTE] Massive first commits were because I was working in another repo unintentionally, moved things over so it's massive chunks at once
 
 # Capstone - Online Python IDE
 Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python.
