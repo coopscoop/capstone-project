@@ -4,7 +4,7 @@
 Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python.
 
 ## The general structure goes as follows (subject to change):
-
+```
 ├─ Frontend/
 │  ├── node_modules/
 │  ├── public/
@@ -28,7 +28,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 │  ├─ ...
 ├─ Capstone.sln
 └─ README.md
-
+```
 ## Frontend
 The frontend of the app, I plan on using React with typescript to develop this. Styling wise I'll be learning Tailwind and doing most of it from scratch, probably some stuff from [mui](https://mui.com/)
 
