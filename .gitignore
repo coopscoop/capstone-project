@@ -3,13 +3,13 @@ bin/
 obj/
 *.user
 *.suo
-.vs/
 
-# Node/TS
+# Node
 node_modules/
-.env*.local
-dist/
-*.log
+.pnp
+.pnp.js
+coverage/
 
-# Lib for IronPython - commit for the sake of simplicity and not grapping/updating it every build
-# lib/
+# OS - can mostly be ignored globally
+.DS_Store
+Thumbs.db
