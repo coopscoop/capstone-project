@@ -12,7 +12,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 -   Backend: cd backend && dotnet run (http://localhost:5041/swagger for testing the API)
 -   Frontend: cd frontend && npm start (http://localhost:3000)
 -   Tests: cd tests && dotnet test
-> ![NOTE]
+> [!NOTE]
 > both the `Frontend` and `Tests` are currently not implemented
 
 ## AST
