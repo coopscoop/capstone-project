@@ -10,8 +10,10 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 ## Setup (subject to change)
 
 -   Backend: cd backend && dotnet run (http://localhost:5041/swagger for testing the API)
--   Frontend: cd frontend && npm start (http://localhost:3000) -- **NOTE: NOT CURRENTLY IN THE PROJECT**
--   Tests: cd tests && dotnet test -- **NOTE: NOT CURRENTLY IN THE PROJECT**
+-   Frontend: cd frontend && npm start (http://localhost:3000)
+-   Tests: cd tests && dotnet test
+> ![NOTE]
+> both the `Frontend` and `Tests` are currently not implemented
 
 ## AST
 
@@ -66,7 +68,7 @@ The .NET backend for the site, interfaces with the Frontend and Linter.
 
 # CapstoneTests
 
-> ![IMPORTANT]
+> [!IMPORTANT]
 > xUnit Tests are not implemented yet, these will be implemented once I add more rules and can begin testing.
 
 xUnit Tests for creating automated tests on both my linter and backend.
