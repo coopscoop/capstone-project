@@ -6,9 +6,8 @@
 
 Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python.
 
-## Setup
+## Setup (subject to change)
 
--   Build IronPython3: See Step 2.
 -   Backend: cd backend && dotnet run (http://localhost:5000)
 -   Frontend: cd frontend && npm start (http://localhost:3000)
 -   Tests: cd tests && dotnet test
@@ -18,7 +17,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 -   Native .NET implementation of python
 -   Used for creating the AST, then analyzed for linting and static analysis
 
-## The general structure goes as follows (subject to change):
+## The general structure goes as follows (subject to change)
 
 A monorepo with a react frontend and ASP.NET backend
 
