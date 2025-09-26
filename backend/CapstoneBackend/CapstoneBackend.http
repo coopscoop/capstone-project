@@ -1,0 +1,15 @@
+@CapstoneBackend_HostAddress = http://localhost:5210
+
+GET {{CapstoneBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+POST {{CapstoneBackend_HostAddress}}/api/lint
+Content-Type: application/json
+
+{
+  "code": "print('hello world')"
+}
+
+###

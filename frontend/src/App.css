@@ -1,0 +1,81 @@
+.App {
+    text-align: center;
+    background-color: #282c34;
+    min-height: 100vh;
+    color: white;
+    padding: 20px;
+}
+
+.App-header {
+    background-color: #282c34;
+    padding: 20px;
+    color: white;
+}
+
+.App-header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.editor-container {
+    margin: 20px 0;
+    border: 1px solid #61dafb;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+button {
+    background-color: #61dafb;
+    color: #282c34;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.issues-container {
+    margin-top: 20px;
+    text-align: left;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.issues-container h2 {
+    color: #61dafb;
+}
+
+.issues-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.issue {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border-left: 4px solid;
+}
+
+.issue.error {
+    background-color: #ff6b6b;
+    border-left-color: #ff4757;
+}
+
+.issue.warning {
+    background-color: #ffeaa7;
+    border-left-color: #fdcb6e;
+    color: #2d3436;
+}
+
+.issue.info {
+    background-color: #74b9ff;
+    border-left-color: #0984e3;
+}
