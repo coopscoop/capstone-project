@@ -1,4 +1,4 @@
-> [!TODO]
+> [!NOTE]
 > - add front end (typescript?)
 > - refactor rules impementation to properly pull from the `/Rules` directory without requiring change elsewhere
 > - refactor `/CapstoneLinter` to follow better file organization? unsure if I like how it is now
@@ -66,7 +66,7 @@ The .NET backend for the site, interfaces with the Frontend and Linter.
 
 # CapstoneTests
 
-> ![NOTE]
+> ![TIP]
 > xUnit Tests are not implemented yet, these will be implemented once I add more rules and can begin testing.
 
 xUnit Tests for creating automated tests on both my linter and backend.
