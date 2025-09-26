@@ -1,5 +1,6 @@
 > [!NOTE]
-> Massive first commits were because I was working in another repo unintentionally, moved things over so it's massive chunks at once
+> Massive first commits were because I was working in another repo unintentionally, moved things over so it's massive chunks at once.
+> The majority of the templating for the project was also auto generated so it's very large
 
 # Capstone - Online Python IDE
 
@@ -14,10 +15,8 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 
 ## IronPython3
 
--   Fork: https://github.com/IronLanguages/ironpython3 (branch: py3.6 or main)
--   DLLs in lib/ (built with .NET 6+)
--   Supports 3.x features: f-strings, async (e.g., security rules for user input in f-strings)
-    -   The official version stops at python 2.7, IronPython3 is a community made branch so it needs to be compiled and added manually
+-   Native .NET implementation of python
+-   Used for creating the AST, then analyzed for linting and static analysis
 
 ## The general structure goes as follows (subject to change):
 
