@@ -10,9 +10,11 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 
 ## Setup (subject to change)
 
--   Backend: cd backend && dotnet run (http://localhost:5000)
+-   Backend: cd backend && dotnet run (http://localhost:5041/swagger for testing the API)
 -   Frontend: cd frontend && npm start (http://localhost:3000)
 -   Tests: cd tests && dotnet test
+> [!NOTE]
+> both the `Frontend` and `Tests` are currently not implemented
 
 ## The general structure goes as follows (subject to change, currently only implements the backend)
 
