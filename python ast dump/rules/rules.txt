@@ -1,0 +1,6 @@
+general list of rules I'd like to add:
+- naming conventions - DONE
+- comparing to none (null)
+- discouraged/disallowed imports
+- too many arguments
+- missing docstring
