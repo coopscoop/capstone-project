@@ -61,7 +61,7 @@ Example input and output:
 
 Will return something similar to:
 ```json
-{"is_valid": boolean, "issues": ["..."]}
+{"is_valid": "Boolean", "issues": ["..."]}
 ```
 - is_valid: does the code return with any errors, warnings/suggestions are allowed
 - issues: an array of all the issues.
