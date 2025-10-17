@@ -8,7 +8,7 @@ Python/
     ├── __init__.py                    ← Registers all rules
     ├── base_rule.py                   ← Base class
     ├── naming_convention_rule.py      ← Rule 1
-    └── next_rule.py                   ← Rule x
+    └── next_rule.py                   ← Rule `x`
 ```
 
 ## Running locally/testing
@@ -40,7 +40,7 @@ To use it you can give it one of three json action inputs:
 Will return something similar to:
 
 ```json
-{"success": bool, "output": str, "error": str}
+{"success": boolean, "output": str, "error": str}
 ```
 - success: if it ran fully, false if it errored/timed out
 - output: the console output of the program
@@ -48,34 +48,31 @@ Will return something similar to:
 
 Example input and output:
 ```json
-// input
 {"action": "execute", "code": "for i in range(3): print(i)"}
 ```
 ```json
-// output
 {"success": true, "output": "0\n1\n2\n", "error": ""}
 ```
 
 ### Linting
 ```json
-{"action": "lint", "code": "...", "enabled_rules": [...]}
+{"action": "lint", "code": "...", "enabled_rules": ["..."]}
 ```
 
 Will return something similar to:
 ```json
-{"is_valid": bool, "issues": [...]}
+{"is_valid": boolean, "issues": ["..."]}
 ```
 - is_valid: does the code return with any errors, warnings/suggestions are allowed
 - issues: an array of all the issues.
 
-Example:
+Example input and output:
 ```json
-// input
 {"action": "lint", "code": "def myFunction(): pass"}
 ```
 ```json
-// output
-{"is_valid": true, "issues": [
+{"is_valid": true, 
+    "issues": [
     {
         "severity": "warning", 
         "message": "Function 'myFunction' should use snake_case naming convention", 
@@ -92,14 +89,12 @@ Example:
     }
 ```
 ### Pong
-Baseline test if things are working without requiring rules or executing anything to function
-
-Pass in the action `ping` and you get pong back:
+Baseline test if things are working without requiring rules or executing anything to function. Pass in the action `ping` and you get pong back:
+Example input and output:
 ```json
-// input
 {"action": "ping"}
 ```
+Output:
 ```json
-// output
 {"status": "ok", "message": "pong"}
 ```
