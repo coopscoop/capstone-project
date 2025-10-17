@@ -76,13 +76,16 @@ PythonRepl/
 
 ## Resources I've used/found useful
 - https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-9.0
-    - primarily the **HTTP API apps** and **ASP.NET Core video tutorials** blocks
+    - Primarily the **HTTP API apps** and **ASP.NET Core video tutorials** blocks
 - https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures
     - I didn't like how the project was structured, found this and decided to just make the swap
 - https://docs.python.org/3/library/ast.html#abstract-grammar
-    - docs for how to use the python AST
+    - Docs for how to use the python AST
 - https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
-    - more stuff for how I structured this
+    - More stuff for how I structured this
+- https://www.youtube.com/live/qU3Rc6_B9es
+    - For the linter/python aspect of the backend type structure
+    - It's not perfect but its small enough to where just one worker having the lint/exec and my endpoints
 
 ## ORM stuff to show the prof
 - https://github.com/DapperLib/Dapper

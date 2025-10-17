@@ -11,7 +11,7 @@ import ast
 from typing import List, Dict, Any, Optional
 from dataclasses import asdict
 
-from rules import ALL_RULES, RULES_BY_ID, LintIssue
+from rules import ALL_RULES, LintIssue
 
 
 class Linter:

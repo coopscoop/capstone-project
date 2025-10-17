@@ -45,11 +45,6 @@ ALL_RULES = [
     NoneComparisonRule,
 ]
 
-# Map rule IDs to rule classes for easy lookup
-RULES_BY_ID = {
-    rule.RULE_ID: rule for rule in ALL_RULES
-}
-
 __all__ = [
     'BaseRule',
     'LintIssue',
