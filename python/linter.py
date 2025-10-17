@@ -1,7 +1,10 @@
 """
 Main Linter Module
 
-Run generated rules over the generated AST
+This module runs the linting process by:
+1. Parsing Python code into an AST
+2. Running all enabled rules against the AST
+3. Collecting and returning all issues found
 """
 
 import ast

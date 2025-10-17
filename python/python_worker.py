@@ -1,16 +1,13 @@
 """
 Python Worker Script
 
-This script runs as a long-lived process that communicates with the ASP.NET backend.
+This script is intended to be run as a service in the background of the .NET server
 It receives commands via stdin (JSON lines) and sends responses via stdout (JSON lines).
 
-Commands:
-    - {"action": "execute", "code": "...", "timeout": 5}
-    - {"action": "lint", "code": "...", "enabled_rules": [...]}
-
-Responses:
-    - Execute: {"success": bool, "output": str, "error": str}
-    - Lint: {"is_valid": bool, "issues": [...]}
+Commands (input -> output):
+    - {"action": "execute", "code": "...", "timeout": 5}        -> {"success": bool, "output": str, "error": str}
+    - {"action": "lint", "code": "...", "enabled_rules": [...]} -> {"is_valid": bool, "issues": [...]}
+    - {"action": "ping"}                                        -> {"status": "ok", "message": "pong"}
 """
 
 import sys
@@ -147,10 +144,12 @@ def handle_command(command: Dict[str, Any]) -> Dict[str, Any]:
         return handle_execute_command(command)
     elif action == "lint":
         return handle_lint_command(command)
+    elif action == "ping":
+        return {"status": "ok", "message": "pong"}
     else:
         return {
             "error": f"Unknown action: {action}",
-            "valid_actions": ["execute", "lint"]
+            "valid_actions": ["execute", "lint", "ping"]
         }
 
 

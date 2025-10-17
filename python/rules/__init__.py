@@ -12,9 +12,9 @@ To add a new rule:
 5. Implement the check() method
 6. Add your rule to ALL_RULES below
 
-Template for adding more rules:
+Example rule:
     class MyCustomRule(BaseRule):
-        RULE_ID = "my-rule"
+        RULE_ID = "my-custom-rule"
         
         def check(self, tree, code_lines):
             self.visit(tree)
@@ -26,11 +26,23 @@ Template for adding more rules:
             self.generic_visit(node)
 """
 
+from .base_rule import BaseRule, LintIssue
 from .naming_convention_rule import NamingConventionRule
+from .missing_docstring_rule import MissingDocstringRule
+from .too_many_args_rule import TooManyArgsRule
+from .discouraged_import_rule import DiscouragedImportRule
+from .use_logging_rule import UseLoggingRule
+from .none_comparison_rule import NoneComparisonRule
 
-# Add new rules here to be used when "all rules" are linted
+# Registry of all available rules
+# Add new rules here to make them available to the linter
 ALL_RULES = [
     NamingConventionRule,
+    MissingDocstringRule,
+    TooManyArgsRule,
+    DiscouragedImportRule,
+    UseLoggingRule,
+    NoneComparisonRule,
 ]
 
 # Map rule IDs to rule classes for easy lookup
@@ -39,5 +51,14 @@ RULES_BY_ID = {
 }
 
 __all__ = [
+    'BaseRule',
+    'LintIssue',
+    'ALL_RULES',
+    'RULES_BY_ID',
     'NamingConventionRule',
+    'MissingDocstringRule',
+    'TooManyArgsRule',
+    'DiscouragedImportRule',
+    # 'UseLoggingRule', # disabled because its not particularly practical
+    'NoneComparisonRule',
 ]

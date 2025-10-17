@@ -14,35 +14,11 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 -   implement the frontend
 -   implement the test cases too (use XUnit?)
 
-## Testing
-As automated testing isn't currently set up, you can use the created swagger page, and or Postman to test.
-Two endpoints: one to execute the code and one to lint the code.
-
-### Linting
-For linting use the following structure:
-```json
-POST /api/code/lint
-{
-  "code": "def myFunction():\n    print('hello')\n    return None",
-  "enabledRules": null
-}
-```
-
-### Execution
-For execution use the following structure:
-```json
-POST /api/code/execute
-{
-  "code": "for i in range(5):\n    print(f'Number: {i}')",
-  "runLinter": true,
-  "timeoutSeconds": 5
-}
-```
-
 > [!NOTE]
 > both the `Frontend` and `Tests` are currently not implemented, will update here once they're implemented.
 
-## The general structure goes as follows (subject to change, currently only implements the backend)
+## The general structure goes as follows 
+(auto generated, not finalized will change slightly)
 
 ```
 PythonRepl/
@@ -85,29 +61,6 @@ PythonRepl/
         └── {all the rules}.py          # Any of the rules I create
 ```
 
-## Dependancy layers
-```
-┌─────────────────────────────────────────────┐
-│          PythonRepl.API                     │  ← Presentation Layer
-│  (Controllers, Program.cs, Configuration)   │
-└────────────┬─────────────┬──────────────────┘
-             │             │
-             ↓             ↓
-┌────────────────────┐  ┌──────────────────────┐
-│ PythonRepl.        │  │ PythonRepl.          │  ← Business & Infrastructure
-│ Application        │  │ Infrastructure       │
-│ (Services)         │  │ (PythonProcess)      │
-└────────┬───────────┘  └─────────┬────────────┘
-         │                        │
-         └────────────┬───────────┘
-                      ↓
-            ┌──────────────────┐
-            │  PythonRepl.Core │                   ← Domain Layer
-            │ (Models, Interfaces) │                (No dependencies)
-            └──────────────────┘
-```
-
-
 ## Communicaiton flow
 1. React Frontend
     - creates the post requests with the code
@@ -131,6 +84,7 @@ PythonRepl/
 - https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
     - more stuff for how I structured this
 
+## ORM stuff to show the prof
 - https://github.com/DapperLib/Dapper
 - https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/retrieving-data-using-a-datareader
 - https://learn.microsoft.com/en-us/ef/core/querying/
