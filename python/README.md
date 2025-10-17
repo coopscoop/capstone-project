@@ -40,7 +40,7 @@ To use it you can give it one of three json action inputs:
 Will return something similar to:
 
 ```json
-{"success": boolean, "output": str, "error": str}
+{"success": "Boolean", "output": str, "error": str}
 ```
 - success: if it ran fully, false if it errored/timed out
 - output: the console output of the program
