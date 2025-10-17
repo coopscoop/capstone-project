@@ -6,7 +6,7 @@
 
 # Capstone - Online Python IDE
 
-Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python.
+Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python with a custom made linter.
 
 ## Setup (subject to change)
 
