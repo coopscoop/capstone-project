@@ -33,6 +33,7 @@ from .too_many_args_rule import TooManyArgsRule
 from .discouraged_import_rule import DiscouragedImportRule
 from .use_logging_rule import UseLoggingRule
 from .none_comparison_rule import NoneComparisonRule
+from .unused_function_rule import UnusedFunctionRule
 
 # Registry of all available rules
 # Add new rules here to make them available to the linter
@@ -41,8 +42,9 @@ ALL_RULES = [
     MissingDocstringRule,
     TooManyArgsRule,
     DiscouragedImportRule,
-    UseLoggingRule,
+    # UseLoggingRule,
     NoneComparisonRule,
+    UnusedFunctionRule,
 ]
 
 __all__ = [
@@ -56,4 +58,5 @@ __all__ = [
     'DiscouragedImportRule',
     # 'UseLoggingRule', # disabled because its not particularly practical
     'NoneComparisonRule',
+    'UnusedFuncitonRule',
 ]
