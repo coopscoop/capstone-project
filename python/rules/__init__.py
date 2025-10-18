@@ -34,9 +34,9 @@ from .discouraged_import_rule import DiscouragedImportRule
 from .use_logging_rule import UseLoggingRule
 from .none_comparison_rule import NoneComparisonRule
 from .unused_function_rule import UnusedFunctionRule
+from .unused_variable_rule import UnusedVariableRule
 
-# Registry of all available rules
-# Add new rules here to make them available to the linter
+# All available rules - this list gets used directly in the linter
 ALL_RULES = [
     NamingConventionRule,
     MissingDocstringRule,
@@ -45,8 +45,10 @@ ALL_RULES = [
     # UseLoggingRule,
     NoneComparisonRule,
     UnusedFunctionRule,
+    UnusedVariableRule,
 ]
 
+# Here for the sake of completeness with any * imports from this file. Unused for now
 __all__ = [
     'BaseRule',
     'LintIssue',
@@ -59,4 +61,5 @@ __all__ = [
     # 'UseLoggingRule', # disabled because its not particularly practical
     'NoneComparisonRule',
     'UnusedFuncitonRule',
+    'UnusedVariableRule',
 ]
