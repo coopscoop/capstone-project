@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneAPI.Core.Models
 {
-    internal class CodeExecutionRequest
+    public class CodeExecutionRequest
     {
         public string Code { get; set; } = string.Empty;
         public bool RunLinter { get; set; } = true;

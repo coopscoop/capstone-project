@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CapstoneAPI.Core.Models
 {
-    internal class LintResult
+    public class LintResult
     {
-        public bool isValid { get; set; }
+        public bool IsValid { get; set; }
         public List<LintIssue> Issues { get; set; } = new List<LintIssue>();
     }
 }
