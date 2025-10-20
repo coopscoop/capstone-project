@@ -18,6 +18,11 @@ namespace Capstone.Application.Services
         private readonly IPythonProcessManager _pythonManager;
         private readonly ILogger<LinterService> _logger;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="pythonManager"></param>
+        /// <param name="logger"></param>
         public LinterService(
             IPythonProcessManager pythonManager,
             ILogger<LinterService> logger)
@@ -26,6 +31,12 @@ namespace Capstone.Application.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Lints the provided code and returns the result
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public async Task<LintResult> LintCodeAsync(
             LintRequest request,
             CancellationToken ct = default)
@@ -57,6 +68,12 @@ namespace Capstone.Application.Services
                 {
                     _logger.LogWarning("Linter returned null result");
                     return new LintResult { IsValid = false };
+                }
+
+                // Valid if there aren't any issues
+                if (lintResult.Issues.Count == 0)
+                {
+                    lintResult.IsValid = true;
                 }
 
                 _logger.LogInformation(
