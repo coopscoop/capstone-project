@@ -10,7 +10,8 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 
 ## Setup (subject to change)
 
--   Backend: `cd Backend.API && dotnet run` (creates a /swagger page to test the API), `dotnet build` to build the project 
+-   Backend: `cd backend` then `dotnet run`, or open the `.sln` file in `/backend` and run using `http`. (both create a /swagger page to test the API)
+  -   `dotnet build` is required for a first time run
 -   implement the frontend
 -   implement the test cases too (use XUnit?)
 
