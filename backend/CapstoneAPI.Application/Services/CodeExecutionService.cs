@@ -20,6 +20,12 @@ namespace CapstoneAPI.Application.Services
         private readonly ILinterService _linterService;
         private readonly ILogger<CodeExecutionService> _logger;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="pythonManager"></param>
+        /// <param name="linterService"></param>
+        /// <param name="logger"></param>
         public CodeExecutionService(
             IPythonProcessManager pythonManager,
             ILinterService linterService,
@@ -30,6 +36,12 @@ namespace CapstoneAPI.Application.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Executes Python code with optional linting
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         public async Task<CodeExecutionResult> ExecuteCodeAsync(
             CodeExecutionRequest request,
             CancellationToken ct = default)

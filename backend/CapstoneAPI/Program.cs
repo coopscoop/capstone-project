@@ -1,11 +1,10 @@
-// ===== CapstoneAPI/Program.cs =====
 using CapstoneAPI.Core.Interfaces;
 using CapstoneAPI.Application.Services;
 using CapstoneAPI.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -23,14 +22,14 @@ builder.Services.AddSingleton<IPythonProcessManager, PythonProcessManager>();
 builder.Services.AddScoped<ICodeExecutionService, CodeExecutionService>();
 builder.Services.AddScoped<ILinterService, LinterService>();
 
-// CORS configuration for React frontend
+// CORS configuration for React frontend, used in middleware (eventually, will probably need to change)
+// NOTE: currently using http, should be changed to https later
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy => policy
             .WithOrigins(
-                "http://localhost:3000",  // Create React App
-                "http://localhost:5173")  // Vite
+                "http://localhost:3000")  // React front end
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -49,6 +48,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Middleware
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 app.UseAuthorization();
@@ -58,6 +58,7 @@ app.MapControllers();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Initializing Python worker process...");
 
+// Try to initialize the Python process
 try
 {
     var pythonManager = app.Services.GetRequiredService<IPythonProcessManager>();
@@ -79,5 +80,6 @@ lifetime.ApplicationStopping.Register(async () =>
     await pythonManager.ShutdownAsync();
 });
 
+// Start the application
 logger.LogInformation("API is ready to accept requests");
 app.Run();

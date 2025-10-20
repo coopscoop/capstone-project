@@ -8,13 +8,19 @@ namespace CapstoneAPI.Controllers
     /// API endpoints for code execution and linting
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class CodeController : ControllerBase
     {
         private readonly ICodeExecutionService _executionService;
         private readonly ILinterService _linterService;
         private readonly ILogger<CodeController> _logger;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="executionService"></param>
+        /// <param name="linterService"></param>
+        /// <param name="logger"></param>
         public CodeController(
             ICodeExecutionService executionService,
             ILinterService linterService,
@@ -46,9 +52,12 @@ namespace CapstoneAPI.Controllers
             _logger.LogInformation("Received code execution request (length: {Length})",
                 request.Code.Length);
 
+            // Execute the code
             try
             {
                 var result = await _executionService.ExecuteCodeAsync(request, ct);
+                _logger.LogInformation("Code executed successfully");
+                _logger.LogDebug($"Execution output: \n{result.Output}");
                 return Ok(result);
             }
             catch (Exception ex)
@@ -79,9 +88,12 @@ namespace CapstoneAPI.Controllers
             _logger.LogInformation("Received lint request (length: {Length})",
                 request.Code.Length);
 
+            // Lint the code
             try
             {
                 var result = await _linterService.LintCodeAsync(request, ct);
+                _logger.LogInformation($"Code linted successfully with {result.Issues.Count} issues");
+                _logger.LogInformation("Lint issues: {@Issues}", result.Issues);
                 return Ok(result);
             }
             catch (Exception ex)
