@@ -20,9 +20,9 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 ## The general structure goes as follows 
 
 > [!NOTE]
-> Might not be up to date, check the rest of the project just in case. This is a general outline as of the API working with linting/execution. No other aspects are included in this tree as of writting.
+> Might not be up to date, check the rest of the project just in case. This is a general outline as of the API working with linting/execution.
 
-This project follows clean architecture (check out links below for more), here's the general project flow:
+This project follows clean architecture (check out links below for more), here's the general project structure:
 ```
 ┌─────────────────────────────────────┐
 │         API (Presentation)          │  ← User Interface
@@ -47,11 +47,19 @@ This project follows clean architecture (check out links below for more), here's
 
 The project is generally split up into 4 chunks. API, Application, Core and Infrastructure.
 - API
+  - What the user (the website) will be interacting with, my Controllers/API endpoint
+- Application
+  - What the controller's use, any the Lint and Execute services that are being run
+- Core
+  - Models and interfaces, the blocks framework of the rest of the program
+- Infrastructure
+  - Where my linter lives, As its written in python and simply has serial input/output, creating a service to interact with it is the cleanest option
+  - Soon to be where my database lives(?)
 
 ## Resources I've used/found useful
 ### Structure
 - https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures
-  - I didn't like how the project was structured, found this and decided to just make the swap
+  - I didn't like how the project was structured, found this and decided to redo the entire backend properly
 - https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
   - More stuff for how I structured this
 
