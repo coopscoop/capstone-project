@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using CapstoneAPI.Core.Interfaces;
-using CapstoneAPI.Core.Models;
 using System.Diagnostics;
 using System.Text.Json;
+using Capstone.Core.Interfaces;
+using Capstone.Core.Models;
 
-namespace CapstoneAPI.Application.Services
+namespace Capstone.Application.Services
 {
     /// <summary>
     /// Orchestrates code execution with optional linting

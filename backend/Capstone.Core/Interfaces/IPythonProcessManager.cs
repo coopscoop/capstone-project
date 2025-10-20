@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneAPI.Core.Interfaces
+namespace Capstone.Core.Interfaces
 {
     /// <summary>
     /// Manages the Python worker process lifecycle and communication

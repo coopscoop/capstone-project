@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CapstoneAPI.Core.Models
+namespace Capstone.Core.Models
 {
     /// <summary>
     /// Result of executing Python code

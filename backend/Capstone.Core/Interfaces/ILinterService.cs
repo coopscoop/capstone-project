@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CapstoneAPI.Core.Models;
+using Capstone.Core.Models;
 
-namespace CapstoneAPI.Core.Interfaces
+namespace Capstone.Core.Interfaces
 {
     /// <summary>
     /// Service for linting Python code

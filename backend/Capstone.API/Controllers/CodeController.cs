@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CapstoneAPI.Core.Interfaces;
-using CapstoneAPI.Core.Models;
+using Capstone.Core.Interfaces;
+using Capstone.Core.Models;
 
-namespace CapstoneAPI.Controllers
+namespace Capstone.API.Controllers
 {
     /// <summary>
     /// API endpoints for code execution and linting

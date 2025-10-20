@@ -7,10 +7,10 @@ using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using CapstoneAPI.Core.Interfaces;
 using System.IO.Enumeration;
+using Capstone.Core.Interfaces;
 
-namespace CapstoneAPI.Infrastructure
+namespace Capstone.Infrastructure
 {
     /// <summary>
     /// Manages a long-running Python worker process for code execution and linting.
@@ -36,6 +36,7 @@ namespace CapstoneAPI.Infrastructure
             if (!Path.IsPathRooted(_pythonScriptPath))
             {
                 _pythonScriptPath = Path.GetFullPath(_pythonScriptPath);
+                _logger.LogInformation($"Converted Python script path to absolute: {_pythonScriptPath}");
             }
 
             _logger.LogInformation("Python script path: {Path}", _pythonScriptPath);
@@ -72,11 +73,12 @@ namespace CapstoneAPI.Infrastructure
                 }
 
                 // handle cross-platform python command - windows using python, others using python3
-                String _FileName;
+                string _FileName;
                 if (OperatingSystem.IsWindows())
                 {
                     _FileName = "python";
-                } else
+                }
+                else
                 {
                     _FileName = "python3";
                 }

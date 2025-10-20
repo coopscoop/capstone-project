@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using CapstoneAPI.Core.Interfaces;
-using CapstoneAPI.Core.Models;
+using Capstone.Core.Interfaces;
+using Capstone.Core.Models;
 
-namespace CapstoneAPI.Application.Services
+namespace Capstone.Application.Services
 {
     /// <summary>
     /// Handles code linting through the Python worker

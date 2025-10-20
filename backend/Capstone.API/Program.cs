@@ -1,6 +1,6 @@
-using CapstoneAPI.Core.Interfaces;
-using CapstoneAPI.Application.Services;
-using CapstoneAPI.Infrastructure;
+using Capstone.Application.Services;
+using Capstone.Core.Interfaces;
+using Capstone.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
