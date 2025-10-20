@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CapstoneAPI.Application\CapstoneAPI.Application.csproj" />
-    <ProjectReference Include="..\CapstoneAPI.Core\CapstoneAPI.Core.csproj" />
-    <ProjectReference Include="..\CapstoneAPI.Infrastructure\CapstoneAPI.Infrastructure.csproj" />
+    <ProjectReference Include="..\CapstoneAPI.Application\Capstone.Application.csproj" />
+    <ProjectReference Include="..\CapstoneAPI.Core\Capstone.Core.csproj" />
+    <ProjectReference Include="..\CapstoneAPI.Infrastructure\Capstone.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

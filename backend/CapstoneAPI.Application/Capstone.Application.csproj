@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CapstoneAPI.Core\CapstoneAPI.Core.csproj" />
+    <ProjectReference Include="..\CapstoneAPI.Core\Capstone.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

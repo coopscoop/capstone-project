@@ -18,237 +18,35 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 > both the `Frontend` and `Tests` are currently not implemented, will update here once they're implemented.
 
 ## The general structure goes as follows 
-The file tree is simplified, there's more files but these are the primary ones:
+
+> [!NOTE]
+> Might not be up to date, check the rest of the project just in case. This is a general outline as of the API working with linting/execution. No other aspects are included in this tree as of writting.
+
+This project follows clean architecture (check out links below for more), here's the general project flow:
 ```
-│   .gitignore
-│   README.md
-
-├───CapstoneAPI
-│   │   appsettings.Development.json
-│   │   appsettings.json
-│   │   CapstoneAPI.csproj
-│   │   CapstoneAPI.csproj.user
-│   │   CapstoneAPI.http
-│   │   CapstoneAPI.sln
-│   │   Program.cs
-│   ├───Controllers
-│   │       CodeController.cs
-│   ├───obj
-│   │   │   CapstoneAPI.csproj.nuget.dgspec.json
-│   │   │   CapstoneAPI.csproj.nuget.g.props
-│   │   │   CapstoneAPI.csproj.nuget.g.targets
-│   │   │   project.assets.json
-│   │   │   project.nuget.cache
-│   │   │
-│   │   └───Debug
-│   │       └───net8.0
-│   │           │   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
-│   │           │   apphost.exe
-│   │           │   Capstone.4F1C2640.Up2Date
-│   │           │   CapstoneAPI.AssemblyInfo.cs
-│   │           │   CapstoneAPI.AssemblyInfoInputs.cache
-│   │           │   CapstoneAPI.assets.cache
-│   │           │   CapstoneAPI.csproj.AssemblyReference.cache
-│   │           │   CapstoneAPI.csproj.BuildWithSkipAnalyzers
-│   │           │   CapstoneAPI.csproj.CoreCompileInputs.cache
-│   │           │   CapstoneAPI.csproj.FileListAbsolute.txt
-│   │           │   CapstoneAPI.dll
-│   │           │   CapstoneAPI.GeneratedMSBuildEditorConfig.editorconfig
-│   │           │   CapstoneAPI.genruntimeconfig.cache
-│   │           │   CapstoneAPI.GlobalUsings.g.cs
-│   │           │   CapstoneAPI.MvcApplicationPartsAssemblyInfo.cache
-│   │           │   CapstoneAPI.MvcApplicationPartsAssemblyInfo.cs
-│   │           │   CapstoneAPI.pdb
-│   │           │   CapstoneAPI.sourcelink.json
-│   │           │   staticwebassets.build.json
-│   │           │
-│   │           ├───ref
-│   │           │       CapstoneAPI.dll
-│   │           │
-│   │           ├───refint
-│   │           │       CapstoneAPI.dll
-│   │           │
-│   │           └───staticwebassets
-│   │                   msbuild.build.CapstoneAPI.props
-│   │                   msbuild.buildMultiTargeting.CapstoneAPI.props
-│   │                   msbuild.buildTransitive.CapstoneAPI.props
-│   │
-│   └───Properties
-│           launchSettings.json
-│
-├───CapstoneAPI.Application
-│   │   CapstoneAPI.Application.csproj
-│   │
-│   ├───bin
-│   │   └───Debug
-│   │       └───net8.0
-│   │               CapstoneAPI.Application.deps.json
-│   │               CapstoneAPI.Application.dll
-│   │               CapstoneAPI.Application.pdb
-│   │               CapstoneAPI.Core.dll
-│   │               CapstoneAPI.Core.pdb
-│   │
-│   ├───obj
-│   │   │   CapstoneAPI.Application.csproj.nuget.dgspec.json
-│   │   │   CapstoneAPI.Application.csproj.nuget.g.props
-│   │   │   CapstoneAPI.Application.csproj.nuget.g.targets
-│   │   │   project.assets.json
-│   │   │   project.nuget.cache
-│   │   │
-│   │   └───Debug
-│   │       └───net8.0
-│   │           │   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
-│   │           │   Capstone.C478532C.Up2Date
-│   │           │   CapstoneAPI.Application.AssemblyInfo.cs
-│   │           │   CapstoneAPI.Application.AssemblyInfoInputs.cache
-│   │           │   CapstoneAPI.Application.assets.cache
-│   │           │   CapstoneAPI.Application.csproj.AssemblyReference.cache
-│   │           │   CapstoneAPI.Application.csproj.BuildWithSkipAnalyzers
-│   │           │   CapstoneAPI.Application.csproj.CoreCompileInputs.cache
-│   │           │   CapstoneAPI.Application.csproj.FileListAbsolute.txt
-│   │           │   CapstoneAPI.Application.dll
-│   │           │   CapstoneAPI.Application.GeneratedMSBuildEditorConfig.editorconfig
-│   │           │   CapstoneAPI.Application.GlobalUsings.g.cs
-│   │           │   CapstoneAPI.Application.pdb
-│   │           │   CapstoneAPI.Application.sourcelink.json
-│   │           │
-│   │           ├───ref
-│   │           │       CapstoneAPI.Application.dll
-│   │           │
-│   │           └───refint
-│   │                   CapstoneAPI.Application.dll
-│   │
-│   └───Services
-│           CodeExecutionService.cs
-│           LinterService.cs
-│
-├───CapstoneAPI.Core
-│   │   CapstoneAPI.Core.csproj
-│   │
-│   ├───bin
-│   │   └───Debug
-│   │       └───net8.0
-│   │               CapstoneAPI.Core.deps.json
-│   │               CapstoneAPI.Core.dll
-│   │               CapstoneAPI.Core.pdb
-│   │
-│   ├───Interfaces
-│   │       ICodeExecutionService.cs
-│   │       ILinterService.cs
-│   │       IPythonProcessManager.cs
-│   │
-│   ├───Models
-│   │       CodeExecutionRequest.cs
-│   │       CodeExecutionResult.cs
-│   │       LintIssue.cs
-│   │       LintRequest.cs
-│   │       LintResult.cs
-│   │
-│   └───obj
-│       │   CapstoneAPI.Core.csproj.nuget.dgspec.json
-│       │   CapstoneAPI.Core.csproj.nuget.g.props
-│       │   CapstoneAPI.Core.csproj.nuget.g.targets
-│       │   project.assets.json
-│       │   project.nuget.cache
-│       │
-│       └───Debug
-│           └───net8.0
-│               │   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
-│               │   CapstoneAPI.Core.AssemblyInfo.cs
-│               │   CapstoneAPI.Core.AssemblyInfoInputs.cache
-│               │   CapstoneAPI.Core.assets.cache
-│               │   CapstoneAPI.Core.csproj.BuildWithSkipAnalyzers
-│               │   CapstoneAPI.Core.csproj.CoreCompileInputs.cache
-│               │   CapstoneAPI.Core.csproj.FileListAbsolute.txt
-│               │   CapstoneAPI.Core.dll
-│               │   CapstoneAPI.Core.GeneratedMSBuildEditorConfig.editorconfig
-│               │   CapstoneAPI.Core.GlobalUsings.g.cs
-│               │   CapstoneAPI.Core.pdb
-│               │   CapstoneAPI.Core.sourcelink.json
-│               │
-│               ├───ref
-│               │       CapstoneAPI.Core.dll
-│               │
-│               └───refint
-│                       CapstoneAPI.Core.dll
-│
-└───CapstoneAPI.Infrastructure
-    │   CapstoneAPI.Infrastructure.csproj
-    │   PythonProcessManager.cs
-    │
-    ├───bin
-    │   └───Debug
-    │       └───net8.0
-    │               CapstoneAPI.Core.dll
-    │               CapstoneAPI.Core.pdb
-    │               CapstoneAPI.Infrastructure.deps.json
-    │               CapstoneAPI.Infrastructure.dll
-    │               CapstoneAPI.Infrastructure.pdb
-    │
-    ├───obj
-    │   │   CapstoneAPI.Infrastructure.csproj.nuget.dgspec.json
-    │   │   CapstoneAPI.Infrastructure.csproj.nuget.g.props
-    │   │   CapstoneAPI.Infrastructure.csproj.nuget.g.targets
-    │   │   project.assets.json
-    │   │   project.nuget.cache
-    │   │
-    │   └───Debug
-    │       └───net8.0
-    │           │   .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
-    │           │   Capstone.AD785D96.Up2Date
-    │           │   CapstoneAPI.Infrastructure.AssemblyInfo.cs
-    │           │   CapstoneAPI.Infrastructure.AssemblyInfoInputs.cache
-    │           │   CapstoneAPI.Infrastructure.assets.cache
-    │           │   CapstoneAPI.Infrastructure.csproj.AssemblyReference.cache
-    │           │   CapstoneAPI.Infrastructure.csproj.BuildWithSkipAnalyzers
-    │           │   CapstoneAPI.Infrastructure.csproj.CoreCompileInputs.cache
-    │           │   CapstoneAPI.Infrastructure.csproj.FileListAbsolute.txt
-    │           │   CapstoneAPI.Infrastructure.dll
-    │           │   CapstoneAPI.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-    │           │   CapstoneAPI.Infrastructure.GlobalUsings.g.cs
-    │           │   CapstoneAPI.Infrastructure.pdb
-    │           │   CapstoneAPI.Infrastructure.sourcelink.json
-    │           │
-    │           ├───ref
-    │           │       CapstoneAPI.Infrastructure.dll
-    │           │
-    │           └───refint
-    │                   CapstoneAPI.Infrastructure.dll
-    │
-    └───Python
-        │   .gitignore
-        │   linter.py
-        │   python_worker.py
-        │   README.md
-        │
-        ├───rules
-        │   │   base_rule.py
-        │   │   discouraged_import_rule.py
-        │   │   missing_docstring_rule.py
-        │   │   naming_convention_rule.py
-        │   │   none_comparison_rule.py
-        │   │   too_many_args_rule.py
-        │   │   unused_function_rule.py
-        │   │   unused_variable_rule.py
-        │   │   use_logging_rule.py
-        │   │   __init__.py
-
+┌─────────────────────────────────────┐
+│         API (Presentation)          │  ← User Interface
+│    Controllers, HTTP, JSON          │
+└──────────────┬──────────────────────┘
+               ↓ depends on
+┌──────────────────────────────────────┐
+│  Application (Business Logic)        │  ← Use Cases
+│     Services, Orchestration          │
+└──────────┬───────────────────────────┘
+           ↓ depends on
+     ┌─────────────────────┐
+     │   Core (Domain)     │              ← Pure Business Rules
+     │  Models, Interfaces │              ← NO dependencies!
+     └─────────────────────┘
+           ↑ implements
+┌──────────┴───────────────────────────┐
+│  Infrastructure (External)           │  ← Technical Details
+│   Database, Files, APIs, Python      │
+└──────────────────────────────────────┘
 ```
 
-The project is generally split up into 3 chunks. Application, Core and Infrastructure.
-
-## Communicaiton flow
-1. React Frontend
-    - creates the post requests with the code
-    - creates the get requests for any content
-2. API Controller
-    - ASP.NET controllers for the API endpoints
-3. CodeExecutionService
-    - Service for the Linter/Execution manager
-4. PythonProcessManager
-    - The manager for the linter/execution aspect of the backend
-5. Linter
-    - Runs the rules and returns the result
+The project is generally split up into 4 chunks. API, Application, Core and Infrastructure.
+- API
 
 ## Resources I've used/found useful
 ### Structure

@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapstoneAPI", "CapstoneAPI.csproj", "{8091CEED-404B-40E3-8854-6A01BBECDBCD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capstone.API", "Capstone.API.csproj", "{8091CEED-404B-40E3-8854-6A01BBECDBCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapstoneAPI.Core", "..\CapstoneAPI.Core\CapstoneAPI.Core.csproj", "{2D756202-849D-4E34-B00C-5B612E721224}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capstone.Core", "..\CapstoneAPI.Core\Capstone.Core.csproj", "{2D756202-849D-4E34-B00C-5B612E721224}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapstoneAPI.Application", "..\CapstoneAPI.Application\CapstoneAPI.Application.csproj", "{BDC986FF-EE3B-47C0-8229-FD0FD3277145}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capstone.Application", "..\CapstoneAPI.Application\Capstone.Application.csproj", "{BDC986FF-EE3B-47C0-8229-FD0FD3277145}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapstoneAPI.Infrastructure", "..\CapstoneAPI.Infrastructure\CapstoneAPI.Infrastructure.csproj", "{0720AB81-9D9B-400F-A6D6-6B2B42330C19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Capstone.Infrastructure", "..\CapstoneAPI.Infrastructure\Capstone.Infrastructure.csproj", "{0720AB81-9D9B-400F-A6D6-6B2B42330C19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
