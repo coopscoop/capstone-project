@@ -37,7 +37,11 @@ src/
 └── index.css
 ```
 
-# How to run
+## How to run
 **setup**: First time only, once you've cloned the repo from the root run `cd frontend` then run `npm install` to install all the dependencies.
 
 **run**: run `npm start` to start the development server.
+
+## Resources I've found useful
+- https://www.developerway.com/posts/react-project-structure
+  - A general overview of the mindset behind the project structure

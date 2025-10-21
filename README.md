@@ -12,74 +12,28 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 
 -   Backend: `cd backend` then `dotnet run`, or open the `.sln` file in `/backend` and run using `http`. (both create a /swagger page to test the API)
   -   `dotnet build` is required for a first time run
--   implement the frontend
--   implement the test cases too (use XUnit?)
+-   Frontend: `cd frontend` then `npm start`
+  -   `npm install` is required for a first time run
 
-> [!NOTE]
-> both the `Frontend` and `Tests` are currently not implemented, will update here once they're implemented.
+> [!TODO]
+> The `Tests` are currently not implemented, will update here once they're implemented.
 
-## The general structure goes as follows 
+## Frontend
 
-> [!NOTE]
-> Might not be up to date, check the rest of the project just in case. This is a general outline as of the API working with linting/execution.
+The frontend is a react app, it's a single page app for the sake of simplicity and performance.
+There's two main sections:
+- The social media esque project browsing/favouriting
+- Code writing/execution
 
-This project follows clean architecture (check out links below for more), here's the general project structure:
-```
-┌─────────────────────────────────────┐
-│         API (Presentation)          │  ← User Interface
-│    Controllers, HTTP, JSON          │
-└──────────────┬──────────────────────┘
-               ↓ depends on
-┌──────────────────────────────────────┐
-│  Application (Business Logic)        │  ← Use Cases
-│     Services, Orchestration          │
-└──────────┬───────────────────────────┘
-           ↓ depends on
-     ┌─────────────────────┐
-     │   Core (Domain)     │              ← Pure Business Rules
-     │  Models, Interfaces │              ← NO dependencies!
-     └─────────────────────┘
-           ↑ implements
-┌──────────┴───────────────────────────┐
-│  Infrastructure (External)           │  ← Technical Details
-│   Database, Files, APIs, Python      │
-└──────────────────────────────────────┘
-```
+For more details check the README [here]()
 
-The project is generally split up into 4 chunks. API, Application, Core and Infrastructure.
-- API
-  - What the user (the website) will be interacting with, my Controllers/API endpoint
-- Application
-  - What the controller's use, any the Lint and Execute services that are being run
-- Core
-  - Models and interfaces, the blocks framework of the rest of the program
-- Infrastructure
-  - Where my linter lives, As its written in python and simply has serial input/output, creating a service to interact with it is the cleanest option
-  - Soon to be where my database lives(?)
+## Backend
 
-## Resources I've used/found useful
-### Structure
-- https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures
-  - I didn't like how the project was structured, found this and decided to redo the entire backend properly
-- https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
-  - More stuff for how I structured this
+The backend is a .NET Core API, it's a REST API that uses the `ASP.NET Core` framework. It's written in C# and uses `Dapper` for the ORM.
+My linter is written in python and uses the built in `AST` to parse the code and return a list of custom errors.
 
-### Python Linter
-- https://docs.python.org/3/library/ast.html#abstract-grammar
-  - Docs for how to use the python AST
-- https://www.youtube.com/live/qU3Rc6_B9es
-  - For the linter/python aspect of the backend type structure
+It's a simple REST API that uses the `ASP.NET Core` framework that uses [Dapper](https://github.com/DapperLib/Dapper) for the ORM.
 
-### .NET
-- https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0
-  - Primarily the **HTTP API apps** and **ASP.NET Core video tutorials** blocks
-  - It's not perfect but its small enough to where just one worker having the lint/exec and my endpoints
-- https://learn.microsoft.com/en-us/dotnet/core/diagnostics/
-  - Generally used, started off with logging
-- https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo?view=net-8.0
-  - How to start/work with a service. Created a handler for both the Linter and Code Execution aspects.
+For more details check README [here]()
 
-## ORM stuff to show the prof
-- https://github.com/DapperLib/Dapper
-- https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/retrieving-data-using-a-datareader
-- https://learn.microsoft.com/en-us/ef/core/querying/
+
