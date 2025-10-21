@@ -15,7 +15,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 -   Frontend: `cd frontend` then `npm start`
   -   `npm install` is required for a first time run
 
-> [!TODO]
+> [!WARNING]
 > The `Tests` are currently not implemented, will update here once they're implemented.
 
 ## Frontend
