@@ -15,7 +15,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 -   Frontend: `cd frontend` then `npm start`
   -   `npm install` is required for a first time run
 
-> [!TODO]
+> [!WARNING]
 > The `Tests` are currently not implemented, will update here once they're implemented.
 
 ## Frontend
@@ -25,7 +25,7 @@ There's two main sections:
 - The social media esque project browsing/favouriting
 - Code writing/execution
 
-For more details check the README [here]()
+For more details check the README [here](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/blob/main/frontend/README.md)
 
 ## Backend
 
@@ -34,6 +34,6 @@ My linter is written in python and uses the built in `AST` to parse the code and
 
 It's a simple REST API that uses the `ASP.NET Core` framework that uses [Dapper](https://github.com/DapperLib/Dapper) for the ORM.
 
-For more details check README [here]()
+For more details check README [here](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/blob/main/backend/README.md)
 
 
