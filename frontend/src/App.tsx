@@ -1,10 +1,7 @@
-import './App.css'
-import MonacoEditorDemo from './MonacoEditorDemo'
+import MonacoEditorDemo from '@/components/MonacoEditorDemo'
 
 function App() {
-  return (
-    <MonacoEditorDemo />
-  )
+  return <MonacoEditorDemo />
 }
 
 export default App
