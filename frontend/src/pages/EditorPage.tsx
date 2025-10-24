@@ -1,105 +1,126 @@
-import { useEffect, useRef, useState } from 'react';
-import { Play, Download, FileCode } from 'lucide-react';
-import * as monaco from 'monaco-editor';
+import { useState, useRef } from 'react';
+import { Editor } from '@monaco-editor/react';
+import { Play, Save } from 'lucide-react';
 
 const EditorPage = () => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const [output, setOutput] = useState<string>('');
+  const [code, setCode] = useState(`# Welcome to the Python Editor
 
-  useEffect(() => {
-    if (editorRef.current && !editor) {
-      const monacoEditor = monaco.editor.create(editorRef.current, {
-        value: `# Welcome to the Python Editor\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nif __name__ == "__main__":\n    print(greet("World"))`,
-        language: 'python',
-        theme: 'vs-dark',
-        automaticLayout: true,
-        fontSize: 14,
-        minimap: { enabled: false },
-        scrollBeyondLastLine: false,
-        padding: { top: 16, bottom: 16 },
-      });
-      
-      setEditor(monacoEditor);
-    }
+def fibonacci(n):
+    """Calculate the nth Fibonacci number"""
+    if n <= 1:
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
 
-    return () => {
-      if (editor) {
-        editor.dispose();
-      }
-    };
-  }, []);
+# Calculate and print the 10th Fibonacci number
+result = fibonacci(10)
+print(f"The 10th Fibonacci number is: {result}")
+`);
+  const [output, setOutput] = useState('');
+  const [isRunning, setIsRunning] = useState(false);
+  const editorRef = useRef(null);
 
-  const handleRun = () => {
-    if (editor) {
-      const code = editor.getValue();
-      setOutput(`Running code...\n\n${code}\n\n[Note: This is a demo. Connect to a Python backend to execute code.]`);
-    }
+  const handleEditorChange = (value: string | undefined): void => {
+    setCode(value || '');
   };
 
-  const handleDownload = () => {
-    if (editor) {
-      const code = editor.getValue();
-      const blob = new Blob([code], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'code.py';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+  // bad but I don't know how to type this
+  const handleEditorMount = (editor: any) => {
+    editorRef.current = editor;
+  };
+
+  const handleRun = async () => {
+    setIsRunning(true);
+    setOutput('Running code...\n');
+
+    // Simulate code execution
+    setTimeout(() => {
+      setOutput(`Running code...\n\n\n\nConnect to a Python backend to execute code.\nOutput would appear here.`);
+      setIsRunning(false);
+    }, 500);
+  };
+
+  const handleSave = () => {
+    const blob = new Blob([code], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'script.py';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="h-full flex flex-col bg-zinc-50">
-      {/* Header */}
-      <header className="bg-white border-b border-zinc-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileCode size={24} className="text-zinc-700" />
-            <h1 className="text-xl font-semibold text-zinc-900">Python Editor</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleDownload}
-              className="flex items-center gap-2 px-4 py-2 text-zinc-700 border border-zinc-300 rounded-lg hover:bg-zinc-50 transition-colors"
-            >
-              <Download size={18} />
-              Download
-            </button>
-            <button
-              onClick={handleRun}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors"
-            >
-              <Play size={18} />
-              Run
-            </button>
+    <div className="h-screen flex bg-zinc-50">
+      {/* Editor Panel */}
+      <div className="flex-1 flex flex-col border-r"> 
+        <div className="flex-1">
+          <Editor
+            height="100%"
+            language="python"
+            value={code}
+            onChange={handleEditorChange}
+            onMount={handleEditorMount}
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              padding: { top: 16, bottom: 16 },
+              cursorBlinking: 'smooth',
+              smoothScrolling: true,
+              contextmenu: true,
+              quickSuggestions: true,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Output Panel */}
+      <div className="w-[500px] flex flex-col bg-[#1e1e1e]">
+        {/* Output Header */}
+        <div className="bg-[#252526] border-b border-[#3e3e42] px-6 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-zinc-400">Output</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-300 hover:bg-[#2a2d2e] rounded-md transition-colors"
+                title="Save code"
+              >
+                <Save size={16} />
+                Save
+              </button>
+              <button
+                onClick={handleRun}
+                disabled={isRunning}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-python-blue hover:bg-[#0092d4] text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Run code"
+              >
+                <Play size={16} />
+                {isRunning ? 'Running...' : 'Run'}
+              </button>
+            </div>
           </div>
         </div>
-      </header>
 
-      {/* Editor and Output */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Editor Panel */}
-        <div className="flex-1 flex flex-col">
-          <div className="bg-zinc-800 px-4 py-2 text-sm text-zinc-300 border-b border-zinc-700">
-            main.py
-          </div>
-          <div ref={editorRef} className="flex-1" />
-        </div>
-
-        {/* Output Panel */}
-        <div className="w-96 border-l border-zinc-200 bg-white flex flex-col">
-          <div className="bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 border-b border-zinc-200">
-            Output
-          </div>
-          <div className="flex-1 overflow-auto p-4">
-            {output ? (
-              <pre className="text-sm text-zinc-800 font-mono whitespace-pre-wrap">{output}</pre>
-            ) : (
-              <p className="text-sm text-zinc-500">Click "Run" to see output here...</p>
-            )}
-          </div>
+        {/* Output Content */}
+        <div className="flex-1 overflow-auto p-6 bg-[#1e1e1e]">
+          {output ? (
+            <pre className="text-sm text-zinc-100 font-mono whitespace-pre-wrap leading-relaxed">
+              {output}
+            </pre>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="max-w-sm">
+                <p className="text-zinc-400 mb-4">No output yet</p>
+                <p className="text-sm text-zinc-500">
+                  Click <span className="font-medium text-python-blue">Run</span> to execute your Python code
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

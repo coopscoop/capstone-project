@@ -29,7 +29,7 @@ function App() {
         </Route>
 
         {/* Catch all - redirect to home */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/explore" />} />
       </Routes>
     </BrowserRouter>
   );
