@@ -1,73 +1,35 @@
-# React + TypeScript + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Uses [React](https://reactjs.org/) and [TypeScript](https://www.typescriptlang.org/) with [Vite](https://vitejs.dev/) to scaffold it.
 
-Currently, two official plugins are available:
+## React + TypeScript + Vite
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Vite is a minmal bundler for React apps. I used React during my Co-op and in some of my other classes, so I decided to use it for this project as well.
 
-## React Compiler
+Using typescript over regular javascript as that's generally the standard for new projects. It helps avoid a lot of annoying bugs and generally makes the dev experience less painful.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Running the app
 
-## Expanding the ESLint configuration
+Make sure you've got node installed and are in the `frontend` directory.
+First time setup requires you to install the dependencies: `npm install`
+Once that's done, you can run the app with `npm run dev`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## General notes
+Using a few libaries to make the app look nicer and make it easier to work with.
+- [Monaco Editor](https://www.npmjs.com/package/@monaco-editor/react#simple-usage)
+  - Used for the code editor itself, VSCode's editor, but as a web component
+- [Tailwind CSS](https://tailwindcss.com/)
+  - Used for styling the app
+  - Overall it's faster than CSS modules, faster dev and less file jumping to get the desired styles
+- [Lucide](https://lucide.dev)
+  - My icon library, contains a bunch of useful icons that I don't need to make from scratch
+- [React Router](https://reactrouter.com/home)
+  - While not scaffolded with it, the routing is all handled by it and is easy to understand what its doing
+  - The single page app makes use of react router to handle the content switching
+  - Single page app as There's not a lot of content/pages its basic CRUD UI and the editor
+  
+## Useful resources
+- Of course the official docs for everything I've linked to above
+- https://www.youtube.com/watch?v=pfaSUYaSgRo
+- https://www.youtube.com/watch?v=PuovsjZN11Y
+- https://www.youtube.com/watch?v=DenUCuq4G04

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Editor } from '@monaco-editor/react';
-import '@/styles/MonacoEditor.css';
 
 const MonacoEditorDemo: React.FC = () => {
   const [code, setCode] = useState<string>(`# Welcome to Python Editor!
@@ -23,15 +22,18 @@ print(fibonacci(10))
   };
 
   return (
-    <div className="editor-container">
-      <div className="editor-wrapper">
-        <div className="editor-toolbar">
-          <button onClick={runCode} className="run-button">
+    <div className="flex items-center justify-center w-full h-full p-5 bg-gray-100">
+      <div className="w-4/5 h-[80vh] flex flex-col gap-2.5">
+        <div className="flex gap-2.5">
+          <button 
+            onClick={runCode} 
+            className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white border-none rounded cursor-pointer text-sm transition-colors"
+          >
             ▶ Run Python
           </button>
         </div>
 
-        <div className="editor-box">
+        <div className="flex-1 border border-gray-300 rounded overflow-hidden">
           <Editor
             height="100%"
             language="python"
@@ -48,7 +50,7 @@ print(fibonacci(10))
         </div>
 
         {output && (
-          <div className="output-panel">
+          <div className="p-4 bg-[#252526] text-white rounded font-mono text-sm whitespace-pre-wrap max-h-[150px] overflow-auto">
             {output}
           </div>
         )}

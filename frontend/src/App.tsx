@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from '@/pages/LoginPage';
+import LoginPage from '@/pages/LoginPage.tsx';
 import HomePage from '@/pages/HomePage';
 import ExplorePage from '@/pages/ExplorePage';
 import EditorPage from '@/pages/EditorPage';
@@ -9,7 +9,7 @@ import MainLayout from '@/components/layout/MainLayout';
 function App() {
   // TODO: Replace with real auth logic
   const isLoggedIn = true;
-  // const isLoggedIn = false;
+  // const isLoggedIn = false
 
   return (
     <BrowserRouter>

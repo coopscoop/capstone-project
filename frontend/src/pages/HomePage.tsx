@@ -1,19 +1,22 @@
-function HomePage() {
+const HomePage = () => {
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Home</h1>
-      
-      <div className="space-y-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-2">Post 1</h2>
-          <p className="text-gray-600">
-            This is some sample content to show the scrolling behavior. 
-            The sidebar should stay fixed on the left while this content scrolls.
-          </p>
+    <div className="h-full flex flex-col">
+      {/* Content */}
+      <div className="flex-1 overflow-auto bg-dark-bg">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          {/* Welcome Section */}
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-white mb-3">
+              Welcome back!
+            </h2>
+            <p className="text-white text-lg">
+              Welcome to your dashboard. It looks like you're new here. Let's get you started!
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default HomePage;

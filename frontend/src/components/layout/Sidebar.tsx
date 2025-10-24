@@ -1,101 +1,56 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Code, Settings, User } from 'lucide-react';
-import pythonLogo from '@/assets/images/python-logo.png';
+import { Home, Compass, FileCode, Settings, User } from 'lucide-react';
 
-function Sidebar() {
-  const location = useLocation();
-
+const Sidebar = () => {
   const navItems = [
-    { path: '/', label: 'Home', icon: Home },
-    { path: '/explore', label: 'Explore', icon: Compass },
-    { path: '/editor', label: 'Editor', icon: Code },
-    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/', icon: Home, label: 'Home' },
+    { path: '/explore', icon: Compass, label: 'Explore' },
+    { path: '/editor', icon: FileCode, label: 'Editor' },
+    { path: '/settings', icon: Settings, label: 'Settings' },
   ];
 
+  const pythonLogo = '/src/assets/images/python-logo.png';
+  const Location = useLocation();
+
   return (
-    <nav style={{
-      position: 'fixed',
-      left: 0,
-      top: 0,
-      height: '100vh',
-      width: '4rem',
-      borderRight: '1px solid #e5e7eb',
-      backgroundColor: 'white',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '1rem 0',
-      alignItems: 'center'
-    }}>
-      {/* Logo/Brand */}
-      <div style={{ marginBottom: '1.5rem', fontSize: '1.25rem' }}>
-        <img src={pythonLogo} alt="Python Logo" style={{ width: '2rem' }} />
+    <aside className="w-16 bg-white flex flex-col items-center py-6 border-r border-zinc-800">
+      {/* Logo */}
+      <div className="mb-8 w-8 h-8 flex items-center justify-center overflow-hidden shrink-0 object-contain">
+        <img 
+          src={pythonLogo} 
+          alt="Logo" 
+          className=" object-contain"
+        />
       </div>
-      
-      {/* Navigation Items */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', alignItems: 'center' }}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          
+
+      {/* Navigation */}
+      <nav className="flex-1 flex flex-col mx-5">
+        {navItems.map(({ path, icon: Icon, label }) => {
+          const isSelected = Location.pathname == path;
+
           return (
             <Link
-              key={item.path}
-              to={item.path}
-              title={item.label}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0.5rem',
-                borderRadius: '0.5rem',
-                backgroundColor: isActive ? '#f3f4f6' : 'transparent',
-                textDecoration: 'none',
-                color: 'black',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = '#f9fafb';
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
-              }}
+              key={path}
+              to={path}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors hover:bg-zinc-100 mt-4 mb-2`}
+              title={label}
             >
-              <Icon 
-                size={20} 
-                strokeWidth={isActive ? 2.5 : 2}
-              />
+              <Icon size={isSelected ? 22 : 20} strokeWidth={isSelected ? 2.25 : 2}/>
             </Link>
           );
         })}
-      </div>
+      </nav>
 
-      {/* Bottom section - Profile */}
-      <div style={{ marginTop: 'auto' }}>
-        <Link
-          to="/profile"
-          title="Profile"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0.5rem',
-            borderRadius: '0.5rem',
-            textDecoration: 'none',
-            color: 'black',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#f9fafb';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
-        >
-          <User size={20} />
-        </Link>
-      </div>
-    </nav>
+      {/* Profile at bottom */}
+      <Link
+        to="/profile"
+        className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors hover:bg-zinc-100 mt-4 mb-2"
+        title="Profile"
+      >
+        <User size={20} />
+      </Link>
+    </aside>
   );
-}
+};
 
 export default Sidebar;
