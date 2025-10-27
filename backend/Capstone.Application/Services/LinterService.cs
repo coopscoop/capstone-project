@@ -70,15 +70,6 @@ namespace Capstone.Application.Services
                     _logger.LogWarning("Linter returned null result");
                     return new LintResult { IsValid = false };
                 }
-                // not showing ruleId, find where its going missing
-                else
-                {
-                    _logger.LogInformation("Linter returned result:");
-                    foreach (var issue in lintResult.Issues)
-                    {
-                        _logger.LogInformation("Issue: {Message}, IssueId: {RuleId}", issue.Message, issue.RuleId);
-                    }
-                }
 
                 // Valid if there aren't any issues
                 if (lintResult.Issues.Count == 0)

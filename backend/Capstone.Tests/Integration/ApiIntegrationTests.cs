@@ -49,7 +49,7 @@ public class ApiIntegrationTests : IDisposable
         // Arrange
         var request = new LintRequest
         {
-            Code = "def calculate_sum(numbers):\n    \"\"\"Calculate sum.\"\"\"\n    return sum(numbers)"
+            Code = "def calculate_sum(numbers):\n    \"\"\"Calculate sum.\"\"\"\n    return sum(numbers)\n    calculate_sum([1, 2, 3])"
         };
 
         // Act
@@ -136,7 +136,7 @@ public class ApiIntegrationTests : IDisposable
         // Arrange
         var request = new CodeExecutionRequest
         {
-            Code = "def MyFunction():\n    print('test')",
+            Code = "def MyFunction():\n    print('test')\nprint('test2')",
             RunLinter = true
         };
 
@@ -148,8 +148,10 @@ public class ApiIntegrationTests : IDisposable
         var result = await response.Content.ReadFromJsonAsync<CodeExecutionResult>();
         result.Should().NotBeNull();
         result!.Success.Should().BeTrue();
-        result.Output.Should().Contain("test");
-        result.LintIssues.Should().NotBeEmpty();
+        result.Output.Should().Contain("test2");
+        result.LintIssues.Should().Contain(i => i.RuleId == "naming-convention");
+        result.LintIssues.Should().Contain(i => i.RuleId == "unused-function");
+        result.LintIssues.Should().Contain(i => i.RuleId == "missing-docstring");
     }
 
     [Fact]
