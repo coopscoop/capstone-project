@@ -23,7 +23,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 - `dotnet test --filter Category!=Integration` to run the tests. This uses a mock system seperate from the real API, doesn't require the API to be running
 
 > [!WARNING]
-> These tests will fail if the backend isn't running. Follow the isntructions above to run the backend
+> The integration tests will fail if the backend isn't running. Follow the isntructions above to run the backend
 
 - `dotnet test --filter Category=Integration` to run the integration tests.
 - Optionally you can run all the tests by simply running `dotnet test`
