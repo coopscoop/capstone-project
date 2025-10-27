@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Capstone.Core.Models
 {
@@ -31,6 +32,7 @@ namespace Capstone.Core.Models
         /// <summary>
         /// Identifier for the linting rule violated
         /// </summary>
+        [JsonPropertyName("rule_id")]
         public string RuleId { get; set; } = string.Empty;
     }
 }
