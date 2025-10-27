@@ -58,3 +58,21 @@ The project is generally split up into 4 chunks. API, Application, Core and Infr
   - How to start/work with a service. Created a handler for both the Linter and Code Execution aspects.
 - https://github.com/DapperLib/Dapper
   - Using Dapper for the ORM as I write the SQL queries compared to EF Core library
+
+### Tests - still .NET
+- [xUnit](https://xunit.net/?tabs=cs)
+  - Testing suite for .NET
+  - Simple structure for writing tests
+  - Strong logging for output/errors
+- [Moq](https://github.com/devlooped/moq)
+  - Creates a mock object for testing
+  - Used to create a mock of the linter/executor service for testing, this is why the non-integration tests can be run without the API being up
+  - https://www.youtube.com/watch?v=9ZvDBSQa_so
+    - Beginning to end shows how to use it
+- [FluentAssertions](https://github.com/fluentassertions/fluentassertions)
+  - Used to make assertions on the results of the linter/executor service - just QOL for the tests
+  - https://www.youtube.com/watch?v=b2zxl5zNjlA
+    - Video on how to use it
+  - Free for non-commercial uses past v.8
+    - Still don't know how it's legal to just swap the lisence out from Apache to whatever Xceed decided to use on an open source community project
+    - Might swap over to [shouldly](https://github.com/shouldly/shouldly) in the future as its FluentAssertions-like but not with out of touch licenses
