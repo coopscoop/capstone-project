@@ -10,14 +10,16 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 
 ## Setup (subject to change)
 
--   Backend: `cd backend` then `dotnet run`, or open the `.sln` file in `/backend` and run using `http`. (both create a /swagger page to test the API)
+### Backend
+- `cd backend` then `dotnet run`, or open the `.sln` file in `/backend` and run using `http`. (both create a /swagger page to test the API)
   -   `dotnet build` is required for a first time run
--   Frontend: `cd frontend` then `npm start`
+### Frontend
+- `cd frontend` then `npm start`
   -   `npm install` is required for a first time run
--   Tests: `cd backend` then for offline (API isn't running in the background) use `dotnet test --filter Category!=Integration` to run the tests. This uses a mock system seperate from the real API
-  -   There is currently a bug with the API and it's not returning the rule ID properly so the integration tests fail. I know what needs to be fixed, just been busy with other aspects of the project
-  -   Use `dotnet test --filter Category=Integration` to run the integration tests. These use the actual API so make sure to have it running locally before testing
-  -   Optionally you can run all the tests by simply opening VS2022 and running the test suite that way  
+### Tests
+- `cd backend` then for offline (API isn't running in the background) use `dotnet test --filter Category!=Integration` to run the tests. This uses a mock system seperate from the real API
+-   Use `dotnet test --filter Category=Integration` to run the integration tests. These use the actual API so make sure to have it running locally before testing
+-   Optionally you can run all the tests by simply opening VS2022 and running the test suite that way  
 
 ## Frontend
 

@@ -71,12 +71,6 @@ namespace Capstone.Application.Services
                     return new LintResult { IsValid = false };
                 }
 
-                // Valid if there aren't any issues
-                if (lintResult.Issues.Count == 0)
-                {
-                    lintResult.IsValid = true;
-                }
-
                 _logger.LogInformation(
                     "Linting completed: Valid={Valid}, Issues={IssueCount}",
                     lintResult.IsValid,
@@ -91,16 +85,16 @@ namespace Capstone.Application.Services
                 {
                     IsValid = false,
                     Issues = new List<LintIssue>
-                {
-                    new LintIssue
                     {
-                        Severity = "error",
-                        Message = $"Linter error: {ex.Message}",
-                        Line = 0,
-                        Column = 0,
-                        RuleId = "internal-error"
+                        new LintIssue
+                        {
+                            Severity = "error",
+                            Message = $"Linter error: {ex.Message}",
+                            Line = 0,
+                            Column = 0,
+                            RuleId = "internal-error"
+                        }
                     }
-                }
                 };
             }
         }

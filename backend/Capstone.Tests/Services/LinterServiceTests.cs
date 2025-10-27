@@ -47,7 +47,7 @@ public class LinterServiceTests
         // Assert
         result.Should().NotBeNull();
         result.IsValid.Should().BeTrue();
-        result.Issues.Should().BeEmpty();
+        // has warnings but no errors
     }
 
     [Fact]

@@ -320,7 +320,7 @@ public class CodeExecutionServiceTests
         await _sut.ExecuteCodeAsync(request);
 
         // Assert - same weird format as in the Linter test, capturing the command object sent to Python process manager
-        // can't use the argument directly because it's of type object, need to serialize to check contents before hand
+        // Can't use the argument directly because it's of type object, need to serialize to check contents before hand
         var commandCapture = new List<object>();
 
         _mockPythonManager.Verify(
