@@ -48,7 +48,7 @@ The project is generally split up into 4 chunks. API, Application, Core and Infr
 - https://www.youtube.com/live/qU3Rc6_B9es
   - For the linter/python aspect of the backend type structure
 
-### .NET
+### ASP.NET
 - https://learn.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0
   - Primarily the **HTTP API apps** and **ASP.NET Core video tutorials** blocks
   - It's not perfect but its small enough to where just one worker having the lint/exec and my endpoints
@@ -58,6 +58,10 @@ The project is generally split up into 4 chunks. API, Application, Core and Infr
   - How to start/work with a service. Created a handler for both the Linter and Code Execution aspects.
 - https://github.com/DapperLib/Dapper
   - Using Dapper for the ORM as I write the SQL queries compared to EF Core library
+- https://github.com/jstedfast/MailKit
+  - As SmtpClient is depreciated
+- https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-9.0
+  - For user Auth
 
 ### Tests - still .NET
 - [xUnit](https://xunit.net/?tabs=cs)
