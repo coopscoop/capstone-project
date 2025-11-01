@@ -46,4 +46,13 @@ It's a simple REST API that uses the `ASP.NET Core` framework that uses [Dapper]
 
 For more details check README [here](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/blob/main/backend/README.md)
 
+## Deployment Strategy
 
+This app will be deployed to a google cloud run environment. Both google cloud run and CloudSQL have free tiers that can be worked within for a no cost deployment/testing cycle.
+
+General structure is made up of 3 services:
+1. Frontend - Where the front end gets served from
+2. Backend - All API calls/services
+3. Database - Probably using CloudSQL to save/manage the database **TBD**
+
+local/remote plan is TBD, current plan is to have a toggle for local/remote development on project boot
