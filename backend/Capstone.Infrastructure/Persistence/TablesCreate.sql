@@ -38,5 +38,5 @@ CREATE TABLE Favourites (
 CREATE TABLE Tags (
     post_id INT NOT NULL REFERENCES Posts(post_id) ON DELETE CASCADE,
     tag_name VARCHAR(100) NOT NULL DEFAULT '',
-    PRIMARY KEY (user_id, tag_name)
+    PRIMARY KEY (post_id)
 );
