@@ -9,8 +9,15 @@ namespace Capstone.Core.Models
 {
     public class LintResult
     {
+        /// <summary>
+        /// Whether the code is valid or not, warnings are not considered invalid code
+        /// </summary>
         [JsonPropertyName("isValid")]
         public bool IsValid { get; set; }
+
+        /// <summary>
+        /// The issues found in the code
+        /// </summary>
         public List<LintIssue> Issues { get; set; } = new List<LintIssue>();
     }
 }
