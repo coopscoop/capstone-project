@@ -21,6 +21,9 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddSingleton<IPythonProcessManager, PythonProcessManager>();
 builder.Services.AddScoped<ICodeExecutionService, CodeExecutionService>();
 builder.Services.AddScoped<ILinterService, LinterService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<DatabaseConnection>();
 
 // CORS configuration for React frontend, used in middleware (eventually, will probably need to change)
 // NOTE: currently using http, should be changed to https later
