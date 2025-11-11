@@ -30,12 +30,6 @@ public class UserRepository : IUserRepository
                    is_admin AS IsAdmin,
                    display_name AS DisplayName,
                    bio AS Bio,
-                   text_colour AS TextColour,
-                   background_colour AS BackgroundColour,
-                   font_size_colour AS FontSizeColour,
-                   keywords_colour AS KeywordsColour,
-                   arguments_colour AS ArgumentsColour,
-                   variables_colour AS VariablesColour,
                    created_at AS CreatedAt,
                    last_login_at AS LastLoginAt
             FROM users 
@@ -54,12 +48,6 @@ public class UserRepository : IUserRepository
                    is_admin AS IsAdmin,
                    display_name AS DisplayName,
                    bio AS Bio,
-                   text_colour AS TextColour,
-                   background_colour AS BackgroundColour,
-                   font_size_colour AS FontSizeColour,
-                   keywords_colour AS KeywordsColour,
-                   arguments_colour AS ArgumentsColour,
-                   variables_colour AS VariablesColour,
                    created_at AS CreatedAt,
                    last_login_at AS LastLoginAt
             FROM users 
@@ -78,12 +66,6 @@ public class UserRepository : IUserRepository
                    is_admin AS IsAdmin,
                    display_name AS DisplayName,
                    bio AS Bio,
-                   text_colour AS TextColour,
-                   background_colour AS BackgroundColour,
-                   font_size_colour AS FontSizeColour,
-                   keywords_colour AS KeywordsColour,
-                   arguments_colour AS ArgumentsColour,
-                   variables_colour AS VariablesColour,
                    created_at AS CreatedAt,
                    last_login_at AS LastLoginAt
             FROM users 
@@ -110,12 +92,6 @@ public class UserRepository : IUserRepository
                       is_admin AS IsAdmin,
                       display_name AS DisplayName,
                       bio AS Bio,
-                      text_colour AS TextColour,
-                      background_colour AS BackgroundColour,
-                      font_size_colour AS FontSizeColour,
-                      keywords_colour AS KeywordsColour,
-                      arguments_colour AS ArgumentsColour,
-                      variables_colour AS VariablesColour,
                       created_at AS CreatedAt,
                       last_login_at AS LastLoginAt";
 
@@ -132,12 +108,6 @@ public class UserRepository : IUserRepository
             UPDATE users 
             SET display_name = @DisplayName,
                 bio = @Bio,
-                text_colour = @TextColour,
-                background_colour = @BackgroundColour,
-                font_size_colour = @FontSizeColour,
-                keywords_colour = @KeywordsColour,
-                arguments_colour = @ArgumentsColour,
-                variables_colour = @VariablesColour,
                 last_login_at = @LastLoginAt
             WHERE user_id = @UserId";
 

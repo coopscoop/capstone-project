@@ -65,12 +65,6 @@ public class UserService : IUserService
         // Update only provided fields
         if (updateDto.DisplayName != null) user.DisplayName = updateDto.DisplayName;
         if (updateDto.Bio != null) user.Bio = updateDto.Bio;
-        if (updateDto.TextColour != null) user.TextColour = updateDto.TextColour;
-        if (updateDto.BackgroundColour != null) user.BackgroundColour = updateDto.BackgroundColour;
-        if (updateDto.FontSizeColour != null) user.FontSizeColour = updateDto.FontSizeColour;
-        if (updateDto.KeywordsColour != null) user.KeywordsColour = updateDto.KeywordsColour;
-        if (updateDto.ArgumentsColour != null) user.ArgumentsColour = updateDto.ArgumentsColour;
-        if (updateDto.VariablesColour != null) user.VariablesColour = updateDto.VariablesColour;
 
         await _userRepository.UpdateAsync(user);
         _logger.LogInformation("Updated user {UserId}", userId);

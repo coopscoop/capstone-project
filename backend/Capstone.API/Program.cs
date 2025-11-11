@@ -1,6 +1,10 @@
 using Capstone.Application.Services;
 using Capstone.Core.Interfaces;
+
+// many imports but makes the middleware instancing easier to read
 using Capstone.Infrastructure;
+using Capstone.Infrastructure.Persistence;
+using Capstone.Infrastructure.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +22,17 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Register application services
+
+// linter/execution stuff
 builder.Services.AddSingleton<IPythonProcessManager, PythonProcessManager>();
 builder.Services.AddScoped<ICodeExecutionService, CodeExecutionService>();
 builder.Services.AddScoped<ILinterService, LinterService>();
+
+// user stuff
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// db connection
 builder.Services.AddSingleton<DatabaseConnection>();
 
 // CORS configuration for React frontend, used in middleware (eventually, will probably need to change)
