@@ -58,6 +58,9 @@ The project is generally split up into 4 chunks. API, Application, Core and Infr
   - How to start/work with a service. Created a handler for both the Linter and Code Execution aspects.
 - https://github.com/DapperLib/Dapper
   - Using Dapper for the ORM as I write the SQL queries compared to EF Core library
+- https://github.com/lukencode/FluentEmail
+  - email service as SMTP is considered deprecated
+  - sending account validation emails + password reset codes
 
 ### Tests - still .NET
 - [xUnit](https://xunit.net/?tabs=cs)
