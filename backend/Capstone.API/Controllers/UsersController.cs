@@ -1,0 +1,93 @@
+namespace Capstone.API.Controllers;
+
+using Microsoft.AspNetCore.Mvc;
+using Capstone.Core.Interfaces;
+using Capstone.Core.Models.DTOs;
+
+/// <summary>
+/// API endpoints for user management
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController : ControllerBase
+{
+    private readonly IUserService _userService;
+    private readonly ILogger<UsersController> _logger;
+
+    public UsersController(
+        IUserService userService,
+        ILogger<UsersController> logger)
+    {
+        _userService = userService;
+        _logger = logger;
+    }
+
+    /// <summary>
+    /// Get all users
+    /// </summary>
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
+    {
+        var users = await _userService.GetAllAsync();
+        return Ok(users);
+    }
+
+    /// <summary>
+    /// Get user by ID
+    /// </summary>
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserDto>> GetById(Guid id)
+    {
+        var user = await _userService.GetByIdAsync(id);
+        
+        if (user == null)
+            return NotFound(new { error = $"User with ID '{id}' not found" });
+
+        return Ok(user);
+    }
+
+    /// <summary>
+    /// Create new user
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto createDto)
+    {
+        try
+        {
+            var user = await _userService.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = user.UserId }, user);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Update user
+    /// </summary>
+    [HttpPut("{id}")]
+    public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] UpdateUserDto updateDto)
+    {
+        var user = await _userService.UpdateAsync(id, updateDto);
+        
+        if (user == null)
+            return NotFound(new { error = $"User with ID '{id}' not found" });
+
+        return Ok(user);
+    }
+
+    /// <summary>
+    /// Delete user
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(Guid id)
+    {
+        var deleted = await _userService.DeleteAsync(id);
+        
+        if (!deleted)
+            return NotFound(new { error = $"User with ID '{id}' not found" });
+
+        return NoContent();
+    }
+}
