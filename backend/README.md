@@ -35,6 +35,73 @@ The project is generally split up into 4 chunks. API, Application, Core and Infr
   - Where my linter lives, As its written in python and simply has serial input/output, creating a service to interact with it is the cleanest option
   - Soon to be where my database lives(?)
 
+## Adding content
+Adding content is a lot of boilerplate, although It's relatively simple to add content/DB CRUD to the API
+
+The general structure for adding content from a DB table is as follows:
+1. Object model for the DB table (DTO's are derived from this)
+2. A DTO for the API response
+3. Interfaces for the repository and service
+4. A repository that interacts with the DB
+5. A service that the controller uses to interact with the repository (DB)
+6. A controller for the API endpoints
+
+Implementation wise it'd be in that order, but it's not crucial as they all need to be in for it to function.
+
+### Object model
+The backend uses `Dapper` to interact with the DB, so the object model needs to be able to map to the DB table. The object model is created, then the SQL query return gets mapped to that object.
+
+### DTO
+The DTO is used to map the object model to the API response. In the backend we use the full object model, but because that's got more information than we need or can contain sensitive information, we create a DTO that only contains the information we need for any API response.
+
+> i.e. The `User` object contains  `UserId`, `Email`, `Password`, `IsAdmin`, `DisplayName`, `Bio` and `TimeCreated`, although the `UserDto` doesn't contain the password. The password is considered sensitive information and should not be returned to the user with any responses, so it's not included in the DTO.
+
+### Interfaces
+The interfaces are used to define the contract for the repository and service. The interfaces are primarily there just for the sake of documentation, but also to make it more difficult to miss any implementation details.
+
+### Repository
+The repository is where the actual interaction with the DB happens. It's responsible for creating, updating, deleting and querying information from the DB. The repository is also responsible for mapping the DB table to the object model.
+
+For example, here's my `User` object model, and the `GetAllAsync()` method in the repository:
+```csharp
+public class User
+{
+    public int UserId { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public bool IsAdmin { get; set; }
+    public string? DisplayName { get; set; }
+    public string? Bio { get; set; }
+    public DateTime TimeCreated { get; set; }
+}
+```
+```csharp
+public async Task<IEnumerable<User>> GetAllAsync()
+{
+    const string sql = @"
+        SELECT 
+            user_id AS UserId,
+            email AS Email,
+            password AS Password,
+            is_admin AS IsAdmin,
+            display_name AS DisplayName,
+            bio AS Bio,
+            time_created AS TimeCreated
+        FROM users 
+        ORDER BY time_created DESC";
+
+    await using var connection = _dbConnection.CreateConnection();
+    return await connection.QueryAsync<User>(sql);
+}
+```
+Using my `GetAllAsync()` method as an example for one of the methods in the repository, its implementation is pretty straight forward. The key thing with the queries is to alias the columns to the object model, this is how Dapper knows what to map the query to.
+
+### Service
+The service is what the controller uses to interact with the repository. It's responsible for any business logic, such as validating the data, checking if the user exists, etc. This uses the repository to interact with the DB.
+
+### Controller
+The controller is where the API endpoints are defined. It's responsible for handling the incoming requests and passing them to the service to be handled.
+
 ## Resources I've used/found useful
 ### Structure
 - https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures
