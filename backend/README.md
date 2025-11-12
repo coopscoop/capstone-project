@@ -49,7 +49,7 @@ The general structure for adding content from a DB table is as follows:
 Implementation wise it'd be in that order, but it's not crucial as they all need to be in for it to function.
 
 ### Object model - Core models
-In [`Capstone.Core/Models`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Core/Models)
+In [`Capstone.Core/Models/Domain`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Core/Models/Domain)
 The backend uses `Dapper` to interact with the DB, so the object model needs to be able to map to the DB table. The object model is created, then the SQL query return gets mapped to that object.
 
 ### DTO - Core models
