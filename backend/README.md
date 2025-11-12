@@ -53,17 +53,20 @@ In [`Capstone.Core/Models`](https://github.com/Steve-at-Mohawk-College/capstone-
 The backend uses `Dapper` to interact with the DB, so the object model needs to be able to map to the DB table. The object model is created, then the SQL query return gets mapped to that object.
 
 ### DTO - Core models
-In [`Capstone.Core/Models/DTOs`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Core/Models/DTOs)
+In [`Capstone.Core/Models/DTOs`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Core/Models/Dtos)
+
 The DTO is used to map the object model to the API response. In the backend we use the full object model, but because that's got more information than we need or can contain sensitive information, we create a DTO that only contains the information we need for any API response.
 
 > i.e. The `User` object contains  `UserId`, `Email`, `Password`, `IsAdmin`, `DisplayName`, `Bio` and `TimeCreated`, although the `UserDto` doesn't contain the `Password`. The `Password` is considered sensitive information and should not be returned to the user with any responses, so it's not included in the DTO.
 
 ### Interfaces - Core
 In [`Capstone.Core/Interfaces`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Core/Interfaces)
+
 The interfaces are used to define the contract for the repository and service. The interfaces are primarily there just for the sake of documentation, but also to make it more difficult to miss any implementation details.
 
 ### Repository - Infrastructure/Database
 In [`Capstone.Infrastructure/Persistence/Repositories`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Infrastructure/Persistence/Repositories)
+
 The repository is where the actual interaction with the DB happens. It's responsible for creating, updating, deleting and querying information from the DB. The repository is also responsible for mapping the DB table to the object model.
 
 For example, here's my `User` object model, and the `GetAllAsync()` method in the repository:
@@ -91,7 +94,7 @@ public async Task<IEnumerable<User>> GetAllAsync()
             display_name AS DisplayName,
             bio AS Bio,
             time_created AS TimeCreated
-        FROM users 
+        FROM users
         ORDER BY time_created DESC";
 
     await using var connection = _dbConnection.CreateConnection();
@@ -102,10 +105,12 @@ Using my `GetAllAsync()` method as an example for one of the methods in the repo
 
 ### Service - Application/Business Logic
 In [`Capstone.Application/Services`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Application/Services)
+
 The service is what the controller uses to interact with the repository. It's responsible for any business logic, such as validating the data, checking if the user exists, etc. This uses the repository to interact with the DB.
 
 ### Controller - API/Presentation
 In [`Capstone.API/Controllers`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.API/Controllers)
+
 The controller is where the API endpoints are defined. It's responsible for handling the incoming requests and passing them to the service to be handled.
 
 ## Resources I've used/found useful
