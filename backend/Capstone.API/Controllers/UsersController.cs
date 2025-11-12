@@ -26,6 +26,7 @@ public class UsersController : ControllerBase
     /// Get all users
     /// </summary>
     [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
     {
         var users = await _userService.GetAllAsync();
@@ -35,8 +36,10 @@ public class UsersController : ControllerBase
     /// <summary>
     /// Get user by ID
     /// </summary>
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetById(Guid id)
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserDto>> GetById(int id)
     {
         var user = await _userService.GetByIdAsync(id);
         
@@ -50,8 +53,16 @@ public class UsersController : ControllerBase
     /// Create new user
     /// </summary>
     [HttpPost]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto createDto)
     {
+        if (string.IsNullOrWhiteSpace(createDto.Email))
+            return BadRequest(new { error = "Email is required" });
+
+        if (string.IsNullOrWhiteSpace(createDto.Password))
+            return BadRequest(new { error = "Password is required" });
+
         try
         {
             var user = await _userService.CreateAsync(createDto);
@@ -66,8 +77,10 @@ public class UsersController : ControllerBase
     /// <summary>
     /// Update user
     /// </summary>
-    [HttpPut("{id}")]
-    public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] UpdateUserDto updateDto)
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserDto>> Update(int id, [FromBody] UpdateUserDto updateDto)
     {
         var user = await _userService.UpdateAsync(id, updateDto);
         
@@ -80,8 +93,10 @@ public class UsersController : ControllerBase
     /// <summary>
     /// Delete user
     /// </summary>
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(Guid id)
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> Delete(int id)
     {
         var deleted = await _userService.DeleteAsync(id);
         

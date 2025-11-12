@@ -4,9 +4,9 @@ using Capstone.Core.Models.DTOs;
 
 public interface IUserService
 {
-    Task<UserDto?> GetByIdAsync(Guid userId);
+    Task<UserDto?> GetByIdAsync(int userId);
     Task<IEnumerable<UserDto>> GetAllAsync();
     Task<UserDto> CreateAsync(CreateUserDto createDto);
-    Task<UserDto?> UpdateAsync(Guid userId, UpdateUserDto updateDto);
-    Task<bool> DeleteAsync(Guid userId);
+    Task<UserDto?> UpdateAsync(int userId, UpdateUserDto updateDto);
+    Task<bool> DeleteAsync(int userId);
 }

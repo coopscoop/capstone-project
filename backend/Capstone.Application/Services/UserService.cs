@@ -21,7 +21,7 @@ public class UserService : IUserService
         _logger = logger;
     }
 
-    public async Task<UserDto?> GetByIdAsync(Guid userId)
+    public async Task<UserDto?> GetByIdAsync(int userId)
     {
         var user = await _userRepository.GetByIdAsync(userId);
         return user == null ? null : MapToDto(user);
@@ -41,11 +41,11 @@ public class UserService : IUserService
             throw new InvalidOperationException($"User with email '{createDto.Email}' already exists");
         }
 
-        // TODO: Hash password (for now, storing plain text - ADD HASHING LATER!)
+        // TODO: Hash password with BCrypt (for now, storing plain text - TEMPORARY!)
         var user = new User
         {
             Email = createDto.Email,
-            Password = createDto.Password, // TEMPORARY - hash this!
+            Password = createDto.Password, // TEMP - hash this later!
             DisplayName = createDto.DisplayName,
             IsAdmin = false
         };
@@ -56,15 +56,17 @@ public class UserService : IUserService
         return MapToDto(created);
     }
 
-    public async Task<UserDto?> UpdateAsync(Guid userId, UpdateUserDto updateDto)
+    public async Task<UserDto?> UpdateAsync(int userId, UpdateUserDto updateDto)
     {
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
             return null;
 
         // Update only provided fields
-        if (updateDto.DisplayName != null) user.DisplayName = updateDto.DisplayName;
-        if (updateDto.Bio != null) user.Bio = updateDto.Bio;
+        if (updateDto.DisplayName != null) 
+            user.DisplayName = updateDto.DisplayName;
+        if (updateDto.Bio != null) 
+            user.Bio = updateDto.Bio;
 
         await _userRepository.UpdateAsync(user);
         _logger.LogInformation("Updated user {UserId}", userId);
@@ -72,7 +74,7 @@ public class UserService : IUserService
         return MapToDto(user);
     }
 
-    public async Task<bool> DeleteAsync(Guid userId)
+    public async Task<bool> DeleteAsync(int userId)
     {
         var deleted = await _userRepository.DeleteAsync(userId);
         if (deleted)
@@ -91,8 +93,7 @@ public class UserService : IUserService
             IsAdmin = user.IsAdmin,
             DisplayName = user.DisplayName,
             Bio = user.Bio,
-            CreatedAt = user.CreatedAt,
-            LastLoginAt = user.LastLoginAt
+            TimeCreated = user.TimeCreated
         };
     }
 }

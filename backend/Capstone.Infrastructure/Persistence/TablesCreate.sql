@@ -5,12 +5,13 @@ CREATE TABLE Users (
     password VARCHAR(255) NOT NULL DEFAULT '',
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,
     display_name VARCHAR(100) NOT NULL DEFAULT '',
-    bio TEXT
+    bio TEXT,
+    time_created TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- PASSWORD RESET TABLE
 CREATE TABLE PasswordReset (
-    user_id INT PRIMARY KEY REFERENCES Users(user_id) ON DELETE CASCADE,
+    user_id SERIAL PRIMARY KEY REFERENCES Users(user_id) ON DELETE CASCADE,
     reset_code VARCHAR(100) NOT NULL DEFAULT '',
     time_created TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -18,25 +19,26 @@ CREATE TABLE PasswordReset (
 -- POSTS TABLE
 CREATE TABLE Posts (
     post_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
+    user_id SERIAL NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL DEFAULT '',
     description TEXT,
     number_of_likes INT NOT NULL DEFAULT 0,
     file_contents VARCHAR(255) NOT NULL DEFAULT '',
     created TIMESTAMP NOT NULL DEFAULT NOW(),
-    last_edited TIMESTAMP
+    last_edited TIMESTAMP,
+    time_created TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- FAVOURITES TABLE (JOIN BETWEEN USERS AND POSTS)
 CREATE TABLE Favourites (
-    user_id INT NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
-    post_id INT NOT NULL REFERENCES Posts(post_id) ON DELETE CASCADE,
+    user_id SERIAL NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
+    post_id SERIAL NOT NULL REFERENCES Posts(post_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, post_id)
 );
 
 -- TAGS TABLE (JOIN BETWEEN POSTS AND TAGS)
 CREATE TABLE Tags (
-    post_id INT NOT NULL REFERENCES Posts(post_id) ON DELETE CASCADE,
+    post_id SERIAL NOT NULL REFERENCES Posts(post_id) ON DELETE CASCADE,
     tag_name VARCHAR(100) NOT NULL DEFAULT '',
     PRIMARY KEY (post_id)
 );

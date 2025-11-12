@@ -5,14 +5,15 @@ namespace Capstone.Core.Models.Domain;
 /// </summary>
 public class User
 {
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
     public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty; // Will be hashed
+    public string Password { get; set; } = string.Empty; // Hashed
     public bool IsAdmin { get; set; }
     public string? DisplayName { get; set; }
     public string? Bio { get; set; }
-
-    // these are not used as of now? should add them to db later
-    public DateTime CreatedAt { get; set; }
-    public DateTime? LastLoginAt { get; set; }
+    public DateTime TimeCreated { get; set; }
+    
+    // Navigation properties (might be useful later? tbd)
+    // public List<Post>? Posts { get; set; }
+    // public List<Favourite>? Favourites { get; set; }
 }

@@ -21,17 +21,17 @@ public class UserRepository : IUserRepository
         _logger = logger;
     }
 
-    public async Task<User?> GetByIdAsync(Guid userId)
+    public async Task<User?> GetByIdAsync(int userId)
     {
         const string sql = @"
-            SELECT user_id AS UserId, 
-                   email AS Email, 
-                   password AS Password,
-                   is_admin AS IsAdmin,
-                   display_name AS DisplayName,
-                   bio AS Bio,
-                   created_at AS CreatedAt,
-                   last_login_at AS LastLoginAt
+            SELECT 
+                user_id AS UserId,
+                email AS Email,
+                password AS Password,
+                is_admin AS IsAdmin,
+                display_name AS DisplayName,
+                bio AS Bio,
+                time_created AS TimeCreated
             FROM users 
             WHERE user_id = @UserId";
 
@@ -42,14 +42,14 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByEmailAsync(string email)
     {
         const string sql = @"
-            SELECT user_id AS UserId, 
-                   email AS Email, 
-                   password AS Password,
-                   is_admin AS IsAdmin,
-                   display_name AS DisplayName,
-                   bio AS Bio,
-                   created_at AS CreatedAt,
-                   last_login_at AS LastLoginAt
+            SELECT 
+                user_id AS UserId,
+                email AS Email,
+                password AS Password,
+                is_admin AS IsAdmin,
+                display_name AS DisplayName,
+                bio AS Bio,
+                time_created AS TimeCreated
             FROM users 
             WHERE email = @Email";
 
@@ -60,16 +60,16 @@ public class UserRepository : IUserRepository
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         const string sql = @"
-            SELECT user_id AS UserId, 
-                   email AS Email, 
-                   password AS Password,
-                   is_admin AS IsAdmin,
-                   display_name AS DisplayName,
-                   bio AS Bio,
-                   created_at AS CreatedAt,
-                   last_login_at AS LastLoginAt
+            SELECT 
+                user_id AS UserId,
+                email AS Email,
+                password AS Password,
+                is_admin AS IsAdmin,
+                display_name AS DisplayName,
+                bio AS Bio,
+                time_created AS TimeCreated
             FROM users 
-            ORDER BY created_at DESC";
+            ORDER BY time_created DESC";
 
         await using var connection = _dbConnection.CreateConnection();
         return await connection.QueryAsync<User>(sql);
@@ -79,24 +79,32 @@ public class UserRepository : IUserRepository
     {
         const string sql = @"
             INSERT INTO users (
-                user_id, email, password, is_admin, display_name, 
-                bio, created_at
+                email,
+                password,
+                is_admin,
+                display_name,
+                bio,
+                time_created
             )
             VALUES (
-                @UserId, @Email, @Password, @IsAdmin, @DisplayName,
-                @Bio, @CreatedAt
+                @Email,
+                @Password,
+                @IsAdmin,
+                @DisplayName,
+                @Bio,
+                @TimeCreated
             )
-            RETURNING user_id AS UserId, 
-                      email AS Email, 
-                      password AS Password,
-                      is_admin AS IsAdmin,
-                      display_name AS DisplayName,
-                      bio AS Bio,
-                      created_at AS CreatedAt,
-                      last_login_at AS LastLoginAt";
+            RETURNING 
+                user_id AS UserId,
+                email AS Email,
+                password AS Password,
+                is_admin AS IsAdmin,
+                display_name AS DisplayName,
+                bio AS Bio,
+                time_created AS TimeCreated";
 
-        user.UserId = Guid.NewGuid();
-        user.CreatedAt = DateTime.UtcNow;
+        user.TimeCreated = DateTime.UtcNow;
+        user.IsAdmin = false; // Default to non-admin
 
         await using var connection = _dbConnection.CreateConnection();
         return await connection.QuerySingleAsync<User>(sql, user);
@@ -106,9 +114,9 @@ public class UserRepository : IUserRepository
     {
         const string sql = @"
             UPDATE users 
-            SET display_name = @DisplayName,
-                bio = @Bio,
-                last_login_at = @LastLoginAt
+            SET 
+                display_name = @DisplayName,
+                bio = @Bio
             WHERE user_id = @UserId";
 
         await using var connection = _dbConnection.CreateConnection();
@@ -116,7 +124,7 @@ public class UserRepository : IUserRepository
         return affected > 0;
     }
 
-    public async Task<bool> DeleteAsync(Guid userId)
+    public async Task<bool> DeleteAsync(int userId)
     {
         const string sql = "DELETE FROM users WHERE user_id = @UserId";
 
