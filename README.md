@@ -4,6 +4,16 @@
 >
 > As of October 14th I've decided to just start over on the backend with better practice. It's simply not scalable and or set up properly.
 
+# TODO
+- fix tests, there's a problem with the linters `isValid` checks, causes one test to fail as of 25/11/12
+- DTOs have unrequired properties, remove them
+- Add user auth to the API
+  - JWT, needs to be added in conjunction with the front end
+  - https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-9.0
+  - might need another table for the user's JWT tokens?
+    - another controller, service, repo + models for the JWT tokens
+- continue with front end and connect it to the API
+
 # Capstone - Online Python IDE
 
 Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python with a custom made linter.
@@ -15,6 +25,10 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 - `npm start` to run the frontend
   -   `npm install` is required for a first time run
 ### Backend
+
+> [!NOTE]
+> The tests are currently only for the linter/execution services, the rest of the API is not set up yet
+
 - `cd backend` to go to the backend
 - `dotnet run`, or open the `.sln` file in `/backend` and run using `http`. (both create a /swagger page to test the API)
   -   `dotnet build` is required for a first time run
@@ -54,6 +68,3 @@ General structure is made up of 3 services:
 1. Frontend - Where the front end gets served from
 2. Backend - All API calls/services
 3. Database - CloudSQL as a remote postgres database
-
-## Know Issues
-- Linter has a problem with some `isValid` checks, causes one test to fail as of 25/11/12
