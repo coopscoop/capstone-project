@@ -140,7 +140,8 @@ The controller is where the API endpoints are defined. It's responsible for hand
   - As SmtpClient is depreciated
 - https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-9.0
   - For user Auth
-
+- https://github.com/BcryptNet/bcrypt.net
+  - Using Bcrype.net to hash passwords, easier than the built in .net implementation of hashing
 ### Tests - still .NET
 - [xUnit](https://xunit.net/?tabs=cs)
   - Testing suite for .NET

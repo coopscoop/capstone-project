@@ -5,47 +5,82 @@ using Microsoft.Extensions.Logging;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Domain;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
 
 /// <summary>
-/// Password Reset repository implementation using Dapper
+/// Password reset repository implementation using Dapper
 /// </summary>
 public class PasswordResetRepository : IPasswordResetRepository
 {
     private readonly DatabaseConnection _dbConnection;
-    private readonly ILogger<PostRepository> _logger;
+    private readonly ILogger<PasswordResetRepository> _logger;
 
     public PasswordResetRepository(
         DatabaseConnection dbConnection,
-        ILogger<PostRepository> logger)
+        ILogger<PasswordResetRepository> logger)
     {
         _dbConnection = dbConnection;
         _logger = logger;
     }
 
-    public Task<PasswordReset> CreateAsync(PasswordReset passwordReset)
+    public async Task<PasswordReset?> GetByUserIdAsync(int userId)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                user_id AS UserId,
+                reset_code AS ResetCode,
+                time_created AS TimeCreated
+            FROM password_reset
+            WHERE user_id = @UserId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleOrDefaultAsync<PasswordReset>(sql, new { UserId = userId });
     }
 
-    public Task<bool> DeleteAsync(int userId)
+    public async Task<PasswordReset?> GetByResetCodeAsync(string resetCode)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                user_id AS UserId,
+                reset_code AS ResetCode,
+                time_created AS TimeCreated
+            FROM password_reset
+            WHERE reset_code = @ResetCode";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleOrDefaultAsync<PasswordReset>(sql, new { ResetCode = resetCode });
     }
 
-    public Task<bool> DeleteExpiredAsync(DateTime expirationTime)
+    public async Task<PasswordReset> CreateAsync(PasswordReset passwordReset)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            INSERT INTO password_reset (user_id, reset_code, time_created)
+            VALUES (@UserId, @ResetCode, @TimeCreated)
+            RETURNING 
+                user_id AS UserId,
+                reset_code AS ResetCode,
+                time_created AS TimeCreated";
+
+        passwordReset.TimeCreated = DateTime.UtcNow;
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleAsync<PasswordReset>(sql, passwordReset);
     }
 
-    public Task<PasswordReset?> GetByResetCodeAsync(string resetCode)
+    public async Task<bool> DeleteAsync(int userId)
     {
-        throw new NotImplementedException();
+        const string sql = "DELETE FROM password_reset WHERE user_id = @UserId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { UserId = userId });
+        return affected > 0;
     }
 
-    public Task<PasswordReset?> GetByUserIdAsync(int userId)
+    public async Task<bool> DeleteExpiredAsync(DateTime expirationTime)
     {
-        throw new NotImplementedException();
+        const string sql = "DELETE FROM password_reset WHERE time_created < @ExpirationTime";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { ExpirationTime = expirationTime });
+        return affected > 0;
     }
 }

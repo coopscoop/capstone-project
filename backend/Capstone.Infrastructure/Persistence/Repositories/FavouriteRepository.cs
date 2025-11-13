@@ -13,43 +13,82 @@ using System.Collections.Generic;
 public class FavouriteRepository : IFavouriteRepository
 {
     private readonly DatabaseConnection _dbConnection;
-    private readonly ILogger<PostRepository> _logger;
+    private readonly ILogger<FavouriteRepository> _logger;
 
     public FavouriteRepository(
         DatabaseConnection dbConnection,
-        ILogger<PostRepository> logger)
+        ILogger<FavouriteRepository> logger)
     {
         _dbConnection = dbConnection;
         _logger = logger;
     }
 
-    public Task<Favourite> CreateAsync(Favourite favourite)
+    public async Task<IEnumerable<Favourite>> GetByUserIdAsync(int userId)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                user_id AS UserId
+            FROM favourites
+            WHERE user_id = @UserId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Favourite>(sql, new { UserId = userId });
     }
 
-    public Task<bool> DeleteAsync(int postId, int userId)
+    public async Task<IEnumerable<Favourite>> GetByPostIdAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                user_id AS UserId
+            FROM favourites
+            WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Favourite>(sql, new { PostId = postId });
     }
 
-    public Task<Favourite?> GetAsync(int postId, int userId)
+    public async Task<Favourite?> GetAsync(int postId, int userId)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                user_id AS UserId
+            FROM favourites
+            WHERE post_id = @PostId AND user_id = @UserId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleOrDefaultAsync<Favourite>(sql, new { PostId = postId, UserId = userId });
     }
 
-    public Task<IEnumerable<Favourite>> GetByPostIdAsync(int postId)
+    public async Task<Favourite> CreateAsync(Favourite favourite)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            INSERT INTO favourites (post_id, user_id)
+            VALUES (@PostId, @UserId)
+            RETURNING 
+                post_id AS PostId,
+                user_id AS UserId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleAsync<Favourite>(sql, favourite);
     }
 
-    public Task<IEnumerable<Favourite>> GetByUserIdAsync(int userId)
+    public async Task<bool> DeleteAsync(int postId, int userId)
     {
-        throw new NotImplementedException();
+        const string sql = "DELETE FROM favourites WHERE post_id = @PostId AND user_id = @UserId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { PostId = postId, UserId = userId });
+        return affected > 0;
     }
 
-    public Task<int> GetCountByPostIdAsync(int postId)
+    public async Task<int> GetCountByPostIdAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = "SELECT COUNT(*) FROM favourites WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.ExecuteScalarAsync<int>(sql, new { PostId = postId });
     }
 }

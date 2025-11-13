@@ -11,11 +11,11 @@ using Capstone.Core.Models.Dtos;
 public class PostService : IPostService
 {
     private readonly IPostRepository _postRepository;
-    private readonly ILogger<UserService> _logger;
+    private readonly ILogger<PostService> _logger;
 
     public PostService(
         IPostRepository postRepository,
-        ILogger<UserService> logger)
+        ILogger<PostService> logger)
     {
         _postRepository = postRepository;
         _logger = logger;
@@ -104,7 +104,7 @@ public class PostService : IPostService
             Description = post.Description,
             NumberOfLikes = post.NumberOfLikes,
             Code = post.Code,
-            Created = post.TimeCreated,
+            Created = post.Created,
             LastEdited = post.LastEdited,
             Tags = new List<string>() // TODO: ADD TAGS - SOME JOIN NEEDED
         };

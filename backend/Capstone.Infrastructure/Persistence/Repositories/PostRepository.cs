@@ -31,20 +31,18 @@ public class PostRepository : IPostRepository
                 title,
                 description,
                 number_of_likes,
-                file_location,
+                code,
                 created,
-                last_edited,
-                time_created
+                last_edited
             )
             VALUES (
                 @UserId,
                 @Title,
                 @Description,
                 @NumberOfLikes,
-                @FileLocation,
+                @Code,
                 @Created,
-                @LastEdited,
-                @TimeCreated
+                @LastEdited
             )
             RETURNING 
                 post_id AS PostId,
@@ -52,12 +50,11 @@ public class PostRepository : IPostRepository
                 title AS Title,
                 description AS Description,
                 number_of_likes AS NumberOfLikes,
-                file_location AS FileLocation,
+                code AS Code,
                 created AS Created,
-                last_edited AS LastEdited,
-                time_created AS TimeCreated";
+                last_edited AS LastEdited";
 
-        post.TimeCreated = DateTime.UtcNow;
+        post.Created = DateTime.UtcNow;
         
         // When it's created, just set the last edited time to the same as the created time
         post.LastEdited = DateTime.UtcNow;
@@ -93,12 +90,12 @@ public class PostRepository : IPostRepository
                 title AS Title,
                 description AS Description,
                 number_of_likes AS NumberOfLikes,
-                file_location AS FileLocation,
+                code AS Code,
                 created AS Created,
                 last_edited AS LastEdited,
-                time_created AS TimeCreated
+                created AS Created
             FROM posts 
-            ORDER BY time_created DESC";
+            ORDER BY created DESC";
 
         await using var connection = _dbConnection.CreateConnection();
         return await connection.QueryAsync<Post>(sql);
@@ -113,10 +110,10 @@ public class PostRepository : IPostRepository
                 title AS Title,
                 description AS Description,
                 number_of_likes AS NumberOfLikes,
-                file_location AS FileLocation,
+                code AS Code,
                 created AS Created,
                 last_edited AS LastEdited,
-                time_created AS TimeCreated
+                created AS Created
             FROM posts 
             WHERE post_id = @PostId";
 
@@ -133,10 +130,10 @@ public class PostRepository : IPostRepository
                 title AS Title,
                 description AS Description,
                 number_of_likes AS NumberOfLikes,
-                file_location AS FileLocation,
+                code AS Code,
                 created AS Created,
                 last_edited AS LastEdited,
-                time_created AS TimeCreated
+                created AS Created
             FROM posts 
             WHERE tag_name = @TagName";
 
@@ -153,10 +150,10 @@ public class PostRepository : IPostRepository
                 title AS Title,
                 description AS Description,
                 number_of_likes AS NumberOfLikes,
-                file_location AS FileLocation,
+                code AS Code,
                 created AS Created,
                 last_edited AS LastEdited,
-                time_created AS TimeCreated
+                created AS Created
             FROM posts 
             WHERE user_id = @UserId";
 
@@ -181,7 +178,7 @@ public class PostRepository : IPostRepository
                 title = @Title,
                 description = @Description,
                 number_of_likes = @NumberOfLikes,
-                file_location = @FileLocation,
+                code = @Code,
                 last_edited = @LastEdited
             WHERE post_id = @PostId";
 

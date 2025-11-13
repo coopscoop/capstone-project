@@ -32,6 +32,18 @@ builder.Services.AddScoped<ILinterService, LinterService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+// post stuff
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+
+// favourite stuff
+builder.Services.AddScoped<IFavouriteService, FavouriteService>();
+builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
+
+// password reset stuff
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
+
 // db connection
 builder.Services.AddSingleton<DatabaseConnection>();
 
