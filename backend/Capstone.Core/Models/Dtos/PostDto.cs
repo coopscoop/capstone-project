@@ -6,8 +6,8 @@ public class PostDto
     public int UserId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public int NumberOfLikes { get; set; }
-    public string FileLocation { get; set; } = string.Empty;
+    public int? NumberOfLikes { get; set; } = 0;
+    public string Code { get; set; } = string.Empty;
     public DateTime Created { get; set; }
     public DateTime LastEdited { get; set; }
     

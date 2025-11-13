@@ -6,8 +6,8 @@ public class Post
     public int UserId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public int NumberOfLikes { get; set; }
-    public string FileLocation { get; set; } = string.Empty;
+    public int? NumberOfLikes { get; set; }
+    public string Code { get; set; } = string.Empty;
     public DateTime TimeCreated { get; set; }
     public DateTime LastEdited { get; set; }
 }
