@@ -13,38 +13,71 @@ using System.Collections.Generic;
 public class TagRepository : ITagRepository
 {
     private readonly DatabaseConnection _dbConnection;
-    private readonly ILogger<PostRepository> _logger;
+    private readonly ILogger<TagRepository> _logger;
 
     public TagRepository(
         DatabaseConnection dbConnection,
-        ILogger<PostRepository> logger)
+        ILogger<TagRepository> logger)
     {
         _dbConnection = dbConnection;
         _logger = logger;
     }
 
-    public Task<Tag> CreateAsync(Tag tag)
+    public async Task<IEnumerable<Tag>> GetByPostIdAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                tag_name AS TagName
+            FROM tags
+            WHERE post_id = @PostId
+            ORDER BY tag_name";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Tag>(sql, new { PostId = postId });
     }
 
-    public Task<bool> DeleteAsync(int postId, string tagName)
+    public async Task<IEnumerable<Tag>> GetAllTagsAsync()
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                tag_name AS TagName
+            FROM tags
+            ORDER BY tag_name";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Tag>(sql);
     }
 
-    public Task<bool> DeleteByPostIdAsync(int postId)
+    public async Task<Tag> CreateAsync(Tag tag)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            INSERT INTO tags (post_id, tag_name)
+            VALUES (@PostId, @TagName)
+            RETURNING 
+                post_id AS PostId,
+                tag_name AS TagName";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleAsync<Tag>(sql, tag);
     }
 
-    public Task<IEnumerable<Tag>> GetAllTagsAsync()
+    public async Task<bool> DeleteAsync(int postId, string tagName)
     {
-        throw new NotImplementedException();
+        const string sql = "DELETE FROM tags WHERE post_id = @PostId AND tag_name = @TagName";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { PostId = postId, TagName = tagName });
+        return affected > 0;
     }
 
-    public Task<IEnumerable<Tag>> GetByPostIdAsync(int postId)
+    public async Task<bool> DeleteByPostIdAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = "DELETE FROM tags WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { PostId = postId });
+        return affected > 0;
     }
 }

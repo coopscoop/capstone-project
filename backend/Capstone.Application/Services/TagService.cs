@@ -3,49 +3,70 @@ namespace Capstone.Application.Services;
 using Microsoft.Extensions.Logging;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Domain;
-using Capstone.Core.Models.DTOs;
-using System.Threading.Tasks;
 using Capstone.Core.Models.Dtos;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
-/// Service for user-related business logic
+/// Service for managing tag operations
 /// </summary>
 public class TagService : ITagService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly ILogger<UserService> _logger;
+    private readonly ITagRepository _tagRepository;
+    private readonly ILogger<TagService> _logger;
 
     public TagService(
-        IUserRepository userRepository,
-        ILogger<UserService> logger)
+        ITagRepository tagRepository,
+        ILogger<TagService> logger)
     {
-        _userRepository = userRepository;
+        _tagRepository = tagRepository;
         _logger = logger;
-    }
-
-    public async Task<TagDto> AddTagToPostAsync(int postId, string tagName)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<string>> GetAllUniqueTagsAsync()
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<IEnumerable<TagDto>> GetByPostIdAsync(int postId)
     {
-        throw new NotImplementedException();
+        var tags = await _tagRepository.GetByPostIdAsync(postId);
+        return tags.Select(MapToDto);
     }
 
-    public async Task<bool> RemoveAllTagsFromPostAsync(int postId)
+    public async Task<IEnumerable<string>> GetAllUniqueTagsAsync()
     {
-        throw new NotImplementedException();
+        var tags = await _tagRepository.GetAllTagsAsync();
+        return tags.Select(t => t.TagName).Distinct().OrderBy(t => t);
+    }
+
+    public async Task<TagDto> AddTagToPostAsync(int postId, string tagName)
+    {
+        // Normalize tag name (trim whitespace, lowercase for consistency)
+        var normalizedTagName = tagName.Trim().ToLower();
+
+        var tag = new Tag
+        {
+            PostId = postId,
+            TagName = normalizedTagName
+        };
+
+        var created = await _tagRepository.CreateAsync(tag);
+        return MapToDto(created);
     }
 
     public async Task<bool> RemoveTagFromPostAsync(int postId, string tagName)
     {
-        throw new NotImplementedException();
+        return await _tagRepository.DeleteAsync(postId, tagName);
+    }
+
+    public async Task<bool> RemoveAllTagsFromPostAsync(int postId)
+    {
+        return await _tagRepository.DeleteByPostIdAsync(postId);
+    }
+
+    private static TagDto MapToDto(Tag tag)
+    {
+        return new TagDto
+        {
+            PostId = tag.PostId,
+            TagName = tag.TagName
+        };
     }
 }

@@ -9,14 +9,14 @@ using Capstone.Core.Models.DTOs;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    private readonly ILogger<UsersController> _logger;
+    private readonly ILogger<UserController> _logger;
 
-    public UsersController(
+    public UserController(
         IUserService userService,
-        ILogger<UsersController> logger)
+        ILogger<UserController> logger)
     {
         _userService = userService;
         _logger = logger;

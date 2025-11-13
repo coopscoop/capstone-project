@@ -21,28 +21,25 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Register application services
-
-// linter/execution stuff
+// linter/execution services
 builder.Services.AddSingleton<IPythonProcessManager, PythonProcessManager>();
 builder.Services.AddScoped<ICodeExecutionService, CodeExecutionService>();
 builder.Services.AddScoped<ILinterService, LinterService>();
 
-// user stuff
-builder.Services.AddScoped<IUserService, UserService>();
+// Database CRUD stuff
+// Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-// post stuff
-builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
-
-// favourite stuff
-builder.Services.AddScoped<IFavouriteService, FavouriteService>();
 builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
-
-// password reset stuff
-builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+
+// Services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IFavouriteService, FavouriteService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 // db connection
 builder.Services.AddSingleton<DatabaseConnection>();
