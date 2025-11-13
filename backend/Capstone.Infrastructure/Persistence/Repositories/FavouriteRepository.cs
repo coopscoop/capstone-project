@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 /// <summary>
-/// Post repository implementation using Dapper
+/// Favourite repository implementation using Dapper
 /// </summary>
 public class FavouriteRepository : IFavouriteRepository
 {

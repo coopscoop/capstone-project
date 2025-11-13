@@ -23,48 +23,170 @@ public class PostRepository : IPostRepository
         _logger = logger;
     }
 
-    public Task<Post> CreateAsync(Post post)
+    public async Task<Post> CreateAsync(Post post)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            INSERT INTO posts (
+                user_id,
+                title,
+                description,
+                number_of_likes,
+                file_location,
+                created,
+                last_edited,
+                time_created
+            )
+            VALUES (
+                @UserId,
+                @Title,
+                @Description,
+                @NumberOfLikes,
+                @FileLocation,
+                @Created,
+                @LastEdited,
+                @TimeCreated
+            )
+            RETURNING 
+                post_id AS PostId,
+                user_id AS UserId,
+                title AS Title,
+                description AS Description,
+                number_of_likes AS NumberOfLikes,
+                file_location AS FileLocation,
+                created AS Created,
+                last_edited AS LastEdited,
+                time_created AS TimeCreated";
+
+        post.TimeCreated = DateTime.UtcNow;
+        
+        // When it's created, just set the last edited time to the same as the created time
+        post.LastEdited = DateTime.UtcNow;
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleAsync<Post>(sql, post);
     }
 
-    public Task<bool> DecrementLikesAsync(int postId)
+    public async Task<bool> DecrementLikesAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = "UPDATE posts SET number_of_likes = number_of_likes - 1 WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { PostId = postId });
+        return affected > 0;
     }
 
-    public Task<bool> DeleteAsync(int postId)
+    public async Task<bool> DeleteAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = "DELETE FROM posts WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { PostId = postId });
+        return affected > 0;
     }
 
-    public Task<IEnumerable<Post>> GetAllAsync()
+    public async Task<IEnumerable<Post>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                user_id AS UserId,
+                title AS Title,
+                description AS Description,
+                number_of_likes AS NumberOfLikes,
+                file_location AS FileLocation,
+                created AS Created,
+                last_edited AS LastEdited,
+                time_created AS TimeCreated
+            FROM posts 
+            ORDER BY time_created DESC";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Post>(sql);
     }
 
-    public Task<Post?> GetByIdAsync(int postId)
+    public async Task<Post?> GetByIdAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                user_id AS UserId,
+                title AS Title,
+                description AS Description,
+                number_of_likes AS NumberOfLikes,
+                file_location AS FileLocation,
+                created AS Created,
+                last_edited AS LastEdited,
+                time_created AS TimeCreated
+            FROM posts 
+            WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QuerySingleOrDefaultAsync<Post>(sql, new { PostId = postId });
     }
 
-    public Task<IEnumerable<Post>> GetByTagAsync(string tagName)
+    public async Task<IEnumerable<Post>> GetByTagAsync(string tagName)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                user_id AS UserId,
+                title AS Title,
+                description AS Description,
+                number_of_likes AS NumberOfLikes,
+                file_location AS FileLocation,
+                created AS Created,
+                last_edited AS LastEdited,
+                time_created AS TimeCreated
+            FROM posts 
+            WHERE tag_name = @TagName";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Post>(sql, new { TagName = tagName });
     }
 
-    public Task<IEnumerable<Post>> GetByUserIdAsync(int userId)
+    public async Task<IEnumerable<Post>> GetByUserIdAsync(int userId)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            SELECT 
+                post_id AS PostId,
+                user_id AS UserId,
+                title AS Title,
+                description AS Description,
+                number_of_likes AS NumberOfLikes,
+                file_location AS FileLocation,
+                created AS Created,
+                last_edited AS LastEdited,
+                time_created AS TimeCreated
+            FROM posts 
+            WHERE user_id = @UserId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Post>(sql, new { UserId = userId });
     }
 
-    public Task<bool> IncrementLikesAsync(int postId)
+    public async Task<bool> IncrementLikesAsync(int postId)
     {
-        throw new NotImplementedException();
+        const string sql = "UPDATE posts SET number_of_likes = number_of_likes + 1 WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, new { PostId = postId });
+        return affected > 0;
     }
 
-    public Task<Post?> UpdateAsync(Post post)
+    public async Task<bool> UpdateAsync(Post post)
     {
-        throw new NotImplementedException();
+        const string sql = @"
+            UPDATE posts 
+            SET 
+                title = @Title,
+                description = @Description,
+                number_of_likes = @NumberOfLikes,
+                file_location = @FileLocation,
+                last_edited = @LastEdited
+            WHERE post_id = @PostId";
+
+        await using var connection = _dbConnection.CreateConnection();
+        var affected = await connection.ExecuteAsync(sql, post);
+        return affected > 0;
     }
 }

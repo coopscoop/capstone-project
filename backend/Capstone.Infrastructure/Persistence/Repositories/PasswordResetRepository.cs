@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System;
 
 /// <summary>
-/// Post repository implementation using Dapper
+/// Password Reset repository implementation using Dapper
 /// </summary>
 public class PasswordResetRepository : IPasswordResetRepository
 {

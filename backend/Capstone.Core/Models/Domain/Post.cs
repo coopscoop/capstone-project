@@ -8,6 +8,6 @@ public class Post
     public string? Description { get; set; }
     public int NumberOfLikes { get; set; }
     public string FileLocation { get; set; } = string.Empty;
-    public DateTime Created { get; set; }
+    public DateTime TimeCreated { get; set; }
     public DateTime LastEdited { get; set; }
 }
