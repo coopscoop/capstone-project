@@ -11,12 +11,12 @@ using Capstone.Core.Models;
 /// Run these manually with: dotnet test --filter Category=Integration
 /// Make sure API is running first: dotnet run --project Capstone.API
 /// </summary>
-public class ApiIntegrationTests : IDisposable
+public class LinterExecIntegrationTests : IDisposable
 {
     private readonly HttpClient _client;
     private const string BaseUrl = "http://localhost:5225";
 
-    public ApiIntegrationTests()
+    public LinterExecIntegrationTests()
     {
         // Skip SSL validation for local testing
         var handler = new HttpClientHandler

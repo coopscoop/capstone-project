@@ -53,6 +53,7 @@ This app will be deployed to a google cloud run environment. Both google cloud r
 General structure is made up of 3 services:
 1. Frontend - Where the front end gets served from
 2. Backend - All API calls/services
-3. Database - Probably using CloudSQL to save/manage the database **TBD**
+3. Database - CloudSQL as a remote postgres database
 
-local/remote plan is TBD, current plan is to have a toggle for local/remote development on project boot
+## Know Issues
+- Linter has a problem with some `isValid` checks, causes one test to fail as of 25/11/12
