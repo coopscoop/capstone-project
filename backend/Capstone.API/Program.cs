@@ -1,10 +1,14 @@
+using System.Text;
 using Capstone.Application.Services;
 using Capstone.Core.Interfaces;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Capstone.Core.Models.Configuration;
 // many imports but makes the middleware instancing easier to read
 using Capstone.Infrastructure;
 using Capstone.Infrastructure.Persistence;
 using Capstone.Infrastructure.Persistence.Repositories;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,13 +24,39 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API for executing and linting Python code"
     });
 });
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+
+// configure JWT auth
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+var key = Encoding.UTF8.GetBytes(jwtSettings!.Key);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
 
 // linter/execution services
 builder.Services.AddSingleton<IPythonProcessManager, PythonProcessManager>();
 builder.Services.AddScoped<ICodeExecutionService, CodeExecutionService>();
 builder.Services.AddScoped<ILinterService, LinterService>();
 
-// Database CRUD stuff
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();

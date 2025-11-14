@@ -108,6 +108,8 @@ In [`Capstone.Application/Services`](https://github.com/Steve-at-Mohawk-College/
 
 The service is what the controller uses to interact with the repository. It's responsible for any business logic, such as validating the data, checking if the user exists, etc. This uses the repository to interact with the DB.
 
+I've been building out a clean architecture for the project, and as such the dependancy tree should be as above. However I've decided to simply put the JWT service in the application layer as it keeps all the services in the same layer, but because it relies on external dependencies, it's breaking the clean architecture rules. I've decided it's worth it to keep things organized over following these self imposed rules.
+
 ### Controller - API/Presentation
 In [`Capstone.API/Controllers`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.API/Controllers)
 

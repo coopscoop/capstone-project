@@ -2,7 +2,7 @@ namespace Capstone.API.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
 using Capstone.Core.Interfaces;
-using Capstone.Core.Models.DTOs;
+using Capstone.Core.Models.Dtos;
 
 /// <summary>
 /// API endpoints for user management

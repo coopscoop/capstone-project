@@ -3,7 +3,7 @@ namespace Capstone.Application.Services;
 using Microsoft.Extensions.Logging;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Domain;
-using Capstone.Core.Models.DTOs;
+using Capstone.Core.Models.Dtos;
 
 /// <summary>
 /// Service for user-related business logic

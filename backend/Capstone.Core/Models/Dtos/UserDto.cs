@@ -1,4 +1,4 @@
-namespace Capstone.Core.Models.DTOs;
+namespace Capstone.Core.Models.Dtos;
 
 /// <summary>
 /// User DTO for API responses (no password!)

@@ -13,6 +13,7 @@
   - might need another table for the user's JWT tokens?
     - another controller, service, repo + models for the JWT tokens
 - continue with front end and connect it to the API
+- move JWT key + db connection string to a secrets file
 
 # Capstone - Online Python IDE
 

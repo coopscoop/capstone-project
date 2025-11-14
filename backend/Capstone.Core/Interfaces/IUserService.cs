@@ -1,6 +1,6 @@
 namespace Capstone.Core.Interfaces;
 
-using Capstone.Core.Models.DTOs;
+using Capstone.Core.Models.Dtos;
 
 public interface IUserService
 {
