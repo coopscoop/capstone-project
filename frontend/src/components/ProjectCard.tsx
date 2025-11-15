@@ -2,19 +2,47 @@ import React, { useState } from 'react';
 import { Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
+interface ProjectCardProps {
+  postId: number;
+  title?: string;
+  tags?: string[];
+  description?: string;
+  favorited?: boolean;
+  onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
+  onOpen?: () => void;
+}
+
 const ProjectCard = ({ 
+  postId,
   title = "Project Title",
   tags = ["tags"],
   description = "A description of the project",
   favorited: initialFavorited = false,
+  onFavoriteToggle,
   onOpen = () => {}
-}) => {
+}: ProjectCardProps) => {
   const [favorited, setFavorited] = useState(initialFavorited);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
-  const toggleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    setFavorited(!favorited);
+    
+    if (isTogglingFavorite) return;
+    
+    setIsTogglingFavorite(true);
+    const newFavoritedState = !favorited;
+    
+    try {
+      if (onFavoriteToggle) {
+        await onFavoriteToggle(postId, newFavoritedState);
+      }
+      setFavorited(newFavoritedState);
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    } finally {
+      setIsTogglingFavorite(false);
+    }
   };
 
   const handleOpenClick = () => {
@@ -27,13 +55,14 @@ const ProjectCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-zinc-200 hover:shadow-lg transition-shadow">
+    <div className="bg-zinc-700 rounded-lg shadow-md p-6 border border-zinc-600 hover:shadow-lg transition-shadow">
       {/* Header with title and star */}
       <div className="flex items-start justify-between mb-4">
-        <h3 className="text-xl font-bold text-zinc-900 flex-1 truncate pr-2">{title}</h3>
+        <h3 className="text-xl font-bold text-zinc-100 flex-1 truncate pr-2">{title}</h3>
         <button 
           onClick={toggleFavorite}
-          className="shrink-0 text-zinc-900 hover:scale-110 transition-transform"
+          disabled={isTogglingFavorite}
+          className="shrink-0 text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
           aria-label={favorited ? "Unfavorite" : "Favorite"}
         >
           <Star 
@@ -60,7 +89,7 @@ const ProjectCard = ({
       </div>
 
       {/* Description */}
-      <p className="text-zinc-500 mb-6 text-base leading-relaxed line-clamp-2">
+      <p className="text-zinc-300 mb-6 text-base leading-relaxed line-clamp-2">
         {description}
       </p>
 
@@ -72,18 +101,18 @@ const ProjectCard = ({
         Open
       </button>
 
-      {/* Modal - scaffolded from shadcn docs */}
+      {/* Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        {/* [&>button]:hidden hides the close button, top right is a bit cramped with the favourite there as well */}
-        <DialogContent className="max-w-2xl bg-white [&>button]:hidden"> 
+        <DialogContent className="max-w-2xl bg-zinc-800 border-zinc-700 text-zinc-100 [&>button]:hidden"> 
           <DialogHeader>
             <div className="flex items-start justify-between">
-              <DialogTitle className="text-2xl font-bold text-zinc-900 pr-8">
+              <DialogTitle className="text-2xl font-bold text-zinc-100 pr-8">
                 {title}
               </DialogTitle>
               <button 
                 onClick={toggleFavorite}
-                className="text-zinc-900 hover:scale-110 transition-transform"
+                disabled={isTogglingFavorite}
+                className="text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
                 aria-label={favorited ? "Unfavorite" : "Favorite"}
               >
                 <Star 
@@ -109,7 +138,7 @@ const ProjectCard = ({
             </div>
 
             {/* Full Description */}
-            <p className="text-zinc-600 text-base leading-relaxed mb-6">
+            <p className="text-zinc-300 text-base leading-relaxed mb-6">
               {description}
             </p>
 
@@ -117,13 +146,13 @@ const ProjectCard = ({
             <div className="flex gap-3">
               <button 
                 onClick={handleOpenProject}
-                className="flex-1 bg-[#00A2E8] hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                className="flex-1 bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
               >
                 Open Project
               </button>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="flex-1 bg-zinc-200 hover:bg-zinc-300 text-zinc-900 font-semibold py-3 px-6 rounded-lg transition-colors"
+                className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 font-semibold py-3 px-6 rounded-lg transition-colors"
               >
                 Cancel
               </button>

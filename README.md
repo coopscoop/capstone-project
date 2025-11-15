@@ -12,6 +12,8 @@
 - continue with front end and connect it to the API
 - move JWT key + db connection string to environment variables
   - .env? environemnt variables in cloud run?
+- port objects from the backend to the frontend
+- move control panel API calls to utils as their own util function
 
 # Capstone - Online Python IDE
 
