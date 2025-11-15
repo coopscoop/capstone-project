@@ -3,6 +3,7 @@ namespace Capstone.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 /// <summary>
 /// API endpoints for user management
@@ -23,14 +24,22 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Get all users
+    /// Get all users - Admin only
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
     {
-        var users = await _userService.GetAllAsync();
-        return Ok(users);
+        try
+        {
+            var users = await _userService.GetAllAsync();
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting all users");
+            return StatusCode(500, "An error occurred while retrieving users");
+        }
     }
 
     /// <summary>

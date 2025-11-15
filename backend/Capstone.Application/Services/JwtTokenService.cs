@@ -33,6 +33,7 @@ public class JwtTokenService : IJwtTokenService
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim("DisplayName", user.DisplayName ?? string.Empty),
             new Claim("IsAdmin", user.IsAdmin.ToString()),
+            new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

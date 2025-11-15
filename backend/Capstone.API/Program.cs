@@ -64,12 +64,15 @@ builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 
+
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IFavouriteService, FavouriteService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<ITagService, TagService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // db connection
 builder.Services.AddSingleton<DatabaseConnection>();
@@ -81,7 +84,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy => policy
             .WithOrigins(
-                "http://localhost:3000")  // React front end
+                "http://localhost:5173")  // React front end
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
