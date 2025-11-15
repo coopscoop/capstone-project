@@ -4,6 +4,7 @@ using Capstone.Core.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Capstone.Core.Models.Configuration;
+using System.Security.Claims;
 // many imports but makes the middleware instancing easier to read
 using Capstone.Infrastructure;
 using Capstone.Infrastructure.Persistence;
@@ -46,7 +47,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = jwtSettings.Audience,
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
+        RoleClaimType = ClaimTypes.Role
     };
 });
 

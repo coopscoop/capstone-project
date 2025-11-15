@@ -6,14 +6,12 @@
 
 # TODO
 - fix tests, there's a problem with the linters `isValid` checks, causes one test to fail as of 25/11/12
-- DTOs have unrequired properties, remove them
-- Add user auth to the API
-  - JWT, needs to be added in conjunction with the front end
-  - https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-9.0
-  - might need another table for the user's JWT tokens?
-    - another controller, service, repo + models for the JWT tokens
+- clean up dto null values?
+- add auth tags to the API - left out for the sake of not needing to be logged in as of now
+  - moving towards conneecting the front end to the API so this isn't really needed anymore
 - continue with front end and connect it to the API
-- move JWT key + db connection string to a secrets file
+- move JWT key + db connection string to environment variables
+  - .env? environemnt variables in cloud run?
 
 # Capstone - Online Python IDE
 

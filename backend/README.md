@@ -35,18 +35,17 @@ The project is generally split up into 4 chunks. API, Application, Core and Infr
   - Where my linter lives, As its written in python and simply has serial input/output, creating a service to interact with it is the cleanest option
   - Soon to be where my database lives(?)
 
-## Adding content
-Adding content is a lot of boilerplate, although It's relatively simple to add content/DB CRUD to the API
+## DB tables to API endpoints flow
+Each section has an explicit function for existing, although verbose its relatively simple and goes as follows:
 
-The general structure for adding content from a DB table is as follows:
 1. Object model for the DB table (DTO's are derived from this)
 2. A DTO for the API response
-3. Interfaces for the repository and service
+3. Interfaces for the repository and service (Generally just a sanity check but it's good practice and ensures all required methods are implemented)
 4. A repository that interacts with the DB
 5. A service that the controller uses to interact with the repository (DB)
 6. A controller for the API endpoints
 
-Implementation wise it'd be in that order, but it's not crucial as they all need to be in for it to function.
+Implementation wise it'd be in that order, but it's not 100% critical as they all need to be in for it to function.
 
 ### Object model - Core models
 In [`Capstone.Core/Models/Domain`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.Core/Models/Domain)
@@ -114,6 +113,15 @@ I've been building out a clean architecture for the project, and as such the dep
 In [`Capstone.API/Controllers`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.API/Controllers)
 
 The controller is where the API endpoints are defined. It's responsible for handling the incoming requests and passing them to the service to be handled.
+
+### User Authentication
+There's two types of users, regular users and admin users. Admin users have access to the admin-only endpoints in addition to the regular endpoints, likewise regular users have access to the public endpoints.
+
+To handle user authentication, I'm using JWT tokens, which are generated and validated by [`Capstone.Application/Services/JwtTokenService`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/blob/main/backend/Capstone.Application/Services/JwtTokenService.cs). These are passed to the user in the `Authorization` header, and upon any request to an API endpoint with the `Authorize` attribute, the JWT token is validated and the request is allowed to proceed.
+
+Because JWT is stateless, the token is stored in the browser's local storage, swagger tends to break when an endpoint is protected by an `Authorize` attribute. This makes testing the API endpoints a bit tricky, so I've added a control panel that can be found at `/control-panel` to test the API endpoints once you've logged in. Annoyingly this requires the front/backend to both be running, but it's testing front to back so it's not a huge deal.
+
+If for whatever reason you want to test the API endpoints without logging in, simply comment out the `Authorize` attribute on the controllers and endpoints you want to test, reload the server, and you should be able to access them without being logged in.
 
 ## Resources I've used/found useful
 ### Structure
