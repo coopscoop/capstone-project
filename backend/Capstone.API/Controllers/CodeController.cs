@@ -8,7 +8,7 @@ namespace Capstone.API.Controllers
     /// API endpoints for code execution and linting
     /// </summary>
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CodeController : ControllerBase
     {
         private readonly ICodeExecutionService _executionService;

@@ -14,6 +14,8 @@
   - .env? environemnt variables in cloud run?
 - port objects from the backend to the frontend
 - move control panel API calls to utils as their own util function
+- logging - basically entirely throughout the backend it's only in certain places for debugging
+- fix update post endpoint, it's structured wrong. works but its wrong
 
 # Capstone - Online Python IDE
 
