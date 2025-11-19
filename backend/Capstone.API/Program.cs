@@ -54,6 +54,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+
 // linter/execution services
 builder.Services.AddSingleton<IPythonProcessManager, PythonProcessManager>();
 builder.Services.AddScoped<ICodeExecutionService, CodeExecutionService>();
@@ -75,6 +77,7 @@ builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // db connection
 builder.Services.AddSingleton<DatabaseConnection>();

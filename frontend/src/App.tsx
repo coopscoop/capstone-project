@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
+import LoginPage from '@/pages/auth/LoginPage';
+import RegisterPage from '@/pages/auth/RegisterPage';
 import ControlPanelPage from '@/pages/ControlPanelPage';
 import HomePage from '@/pages/HomePage';
 import ExplorePage from '@/pages/ExplorePage';
 import EditorPage from '@/pages/EditorPage';
 import SettingsPage from '@/pages/SettingsPage';
 import MainLayout from '@/components/layout/MainLayout';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -15,8 +16,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-zinc-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-zinc-900">
+        <div className="text-lg text-zinc-400">Loading...</div>
       </div>
     );
   }
@@ -33,27 +34,31 @@ function AppRoutes() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-zinc-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-zinc-900">
+        <div className="text-lg text-zinc-400">Loading...</div>
       </div>
     );
   }
 
   return (
     <Routes>
-      {/* Login page - redirect if already logged in */}
+      {/* Public routes - NO sidebar */}
       <Route 
         path="/login" 
-        element={user ? <Navigate to="/control-panel" /> : <LoginPage />} 
+        element={user ? <Navigate to="/" /> : <LoginPage />} 
       />
-
-      {/* Register page - redirect if already logged in */}
+      
       <Route 
         path="/register" 
-        element={user ? <Navigate to="/control-panel" /> : <RegisterPage />} 
+        element={user ? <Navigate to="/" /> : <RegisterPage />} 
+      />
+      
+      <Route 
+        path="/reset-password" 
+        element={<ResetPasswordPage />} 
       />
 
-      {/* Control Panel - for demo purposes */}
+      {/* Control Panel - separate from MainLayout */}
       <Route
         path="/control-panel"
         element={
@@ -63,7 +68,7 @@ function AppRoutes() {
         }
       />
       
-      {/* Protected routes with sidebar layout */}
+      {/* Protected routes WITH sidebar layout */}
       <Route
         element={
           <ProtectedRoute>
@@ -77,8 +82,8 @@ function AppRoutes() {
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
-      {/* Catch all - redirect to control panel for demo */}
-      <Route path="*" element={<Navigate to="/control-panel" />} />
+      {/* Catch all - redirect to home if logged in, login if not */}
+      <Route path="*" element={user ? <Navigate to="/" /> : <Navigate to="/login" />} />
     </Routes>
   );
 }

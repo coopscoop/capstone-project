@@ -14,16 +14,19 @@ public class PasswordResetService : IPasswordResetService
 {
     private readonly IPasswordResetRepository _passwordResetRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IEmailService _emailService; // Add this
     private readonly ILogger<PasswordResetService> _logger;
     private const int ResetCodeExpirationHours = 24;
 
     public PasswordResetService(
         IPasswordResetRepository passwordResetRepository,
         IUserRepository userRepository,
+        IEmailService emailService, // Add this
         ILogger<PasswordResetService> logger)
     {
         _passwordResetRepository = passwordResetRepository;
         _userRepository = userRepository;
+        _emailService = emailService; // Add this
         _logger = logger;
     }
 
@@ -55,6 +58,13 @@ public class PasswordResetService : IPasswordResetService
 
     public async Task<PasswordResetDto> CreateResetRequestAsync(int userId)
     {
+        // Get the user to send email
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+
         // Delete any existing reset requests for this user
         await _passwordResetRepository.DeleteAsync(userId);
 
@@ -68,6 +78,20 @@ public class PasswordResetService : IPasswordResetService
         };
 
         var created = await _passwordResetRepository.CreateAsync(passwordReset);
+
+        // Send email with reset code
+        try
+        {
+            var resetUrl = "http://localhost:3000/reset-password"; // Update with your frontend URL
+            await _emailService.SendPasswordResetEmailAsync(user.Email, resetCode, resetUrl);
+            _logger.LogInformation("Password reset email sent to user {UserId}", userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send password reset email to user {UserId}", userId);
+            // Don't throw - we still created the reset request, they can use the code manually
+        }
+
         return MapToDto(created);
     }
 
@@ -92,7 +116,7 @@ public class PasswordResetService : IPasswordResetService
             return false;
         }
 
-        // Hash the new password (you should use your existing password hashing logic)
+        // Hash the new password
         user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
         
         var updateSuccess = await _userRepository.UpdateAsync(user);
@@ -103,6 +127,8 @@ public class PasswordResetService : IPasswordResetService
 
         // Delete the reset request after successful password change
         await _passwordResetRepository.DeleteAsync(passwordReset.UserId);
+        
+        _logger.LogInformation("Password successfully reset for user {UserId}", passwordReset.UserId);
         
         return true;
     }
@@ -129,14 +155,14 @@ public class PasswordResetService : IPasswordResetService
 
     private static string GenerateResetCode()
     {
-        // Generate a cryptographically secure random code
+        // Generate a random code, 32 characters long should be enough
         var bytes = new byte[32];
         using (var rng = RandomNumberGenerator.Create())
         {
             rng.GetBytes(bytes);
         }
 
-        // get rid of +, / and = characters for url safety
+        // get rid of +, / and = characters for url safety - changed how I pass the code to the frontend but its still not a bad idea to leave
         return Convert.ToBase64String(bytes).Replace("+", "").Replace("/", "").Replace("=", "")[..32];
     }
 }

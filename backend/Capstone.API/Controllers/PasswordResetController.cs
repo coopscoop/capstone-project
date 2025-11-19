@@ -1,8 +1,10 @@
 namespace Capstone.API.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Dtos;
+using Capstone.Core.Models.Domain;
 
 /// <summary>
 /// Controller for managing password reset operations
@@ -21,20 +23,12 @@ public class PasswordResetController : ControllerBase
         _passwordResetService = passwordResetService;
         _logger = logger;
     }
-    
-    /// <summary>
-    /// Request model for password reset
-    /// </summary>
-    public class ResetPasswordRequest
-    {
-        public string ResetCode { get; set; } = string.Empty;
-        public string NewPassword { get; set; } = string.Empty;
-    }
 
     /// <summary>
     /// Get password reset request by user ID
     /// </summary>
     [HttpGet("user/{userId}")]
+    [Authorize] // Only authenticated users can check their own reset requests
     public async Task<ActionResult<PasswordResetDto>> GetByUserId(int userId)
     {
         try
@@ -57,6 +51,7 @@ public class PasswordResetController : ControllerBase
     /// Validate a reset code
     /// </summary>
     [HttpGet("validate/{resetCode}")]
+    [AllowAnonymous] // Anyone can validate a code
     public async Task<ActionResult<bool>> ValidateResetCode(string resetCode)
     {
         try
@@ -72,15 +67,26 @@ public class PasswordResetController : ControllerBase
     }
 
     /// <summary>
-    /// Create a password reset request
+    /// Create a password reset request and send email with reset code
     /// </summary>
     [HttpPost("request/{userId}")]
+    [AllowAnonymous] // Anyone can request a password reset
     public async Task<ActionResult<PasswordResetDto>> CreateResetRequest(int userId)
     {
         try
         {
             var passwordReset = await _passwordResetService.CreateResetRequestAsync(userId);
-            return CreatedAtAction(nameof(GetByUserId), new { userId }, passwordReset);
+            return Ok(new 
+            { 
+                message = "Password reset code has been sent to your email",
+                userId = passwordReset.UserId,
+                timeCreated = passwordReset.TimeCreated
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Invalid password reset request for user {UserId}", userId);
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -93,16 +99,33 @@ public class PasswordResetController : ControllerBase
     /// Reset password using reset code
     /// </summary>
     [HttpPost("reset")]
+    [AllowAnonymous] // Anyone can reset with valid code
     public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(request.ResetCode))
+            {
+                return BadRequest("Reset code is required");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest("New password is required");
+            }
+
+            if (request.NewPassword.Length < 6)
+            {
+                return BadRequest("Password must be at least 6 characters long");
+            }
+
             var success = await _passwordResetService.ResetPasswordAsync(request.ResetCode, request.NewPassword);
             if (!success)
             {
                 return BadRequest("Invalid or expired reset code");
             }
-            return Ok("Password successfully reset");
+            
+            return Ok(new { message = "Password successfully reset" });
         }
         catch (Exception ex)
         {
@@ -115,6 +138,7 @@ public class PasswordResetController : ControllerBase
     /// Delete a password reset request
     /// </summary>
     [HttpDelete("{userId}")]
+    [Authorize] // Only authenticated users can delete their own reset requests
     public async Task<ActionResult> Delete(int userId)
     {
         try
@@ -137,12 +161,13 @@ public class PasswordResetController : ControllerBase
     /// Cleanup expired reset requests (typically called by a background job)
     /// </summary>
     [HttpPost("cleanup")]
+    [Authorize(Roles = "Admin")] // Only admins can trigger cleanup
     public async Task<ActionResult> CleanupExpired()
     {
         try
         {
             await _passwordResetService.CleanupExpiredRequestsAsync();
-            return Ok("Expired reset requests cleaned up");
+            return Ok(new { message = "Expired reset requests cleaned up" });
         }
         catch (Exception ex)
         {

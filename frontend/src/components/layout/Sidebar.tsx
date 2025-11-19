@@ -1,7 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, FileCode, Settings, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Compass, FileCode, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Sidebar = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/explore', icon: Compass, label: 'Explore' },
@@ -10,45 +15,63 @@ const Sidebar = () => {
   ];
 
   const pythonLogo = '/src/assets/images/python-logo.png';
-  const Location = useLocation();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
-    <aside className="w-16 bg-white flex flex-col items-center py-6 border-r border-zinc-800">
+    <aside className="w-16 bg-white flex flex-col items-center py-6 border-r border-zinc-200">
       {/* Logo */}
-      <div className="mb-8 w-8 h-8 flex items-center justify-center overflow-hidden shrink-0 object-contain">
+      <div className="mb-8 w-8 h-8 flex items-center justify-center overflow-hidden shrink-0">
         <img 
           src={pythonLogo} 
           alt="Logo" 
-          className=" object-contain"
+          className="object-contain"
         />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col mx-5">
+      <nav className="flex-1 flex flex-col items-center">
         {navItems.map(({ path, icon: Icon, label }) => {
-          const isSelected = Location.pathname == path;
+          const isSelected = location.pathname === path;
 
           return (
             <Link
               key={path}
               to={path}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors hover:bg-zinc-100 mt-4 mb-2`}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors mb-2 ${
+                isSelected 
+                  ? 'bg-zinc-900 text-white' 
+                  : 'text-zinc-600 hover:bg-zinc-100'
+              }`}
               title={label}
             >
-              <Icon size={isSelected ? 22 : 20} strokeWidth={isSelected ? 2.25 : 2}/>
+              <Icon size={isSelected ? 22 : 20} strokeWidth={isSelected ? 2.5 : 2} />
             </Link>
           );
         })}
       </nav>
 
-      {/* Profile at bottom */}
-      <Link
-        to="/profile"
-        className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors hover:bg-zinc-100 mt-4 mb-2"
-        title="Profile"
+      {/* Admin Badge (if admin) */}
+      {user?.isAdmin && (
+        <div 
+          className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-100 mb-2"
+          title="Admin User"
+        >
+          <span className="text-purple-600 text-xs font-bold">A</span>
+        </div>
+      )}
+
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="w-10 h-10 rounded-lg flex items-center justify-center text-red-600 hover:bg-red-50 transition-colors"
+        title="Logout"
       >
-        <User size={20} />
-      </Link>
+        <LogOut size={20} />
+      </button>
     </aside>
   );
 };
