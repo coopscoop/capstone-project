@@ -5,17 +5,20 @@
 > As of October 14th I've decided to just start over on the backend with better practice. It's simply not scalable and or set up properly.
 
 # TODO
-- fix tests, there's a problem with the linters `isValid` checks, causes one test to fail as of 25/11/12
-- clean up dto null values?
-- add auth tags to the API - left out for the sake of not needing to be logged in as of now
-  - moving towards conneecting the front end to the API so this isn't really needed anymore
-- continue with front end and connect it to the API
-- move JWT key + db connection string to environment variables
-  - .env? environemnt variables in cloud run?
-- port objects from the backend to the frontend
-- move control panel API calls to utils as their own util function
-- logging - basically entirely throughout the backend it's only in certain places for debugging
-- fix update post endpoint, it's structured wrong. works but its wrong
+- backend
+  - fix logout
+  - add endpoint to properpy get a post + tags
+  - push to remote
+  - extend jwt token expiry/add extender token
+  - push to remote
+  - move jwt/email env variables to secrets on remote
+  - fix linter api - some isValid checks are failing
+  - logging
+- frontend
+  - add backend objects to frontend
+  - add util classes for all api calls
+  - finish user flow/menus
+  - logging
 
 # Capstone - Online Python IDE
 
