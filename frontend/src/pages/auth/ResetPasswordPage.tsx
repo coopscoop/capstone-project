@@ -33,7 +33,7 @@ const ResetPasswordPage = () => {
 
     try {
       // First, get the user by email to get their userId
-      const userResponse = await fetch(`http://localhost:5225/api/user/email/${email}`);
+      const userResponse = await fetch(`http://localhost:5225/api/User/email/${email}`);
       
       if (!userResponse.ok) {
         setError('No account found with that email address');

@@ -84,6 +84,13 @@ public class UserService : IUserService
         return deleted;
     }
 
+    public async Task<UserDto?> GetByEmailAsync(string email)
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+        _logger.LogInformation("Retrieved user with email {Email}", email);
+        return user == null ? null : MapToDto(user);
+    }
+
     private static UserDto MapToDto(User user)
     {
         return new UserDto

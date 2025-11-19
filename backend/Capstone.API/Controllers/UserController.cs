@@ -114,4 +114,20 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+
+    /// <summary>
+    /// Get user by email
+    /// </summary>
+    [HttpGet("email/{email}")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserDto>> GetByEmail(string email)
+    {
+        var user = await _userService.GetByEmailAsync(email);
+        
+        if (user == null)
+            return NotFound(new { error = $"User with email '{email}' not found" });
+
+        return Ok(user);
+    }
 }
