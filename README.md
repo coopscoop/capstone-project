@@ -6,8 +6,7 @@
 
 # TODO
 - backend
-  - fix logout
-  - add endpoint to properpy get a post + tags
+  - add endpoint to properly get a post + tags
   - push to remote
   - extend jwt token expiry/add extender token
   - push to remote
@@ -15,6 +14,7 @@
   - fix linter api - some isValid checks are failing
   - logging
 - frontend
+  - fix logout
   - add backend objects to frontend
   - add util classes for all api calls
   - finish user flow/menus
