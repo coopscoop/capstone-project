@@ -18,7 +18,7 @@ const LoginPage = () => {
 
     try {
       await login(email, password);
-      navigate('/control-panel');
+      navigate('/');
     } catch (err) {
       setLocalError('Invalid email or password');
     } finally {
@@ -27,7 +27,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-50 to-zinc-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
@@ -68,9 +68,17 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 mb-2 mt-3">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-zinc-700">
+                  Password
+                </label>
+                <Link
+                  to="/reset-password"
+                  className="text-sm text-zinc-900 hover:underline font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 id="password"
                 type="password"
@@ -86,7 +94,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <LogIn size={20} />
               {isLoading ? 'Signing In...' : 'Sign In'}
