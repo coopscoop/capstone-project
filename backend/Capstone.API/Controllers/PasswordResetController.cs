@@ -69,7 +69,7 @@ public class PasswordResetController : ControllerBase
     /// <summary>
     /// Create a password reset request and send email with reset code
     /// </summary>
-    [HttpPost("request/{userId}")]
+    [HttpPost("create/{userId}")]
     [AllowAnonymous] // Anyone can request a password reset
     public async Task<ActionResult<PasswordResetDto>> CreateResetRequest(int userId)
     {
