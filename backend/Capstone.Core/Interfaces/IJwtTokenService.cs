@@ -6,5 +6,5 @@ public interface IJwtTokenService
 {
     string GenerateAccessToken(User user);
     string GenerateRefreshToken();
-    int? ValidateToken(string token);
+    int? ValidateAccessToken(string token);
 }
