@@ -152,6 +152,9 @@ If for whatever reason you want to test the API endpoints without logging in, si
   - For user Auth
 - https://github.com/BcryptNet/bcrypt.net
   - Using Bcrype.net to hash passwords, easier than the built in .net implementation of hashing
+- https://learn.microsoft.com/en-us/dotnet/core/extensions/windows-service
+  - Background service for cleaning up expired tokens/password reset tokens
+
 ### Tests - still .NET
 - [xUnit](https://xunit.net/?tabs=cs)
   - Testing suite for .NET

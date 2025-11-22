@@ -75,12 +75,15 @@ public class PasswordResetRepository : IPasswordResetRepository
         return affected > 0;
     }
 
-    public async Task<bool> DeleteExpiredAsync(DateTime expirationTime)
+    public async Task<int> DeleteExpiredAsync()
     {
-        const string sql = "DELETE FROM password_reset WHERE time_created < @ExpirationTime";
+        const string sql = "DELETE FROM password_reset WHERE time_created < @ThirtyDaysAgo";
 
         await using var connection = _dbConnection.CreateConnection();
-        var affected = await connection.ExecuteAsync(sql, new { ExpirationTime = expirationTime });
-        return affected > 0;
+        return await connection.ExecuteAsync(sql, new 
+        { 
+            Now = DateTime.UtcNow,
+            ThirtyDaysAgo = DateTime.UtcNow.AddDays(-30)
+        });
     }
 }

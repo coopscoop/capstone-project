@@ -1,10 +1,13 @@
 using System.Text;
 using Capstone.Application.Services;
+using Capstone.Application.BackgroundServices;
 using Capstone.Core.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Capstone.Core.Models.Configuration;
 using System.Security.Claims;
+using Microsoft.Extensions.Hosting;
+
 // many imports but makes the middleware instancing easier to read
 using Capstone.Infrastructure;
 using Capstone.Infrastructure.Persistence;
@@ -67,6 +70,7 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 
 // Services
@@ -76,9 +80,12 @@ builder.Services.AddScoped<IFavouriteService, FavouriteService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Background services
+builder.Services.AddHostedService<ResetTokenCleanupService>();
+builder.Services.AddHostedService<JwtTokenCleanupService>();
 
 // db connection
 builder.Services.AddSingleton<DatabaseConnection>();

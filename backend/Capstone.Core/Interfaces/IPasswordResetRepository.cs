@@ -8,5 +8,5 @@ public interface IPasswordResetRepository
     Task<PasswordReset?> GetByResetCodeAsync(string resetCode);
     Task<PasswordReset> CreateAsync(PasswordReset passwordReset);
     Task<bool> DeleteAsync(int userId);
-    Task<bool> DeleteExpiredAsync(DateTime expirationTime);
+    Task<int> DeleteExpiredAsync();
 }
