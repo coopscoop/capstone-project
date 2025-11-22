@@ -5,10 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Dtos;
+using Capstone.Core.Models.Domain;
 
-/// <summary>
-/// Controller for authentication operations
-/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
@@ -24,9 +22,6 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Login with email and password
-    /// </summary>
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto loginRequest)
@@ -48,9 +43,6 @@ public class AuthController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Register a new user
-    /// </summary>
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponseDto>> Register([FromBody] RegisterRequestDto registerRequest)
@@ -71,9 +63,48 @@ public class AuthController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get current authenticated user
-    /// </summary>
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<ActionResult<LoginResponseDto>> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        try
+        {
+            var result = await _authService.RefreshTokenAsync(request.RefreshToken);
+            if (result == null)
+            {
+                return Unauthorized("Invalid or expired refresh token");
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during token refresh");
+            return StatusCode(500, "An error occurred during token refresh");
+        }
+    }
+
+    [HttpPost("revoke")]
+    [Authorize]
+    public async Task<ActionResult> RevokeToken([FromBody] RefreshTokenRequest request)
+    {
+        try
+        {
+            var success = await _authService.RevokeTokenAsync(request.RefreshToken);
+            if (!success)
+            {
+                return NotFound("Token not found");
+            }
+
+            return Ok(new { message = "Token revoked successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error revoking token");
+            return StatusCode(500, "An error occurred while revoking token");
+        }
+    }
+
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<UserDto>> GetCurrentUser()

@@ -24,23 +24,80 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // API base URL - adjust this to your backend URL
-  const API_BASE_URL = 'http://localhost:5225/api';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   // Load user from localStorage on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
+    const savedToken = localStorage.getItem('accessToken');
+    const savedRefreshToken = localStorage.getItem('refreshToken');
     const savedUser = localStorage.getItem('user');
 
-    if (savedToken && savedUser) {
+    if (savedToken && savedRefreshToken && savedUser) {
       setToken(savedToken);
+      setRefreshToken(savedRefreshToken);
       setUser(JSON.parse(savedUser));
     }
     setIsLoading(false);
   }, []);
+
+  // Auto-refresh token before expiration
+  useEffect(() => {
+    if (!token || !refreshToken) return;
+
+    // Decode JWT to get expiration time
+    const tokenData = JSON.parse(atob(token.split('.')[1]));
+    const expiresAt = tokenData.exp * 1000; // Convert to milliseconds
+    const now = Date.now();
+    const timeUntilExpiry = expiresAt - now;
+
+    // Refresh 2 minutes before expiration
+    const refreshTime = timeUntilExpiry - (2 * 60 * 1000);
+
+    if (refreshTime > 0) {
+      const timeout = setTimeout(async () => {
+        await refreshAccessToken();
+      }, refreshTime);
+
+      return () => clearTimeout(timeout);
+    } else {
+      // Token already expired, refresh immediately
+      refreshAccessToken();
+    }
+  }, [token, refreshToken]);
+
+  const refreshAccessToken = async () => {
+    if (!refreshToken) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setToken(data.accessToken);
+        setRefreshToken(data.refreshToken);
+        setUser(data.user);
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      } else {
+        // Refresh failed, logout user
+        logout();
+      }
+    } catch (err) {
+      console.error('Failed to refresh token:', err);
+      logout();
+    }
+  };
 
   const login = async (email: string, password: string) => {
     setError(null);
@@ -62,10 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
 
-      // Store in state and localStorage
-      setToken(data.token);
+      setToken(data.accessToken);
+      setRefreshToken(data.refreshToken);
       setUser(data.user);
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -95,10 +153,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
 
-      // Store in state and localStorage
-      setToken(data.token);
+      setToken(data.accessToken);
+      setRefreshToken(data.refreshToken);
       setUser(data.user);
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -109,9 +168,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    // Optionally revoke token on server
+    if (refreshToken) {
+      fetch(`${API_BASE_URL}/auth/revoke`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ refreshToken }),
+      }).catch(() => {
+        // Ignore errors on logout
+      });
+    }
+
     setToken(null);
+    setRefreshToken(null);
     setUser(null);
-    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
   };
 
