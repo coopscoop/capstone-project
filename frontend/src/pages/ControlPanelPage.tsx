@@ -78,36 +78,12 @@ const ControlPanelPage = () => {
         setPostsError('');
 
         try {
-            const response = await apiRequest('/Posts', {
-                method: 'GET',
-            });
-
+            const response = await apiRequest('/Posts');
             if (response.ok) {
-                const data = await response.json();
-                // Load tags for each post
-                const postsWithTags = await Promise.all(
-                    data.slice(0, 4).map(async (post: Post) => {
-                        try {
-                            const tagsResponse = await apiRequest(`/tag/post/${post.postId}`, {
-                                method: 'GET',
-                            });
-                            if (tagsResponse.ok) {
-                                const tagsData = await tagsResponse.json();
-                                return {
-                                    ...post,
-                                    tags: tagsData.map((t: any) => t.tagName)
-                                };
-                            }
-                        } catch (err) {
-                            console.error('Failed to load tags for post:', post.postId);
-                        }
-                        return { ...post, tags: [] };
-                    })
-                );
-                setPosts(postsWithTags);
-            } else {
-                setPostsError(`Failed to load posts: ${response.status}`);
+                const data: Post[] = await response.json();
+                setPosts(data);
             }
+
         } catch (err) {
             setPostsError(err instanceof Error ? err.message : 'Failed to load posts');
         } finally {
@@ -261,25 +237,11 @@ const ControlPanelPage = () => {
         setEditTitle(post.title);
         setEditDescription(post.description || '');
         setEditCode(post.code);
-
-        // Load current tags
-        try {
-            const tagsResponse = await apiRequest(`/tag/post/${post.postId}`, {
-                method: 'GET',
-            });
-            if (tagsResponse.ok) {
-                const tagsData = await tagsResponse.json();
-                setEditTags(tagsData.map((t: any) => t.tagName));
-            }
-        } catch (err) {
-            console.error('Failed to load tags:', err);
-            setEditTags([]);
-        }
-
         setEditTagInput('');
+        setEditTags(post.tags || []);
         setEditError('');
     };
-
+    
     const handleCancelEdit = () => {
         setEditingPost(null);
         setEditTitle('');
@@ -308,6 +270,7 @@ const ControlPanelPage = () => {
                     description: editDescription,
                     code: editCode,
                     numberOfLikes: editingPost.numberOfLikes,
+                    tags: editTags,
                 }),
             });
 
@@ -681,7 +644,7 @@ const ControlPanelPage = () => {
                                             {editTags.map((tag, index) => (
                                                 <span
                                                     key={index}
-                                                    className="inline-flex items-center gap-1 bg-python-yellow text-white px-3 py-1 rounded-lg text-sm"
+                                                    className="inline-flex items-center gap-1 mb-2 bg-python-yellow text-white px-3 py-1 rounded-lg text-sm"
                                                 >
                                                     {tag}
                                                     <button
