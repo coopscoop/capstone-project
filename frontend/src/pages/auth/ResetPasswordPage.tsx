@@ -44,7 +44,7 @@ const ResetPasswordPage = () => {
       setUserId(userData.userId);
 
       // Create password reset request
-      const response = await fetch(`http://localhost:5225/api/passwordreset/request/${userData.userId}`, {
+      const response = await fetch(`http://localhost:5225/api/passwordreset/create/${userData.userId}`, {
         method: 'POST',
       });
 
@@ -233,7 +233,7 @@ const ResetPasswordPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 mt-4 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Sending...' : 'Send Reset Code'}
               </button>
@@ -301,7 +301,7 @@ const ResetPasswordPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 mt-4 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Resetting...' : 'Reset Password'}
               </button>
@@ -319,7 +319,7 @@ const ResetPasswordPage = () => {
               </p>
               <button
                 onClick={() => navigate('/login')}
-                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium"
+                className="w-full px-4 py-3 mt-4 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium"
               >
                 Go to Login
               </button>

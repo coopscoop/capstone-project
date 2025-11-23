@@ -9,37 +9,43 @@ const ExplorePage = () => {
       title: "Simple perceptron",
       tags: ["AI", "Machine Learning", "Primitive", "Perceptron"],
       description: "A very simple implementation of the perceptron based on the 1943 paper. This is a good starting point for learning about neural networks.",
-      favorited: true
+      favorited: true,
+      postId: 1
     },
     {
       title: "Neural Network",
       tags: ["Deep Learning", "Python"],
       description: "A basic neural network implementation from scratch",
-      favorited: false
+      favorited: false,
+      postId: 2
     },
     {
       title: "Image Classifier",
       tags: ["Computer Vision", "AI", "Machine Learning"],
       description: "CNN-based image classification system",
-      favorited: true
+      favorited: true,
+      postId: 3
     },
     {
       title: "NLP Sentiment",
       tags: ["NLP", "Text Analysis"],
       description: "Sentiment analysis using transformer models",
-      favorited: false
+      favorited: false,
+      postId: 4
     },
     {
       title: "Reinforcement Learning",
       tags: ["RL", "Gaming"],
       description: "Q-learning agent for game playing",
-      favorited: false
+      favorited: false,
+      postId: 5
     },
     {
       title: "Data Pipeline",
       tags: ["ETL", "Data Engineering"],
       description: "Automated data processing pipeline",
-      favorited: true
+      favorited: true,
+      postId: 6
     }
   ];
 
@@ -64,7 +70,8 @@ const ExplorePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
             <ProjectCard
-              key={index}
+            key={index}
+              postId={project.postId}
               title={project.title}
               tags={project.tags}
               description={project.description}

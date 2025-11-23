@@ -34,9 +34,7 @@ const RegisterPage = () => {
     try {
       // This actually calls your backend at POST /api/auth/register
       await register(email, password, displayName || undefined);
-      
-      // On success, redirect to control panel
-      navigate('/control-panel');
+      navigate('/home');
     } catch (err) {
       // If registration fails, show error
       setLocalError('Registration failed. Email may already be in use.');
@@ -138,7 +136,7 @@ const RegisterPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 mt-4 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <UserPlus size={20} />
               {isLoading ? 'Creating Account...' : 'Create Account'}

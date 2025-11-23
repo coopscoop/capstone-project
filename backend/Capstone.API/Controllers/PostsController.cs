@@ -22,15 +22,6 @@ public class PostsController : ControllerBase
         _logger = logger;
     }
 
-    // need to add endpoints for:
-    // - get all posts
-    // - get post by ID
-    // - create post
-    // - update post
-    // - delete post
-    // - get posts by user
-    // - get posts by tag
-
     /// <summary>
     /// Get all posts
     /// </summary>

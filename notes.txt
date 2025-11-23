@@ -6,7 +6,7 @@ code ( C R U D doesn't really apply here - DONE)
 - lint
 - health
 
-auth
+auth - DONE
 - c
   - create token
 - r
@@ -16,7 +16,7 @@ auth
 - d
   - delete jwt token? -> frontend?
 
-favourite ( C R U D - DONE )
+favourite - DONE
 - c 
   - add favourite
 - r
@@ -27,7 +27,7 @@ favourite ( C R U D - DONE )
 - d
   - delete favourite
 
-password reset
+password reset - DONE
 - c
   - create code
 - r
@@ -39,7 +39,7 @@ password reset
   - delete code
   - clean up all old codes - stored procedure?
 
-posts
+posts - DONE - add hidden posts?
 - c
   - create post
 - r
