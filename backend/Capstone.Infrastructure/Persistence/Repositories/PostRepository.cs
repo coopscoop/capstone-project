@@ -83,22 +83,49 @@ public class PostRepository : IPostRepository
 
     public async Task<IEnumerable<Post>> GetAllAsync()
     {
+        // join to get the tags
         const string sql = @"
             SELECT 
-                post_id AS PostId,
-                user_id AS UserId,
-                title AS Title,
-                description AS Description,
-                number_of_likes AS NumberOfLikes,
-                code AS Code,
-                created AS Created,
-                last_edited AS LastEdited,
-                created AS Created
-            FROM posts 
-            ORDER BY created DESC";
+                p.post_id AS PostId,
+                p.user_id AS UserId,
+                p.title AS Title,
+                p.description AS Description,
+                p.number_of_likes AS NumberOfLikes,
+                p.code AS Code,
+                p.created AS Created,
+                p.last_edited AS LastEdited,
+                t.tag_name AS TagName
+            FROM posts p
+            LEFT JOIN tags t ON p.post_id = t.post_id
+            ORDER BY p.created DESC";
 
         await using var connection = _dbConnection.CreateConnection();
-        return await connection.QueryAsync<Post>(sql);
+        
+        var postDictionary = new Dictionary<int, Post>();
+        
+        await connection.QueryAsync<Post, string, Post>(
+            sql,
+            // weird and annoying but it gets the tags then maps them to the post
+            (post, tagName) =>
+            {
+                if (!postDictionary.TryGetValue(post.PostId, out var postEntry))
+                {
+                    postEntry = post;
+                    postEntry.Tags = new List<string>();
+                    postDictionary.Add(post.PostId, postEntry);
+                }
+
+                if (!string.IsNullOrEmpty(tagName))
+                {
+                    postEntry.Tags.Add(tagName);
+                }
+
+                return postEntry;
+            },
+            splitOn: "TagName"
+        );
+
+        return postDictionary.Values;
     }
 
     public async Task<Post?> GetByIdAsync(int postId)

@@ -10,10 +10,5 @@ public class PostDto
     public string Code { get; set; } = string.Empty;
     public DateTime Created { get; set; }
     public DateTime LastEdited { get; set; }
-    
-    // Optional: Include user info
-    public string? UserDisplayName { get; set; }
-    
-    // Optional: Include tags
     public List<string>? Tags { get; set; }
 }
