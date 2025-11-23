@@ -33,7 +33,9 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 > The tests are currently only for the linter/execution services, the rest of the API is not set up yet
 
 - `cd backend/Capstone.API` to go to the backend
-- `dotnet run`, or open the `.sln` file in `/backend` and run `Capstone.API` using `http`. (both create a /swagger page to test the API)
+- `dotnet run`, or open the `.sln` file in `/backend` and run `Capstone.API` using `http`.
+
+Both create a /swagger page to test the API
 
 ### Tests
 - `cd backend` to go to the backend
