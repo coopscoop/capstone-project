@@ -5,9 +5,8 @@
 > As of October 14th I've decided to just start over on the backend with better practice. It's simply not scalable and or set up properly.
 
 # TODO
+- push to remote
 - backend
-  - add endpoint to properly get a post + tags
-  - push to remote
   - move jwt/email env variables to secrets on remote
   - fix linter api - some isValid checks are failing
   - logging
