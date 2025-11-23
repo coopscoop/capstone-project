@@ -8,8 +8,6 @@
 - backend
   - add endpoint to properly get a post + tags
   - push to remote
-  - extend jwt token expiry/add extender token
-  - push to remote
   - move jwt/email env variables to secrets on remote
   - fix linter api - some isValid checks are failing
   - logging

@@ -107,7 +107,9 @@ In [`Capstone.Application/Services`](https://github.com/Steve-at-Mohawk-College/
 
 The service is what the controller uses to interact with the repository. It's responsible for any business logic, such as validating the data, checking if the user exists, etc. This uses the repository to interact with the DB.
 
-I've been building out a clean architecture for the project, and as such the dependancy tree should be as above. However I've decided to simply put the JWT service in the application layer as it keeps all the services in the same layer, but because it relies on external dependencies, it's breaking the clean architecture rules. I've decided it's worth it to keep things organized over following these self imposed rules.
+I've been building out a clean architecture for the project, and as such the dependancy tree should be as above. *However*, I've broken the dependancy tree rule by putting the some external dependencies in the application layer. The JWT service, password hashing, and the email service all rely on external dependencies, so they're breaking the clean architecture rules. I've done this because logically keeping these services in the same layer makes sense and it's my project. I could have put these services in the `Capstone.Infrastructure` directory and have helpers that are used in the services but that feels like abstraction for the sake of abstraction. This isn't a mission critical project, so I'm not too worried about it.
+
+Generally the structure was a self imposed rule, and I've decided to keep all my services in one section over following these rules for the sake of organization.
 
 ### Controller - API/Presentation
 In [`Capstone.API/Controllers`](https://github.com/Steve-at-Mohawk-College/capstone-project-coopscoop/tree/main/backend/Capstone.API/Controllers)

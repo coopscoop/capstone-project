@@ -141,7 +141,7 @@ public class PasswordResetService : IPasswordResetService
     public async Task CleanupExpiredRequestsAsync()
     {
         var expirationTime = DateTime.UtcNow.AddHours(-ResetCodeExpirationHours);
-        await _passwordResetRepository.DeleteExpiredAsync(expirationTime);
+        await _passwordResetRepository.DeleteExpiredAsync();
     }
 
     private static PasswordResetDto MapToDto(PasswordReset passwordReset)
