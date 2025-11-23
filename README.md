@@ -32,7 +32,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 > [!NOTE]
 > The tests are currently only for the linter/execution services, the rest of the API is not set up yet
 
-- `cd backend` to go to the backend
+- `cd backend/Capstone.API` to go to the backend
 - `dotnet run`, or open the `.sln` file in `/backend` and run using `http`. (both create a /swagger page to test the API)
   -   `dotnet build` is required for a first time run
 ### Tests
