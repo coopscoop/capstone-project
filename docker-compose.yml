@@ -3,12 +3,19 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: your_password_here
-      POSTGRES_DB: your_database_name
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: Capstone
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Migrations aside from the initial database setup
+      - ./backend/Capstone.Infrastructure/Persistence/Migrations/Users.sql:/docker-entrypoint-initdb.d/01-Users.sql
+      - ./backend/Capstone.Infrastructure/Persistence/Migrations/Posts.sql:/docker-entrypoint-initdb.d/02-Posts.sql
+      - ./backend/Capstone.Infrastructure/Persistence/Migrations/Tags.sql:/docker-entrypoint-initdb.d/03-Tags.sql
+      - ./backend/Capstone.Infrastructure/Persistence/Migrations/RefreshToken.sql:/docker-entrypoint-initdb.d/04-RefreshToken.sql
+      - ./backend/Capstone.Infrastructure/Persistence/Migrations/PasswordReset.sql:/docker-entrypoint-initdb.d/05-PasswordReset.sql
+      - ./backend/Capstone.Infrastructure/Persistence/Migrations/Favourites.sql:/docker-entrypoint-initdb.d/06-Favourites.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -20,15 +27,15 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=your_database_name;Username=postgres;Password=your_password_here"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=Capstone;Username=postgres;Password=postgres"
       ASPNETCORE_ENVIRONMENT: Development
+      Python__ScriptPath: "Python/python_worker.py"
+      ASPNETCORE_URLS: "http://+:5225"  # Tell ASP.NET to listen on 5225
     ports:
       - "5225:5225"
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
 
   frontend:
     build:

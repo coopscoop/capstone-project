@@ -96,8 +96,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy => policy
-            .WithOrigins(
-                "http://localhost:5173")  // React front end
+            .WithOrigins("http://localhost:5173")  // react front end
+            // .WithOrigins("http://localhost:3000")  // dockerized react front end
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());

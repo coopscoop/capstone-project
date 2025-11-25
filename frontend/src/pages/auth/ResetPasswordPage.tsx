@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { KeyRound, ArrowLeft } from 'lucide-react';
-import { apiRequest } from '@/utils/api';
+// import { apiRequest } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 const ResetPasswordPage = () => {
@@ -21,7 +21,7 @@ const ResetPasswordPage = () => {
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [userId, setUserId] = useState<number | null>(null);
+  // const [userId, setUserId] = useState<number | null>(null);
 
   // Determine if this is an authenticated password change
   const isAuthenticatedChange = !!user;
@@ -41,7 +41,7 @@ const ResetPasswordPage = () => {
       }
 
       const userData = await userResponse.json();
-      setUserId(userData.userId);
+      // setUserId(userData.userId);
 
       // Create password reset request
       const response = await fetch(`http://localhost:5225/api/passwordreset/create/${userData.userId}`, {
@@ -129,7 +129,7 @@ const ResetPasswordPage = () => {
 
       // If login successful, proceed with reset
       setEmail(user.email);
-      setUserId(user.userId);
+      // setUserId(user.userId);
       setIsLoading(true);
 
       // Request reset code
