@@ -5,9 +5,8 @@
 > As of October 14th I've decided to just start over on the backend with better practice. It's simply not scalable and or set up properly.
 
 # TODO
+- push to remote
 - backend
-  - add endpoint to properly get a post + tags
-  - push to remote
   - move jwt/email env variables to secrets on remote
   - fix linter api - some isValid checks are failing
   - logging
@@ -33,9 +32,11 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 > [!NOTE]
 > The tests are currently only for the linter/execution services, the rest of the API is not set up yet
 
-- `cd backend` to go to the backend
-- `dotnet run`, or open the `.sln` file in `/backend` and run using `http`. (both create a /swagger page to test the API)
-  -   `dotnet build` is required for a first time run
+- `cd backend/Capstone.API` to go to the backend
+- `dotnet run`, or open the `.sln` file in `/backend` and run `Capstone.API` using `http`.
+
+Both create a /swagger page to test the API
+
 ### Tests
 - `cd backend` to go to the backend
 - `dotnet test --filter Category!=Integration` to run the tests. This uses a mock system seperate from the real API, doesn't require the API to be running
