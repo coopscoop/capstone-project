@@ -11,7 +11,7 @@ COPY ["Capstone.Tests/", "Capstone.Tests/"]
 
 RUN dotnet restore "Capstone.sln"
 RUN dotnet build "Capstone.sln" -c Release -o /app/build --no-restore
-RUN dotnet publish "Capstone.API/Capstone.API.csproj" -c Release -o /app/publish --no-build
+RUN dotnet publish "Capstone.API/Capstone.API.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
