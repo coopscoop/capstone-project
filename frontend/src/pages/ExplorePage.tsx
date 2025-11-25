@@ -1,53 +1,54 @@
+import { useState, useEffect } from 'react';
+import { useProject } from '@/contexts/ProjectContext';
 import { Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import ProjectCard from '@/components/ProjectCard';
+
+// api request utility
+import { apiRequest } from '@/utils/api';
+
+// models
+import type { Post } from '@/models/Post';
 
 const ExplorePage = () => {
 
-  // TODO: placeholder data - replace with real data/queries from backend once that's in place
-  const projects = [
-    {
-      title: "Simple perceptron",
-      tags: ["AI", "Machine Learning", "Primitive", "Perceptron"],
-      description: "A very simple implementation of the perceptron based on the 1943 paper. This is a good starting point for learning about neural networks.",
-      favorited: true,
-      postId: 1
-    },
-    {
-      title: "Neural Network",
-      tags: ["Deep Learning", "Python"],
-      description: "A basic neural network implementation from scratch",
-      favorited: false,
-      postId: 2
-    },
-    {
-      title: "Image Classifier",
-      tags: ["Computer Vision", "AI", "Machine Learning"],
-      description: "CNN-based image classification system",
-      favorited: true,
-      postId: 3
-    },
-    {
-      title: "NLP Sentiment",
-      tags: ["NLP", "Text Analysis"],
-      description: "Sentiment analysis using transformer models",
-      favorited: false,
-      postId: 4
-    },
-    {
-      title: "Reinforcement Learning",
-      tags: ["RL", "Gaming"],
-      description: "Q-learning agent for game playing",
-      favorited: false,
-      postId: 5
-    },
-    {
-      title: "Data Pipeline",
-      tags: ["ETL", "Data Engineering"],
-      description: "Automated data processing pipeline",
-      favorited: true,
-      postId: 6
-    }
-  ];
+  // Posts state
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [postsError, setPostsError] = useState<string>('');
+  const [userFavorites, setUserFavorites] = useState<Set<number>>(new Set());
+
+  const { setCurrentProject } = useProject();
+  const navigate = useNavigate();
+
+  // get projects from backend
+  const loadPosts = async () => {
+      setPostsLoading(true);
+      setPostsError('');
+
+      try {
+          const response = await apiRequest('/Posts');
+          if (response.ok) {
+              const data: Post[] = await response.json();
+              setPosts(data);
+          }
+
+      } catch (err) {
+          setPostsError(err instanceof Error ? err.message : 'Failed to load posts');
+      } finally {
+          setPostsLoading(false);
+      }
+  };
+
+  const handleOpenInEditor = (post: Post) => {
+    setCurrentProject(post);
+    navigate('/editor');
+  };
+
+  // Load posts on load
+  useEffect(() => {
+      loadPosts();
+  }, []);
 
   return (
     <div className="h-full flex flex-col bg-dark-bg">
@@ -68,15 +69,19 @@ const ExplorePage = () => {
 
           {/* Projects List */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
+          {posts.map((project, index) => (
             <ProjectCard
             key={index}
               postId={project.postId}
               title={project.title}
               tags={project.tags}
               description={project.description}
-              favorited={project.favorited}
-              onOpen={() => console.log(`Opening ${project.title}`)}
+              favorited={project.postId in userFavorites}
+              onOpen={() => {
+                console.log(`Open project ${project.postId}, title: ${project.title}`);
+                // open the project in the editor
+                handleOpenInEditor(project);
+              }}
             />
           ))}
         </div>
