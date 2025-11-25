@@ -1,23 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-
-interface User {
-  userId: number;
-  email: string;
-  displayName: string | null;
-  isAdmin: boolean;
-  bio: string | null;
-  timeCreated: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, displayName?: string) => Promise<void>;
-  logout: () => void;
-  isLoading: boolean;
-  error: string | null;
-}
+import type { User } from '@/models/User';
+import type { AuthContextType } from '@/models/AuthContextType';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -51,6 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Decode JWT to get expiration time
     const tokenData = JSON.parse(atob(token.split('.')[1]));
     const expiresAt = tokenData.exp * 1000; // Convert to milliseconds
+
+    // log expiration time
+    console.log('Token expiration time:', new Date(expiresAt));
     const now = Date.now();
     const timeUntilExpiry = expiresAt - now;
 
@@ -89,6 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         localStorage.setItem('user', JSON.stringify(data.user));
+
+        console.log('Refreshed token:', data);
       } else {
         // Refresh failed, logout user
         logout();
