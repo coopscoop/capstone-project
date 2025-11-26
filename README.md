@@ -4,6 +4,7 @@
 
 > [!WARNING]
 > THE DATABASE WILL ONLY BE UP FOR ONE MONTH AS OF 2025/11/26, IT WILL STOP WORKING ON 2026/12/26
+> Past this date hosting locally would be the easiest solution to run the project.
 
 # TODO
 - push to remote
