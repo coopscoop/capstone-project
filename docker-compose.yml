@@ -9,7 +9,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Migrations aside from the initial database setup
       - ./backend/Capstone.Infrastructure/Persistence/Migrations/Users.sql:/docker-entrypoint-initdb.d/01-Users.sql
       - ./backend/Capstone.Infrastructure/Persistence/Migrations/Posts.sql:/docker-entrypoint-initdb.d/02-Posts.sql
       - ./backend/Capstone.Infrastructure/Persistence/Migrations/Tags.sql:/docker-entrypoint-initdb.d/03-Tags.sql
@@ -30,7 +29,7 @@ services:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=Capstone;Username=postgres;Password=postgres"
       ASPNETCORE_ENVIRONMENT: Development
       Python__ScriptPath: "Python/python_worker.py"
-      ASPNETCORE_URLS: "http://+:5225"  # Tell ASP.NET to listen on 5225
+      ASPNETCORE_URLS: "http://+:5225"
     ports:
       - "5225:5225"
     depends_on:
@@ -41,10 +40,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:5225/api
     environment:
-      VITE_API_URL: http://backend:5225/api
+      PORT: 8080
     ports:
-      - "3000:3000"
+      - "3000:8080"
     depends_on:
       - backend
 
