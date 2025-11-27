@@ -3,7 +3,9 @@
 > The majority of the templating for the project was also auto generated so it's very large
 
 > [!WARNING]
-> THE DATABASE WILL ONLY BE UP FOR ONE MONTH AS OF 2025/11/26, IT WILL STOP WORKING ON 2026/12/26
+> The cloud run deployment as a generous free tier so it shouldn't ever exceed the free tier limits.
+> The database however will only be up for ~3 months as of 2025/11/26, it will stop working on 2026/02/16ish
+>
 > Past this date hosting locally would be the easiest solution to run the project.
 
 # TODO
@@ -83,7 +85,10 @@ This section is mostly for me and is just some quick notes on how I deployed thi
 To locally deploy the project you'll need to have docker and docker-compose installed, and there's 3 commands to know:
 - `docker-compose up` to start the containers
 - `docker-compose down` to stop the containers
-- `docker-compose build` to build the containers if you've made changes. 
+- `docker-compose build` to build the containers if you've made changes.
+
+> [!NOTE]
+> Note: you can also add a `--build` flag to the `docker-compose up` command to build the containers if you've made changes.
 
 ### Frontend
 
