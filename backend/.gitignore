@@ -37,3 +37,6 @@ __pycache__/
 
 ## OS
 Thumbs.db
+
+## env files
+env.yaml

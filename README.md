@@ -75,3 +75,30 @@ General structure is made up of 3 services:
 1. Frontend - Where the front end gets served from
 2. Backend - All API calls/services
 3. Database - CloudSQL as a remote postgres database
+
+## Deployment itself
+
+This section is mostly for me and is just some quick notes on how I deployed this. In general, locally the front, back and database are all in containers and can be run with docker-compose.
+
+To locally deploy the entire project, you'll need to have docker and docker-compose installed. Then you can run `docker-compose up` in the root of the project to start the containers.
+
+### Frontend
+
+To publish/update the frontend, we push from local (current working directory) to the remote google cloud run service. This is done with the following command:
+
+`cd frontend`
+`gcloud run deploy capstone-frontend --source . --platform managed --region northamerica-northeast2 --allow-unauthenticated --memory 512Mi --cpu 1 --min-instances 0 --max-instances 2 --port 8080`
+
+Most the flags are self explainatory, but the `--allow-unauthenticated` flag is required to allow the frontend to be accessed without a login.
+Because this is on cloud run it scales to useage automatically. 0 minimum allows it to scale to 0, and 2 caps it so worst case I don't have a big bill to pay.
+
+### Backend
+
+The backend is deployed to google cloud run as well, updated/pushed to the remote service (same as the frontend, it pushes the current working directory) with the following command:
+
+`cd backend`
+`gcloud run deploy capstone-backend --source . --region northamerica-northeast2 --env-vars-file env.yaml`
+
+The env.yaml file is a simple file that contains the environment variables for the backend instead of manually setting them in the command line.
+
+This file simply looks like a regular .env file but isn't committed to the repo. Look at the env.yaml.example file for an example of what it should look like.
