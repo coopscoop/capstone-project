@@ -87,6 +87,7 @@ To locally deploy the entire project, you'll need to have docker and docker-comp
 To publish/update the frontend, we push from local (current working directory) to the remote google cloud run service. This is done with the following command:
 
 `cd frontend`
+
 `gcloud run deploy capstone-frontend --source . --platform managed --region northamerica-northeast2 --allow-unauthenticated --memory 512Mi --cpu 1 --min-instances 0 --max-instances 2 --port 8080`
 
 Most the flags are self explainatory, but the `--allow-unauthenticated` flag is required to allow the frontend to be accessed without a login.
@@ -97,6 +98,7 @@ Because this is on cloud run it scales to useage automatically. 0 minimum allows
 The backend is deployed to google cloud run as well, updated/pushed to the remote service (same as the frontend, it pushes the current working directory) with the following command:
 
 `cd backend`
+
 `gcloud run deploy capstone-backend --source . --region northamerica-northeast2 --env-vars-file env.yaml`
 
 The env.yaml file is a simple file that contains the environment variables for the backend instead of manually setting them in the command line.
