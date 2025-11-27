@@ -80,7 +80,10 @@ General structure is made up of 3 services:
 
 This section is mostly for me and is just some quick notes on how I deployed this. In general, locally the front, back and database are all in containers and can be run with docker-compose.
 
-To locally deploy the entire project, you'll need to have docker and docker-compose installed. Then you can run `docker-compose up` in the root of the project to start the containers.
+To locally deploy the project you'll need to have docker and docker-compose installed, and there's 3 commands to know:
+- `docker-compose up` to start the containers
+- `docker-compose down` to stop the containers
+- `docker-compose build` to build the containers if you've made changes. 
 
 ### Frontend
 

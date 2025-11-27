@@ -15,7 +15,7 @@ const Sidebar = () => {
     { path: '/control-panel', icon: ArchiveIcon, label: 'Archive' },
   ];
 
-  const pythonLogo = '/src/assets/images/python-logo.png';
+  const pythonLogo = '/python-logo.png';
 
   const handleLogout = () => {
     logout();
