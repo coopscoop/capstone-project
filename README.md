@@ -9,7 +9,6 @@
 > Past this date hosting locally would be the easiest solution to run the project.
 
 # TODO
-- push to remote
 - backend
   - move jwt/email env variables to secrets on remote
   - fix linter api - some isValid checks are failing
@@ -31,6 +30,9 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 - `cd frontend` to go to the frontend
 - `npm start` to run the frontend
   -   `npm install` is required for a first time run
+
+If you'd like to use containerized deployment, check out the [Development](#development) section below.
+
 ### Backend
 
 > [!NOTE]
@@ -39,7 +41,9 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 - `cd backend/Capstone.API` to go to the backend
 - `dotnet run`, or open the `.sln` file in `/backend` and run `Capstone.API` using `http`.
 
-Both create a /swagger page to test the API
+Both create a `/swagger page` to test the API
+
+Like the frontend, you can also run the backend with containerized deployment, check out the [Development](#development) section below.
 
 ### Tests
 - `cd backend` to go to the backend
@@ -80,12 +84,14 @@ General structure is made up of 3 services:
 
 ## Deployment itself
 
-This section is mostly for me and is just some quick notes on how I deployed this. In general, locally the front, back and database are all in containers and can be run with docker-compose.
+This section is mostly for me and is just some quick notes on how I deployed this. Deploying locally, both the front, back and database are all in containers and can be run with docker-compose.
 
-To locally deploy the project you'll need to have docker and docker-compose installed, and there's 3 commands to know:
+To deploy the project you'll need to have docker and docker-compose installed, and there's 3 commands to know:
 - `docker-compose up` to start the containers
 - `docker-compose down` to stop the containers
 - `docker-compose build` to build the containers if you've made changes.
+
+Simply run those in the root of the project to start the containers.
 
 > [!NOTE]
 > Note: you can also add a `--build` flag to the `docker-compose up` command to build the containers if you've made changes.
