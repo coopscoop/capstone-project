@@ -1,8 +1,10 @@
 > [!NOTE]
 > Massive first commits were because I was working in another repo unintentionally, moved things over so it's massive chunks at once.
 > The majority of the templating for the project was also auto generated so it's very large
->
-> As of October 14th I've decided to just start over on the backend with better practice. It's simply not scalable and or set up properly.
+
+> [!WARNING]
+> THE DATABASE WILL ONLY BE UP FOR ONE MONTH AS OF 2025/11/26, IT WILL STOP WORKING ON 2026/12/26
+> Past this date hosting locally would be the easiest solution to run the project.
 
 # TODO
 - push to remote
