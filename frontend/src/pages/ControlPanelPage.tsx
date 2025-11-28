@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProject } from '@/contexts/ProjectContext';
 import { usePosts } from '@/hooks/usePosts';
 import { useFavourites } from '@/hooks/useFavourites';
-// import { useAdmin } from '@/hooks/useAdmin';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import { Shield, User, LogOut, Trash, Code, Plus, X, Edit } from 'lucide-react';
 import ProjectCard from '@/components/ProjectCard';
 import { PostForm } from '@/components/PostForm';
@@ -14,8 +15,9 @@ const ControlPanelPage = () => {
     const { user, logout, clearTokens } = useAuth();
     const { posts, loading: postsLoading, error: postsError, createPost, updatePost, deletePost } = usePosts();
     const { favourites, toggleFavourite } = useFavourites(user?.userId);
-    // const { loading: adminLoading, error: adminError, response: adminResponse, testAdminAccess } = useAdmin();
-
+    const { setCurrentProject } = useProject();
+    const navigate = useNavigate(); // Add this hook
+    
     // Form visibility state
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingPost, setEditingPost] = useState<Post | null>(null);
@@ -23,6 +25,12 @@ const ControlPanelPage = () => {
     // Form loading/error states
     const [formLoading, setFormLoading] = useState(false);
     const [formError, setFormError] = useState('');
+
+    // Handler for opening project in editor
+    const handleOpenProject = (post: Post) => {
+        setCurrentProject(post);
+        navigate('/editor');
+    };
 
     const handleCreatePost = async (data: {
         title: string;
@@ -243,7 +251,8 @@ const ControlPanelPage = () => {
                                         description={post.description || 'No description available'}
                                         favorited={favourites.has(post.postId)}
                                         onFavoriteToggle={handleFavoriteToggle}
-                                        onOpen={() => console.log('Open project:', post.postId)}
+                                        onOpen={() => handleOpenProject(post)} // Updated this line
+                                        code={post.code}
                                     />
                                     {/* Action buttons - only show if user owns the post */}
                                     {user?.userId === post.userId && (
@@ -275,38 +284,6 @@ const ControlPanelPage = () => {
                     <CodeExecutor />
                     <CodeLinter />
                 </div>
-
-                {/* Admin Endpoint Test */}
-                {/* auto complete made this, to be implemented later */}
-                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-zinc-700 rounded-2xl shadow-lg p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Shield className="text-purple-400" size={24} />
-                            <h3 className="text-lg font-semibold text-zinc-200">Admin Only Endpoint</h3>
-                        </div>
-                        <p className="text-sm text-zinc-300 mb-4">
-                            This endpoint requires admin privileges. Regular users will see an error.
-                        </p>
-                        <button
-                            onClick={testAdminAccess}
-                            disabled={adminLoading}
-                            className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {adminLoading ? 'Testing...' : 'Test GET /api/user (Admin Only)'}
-                        </button>
-
-                        {adminResponse && (
-                            <div className="p-3 bg-purple-900/30 border border-purple-700 rounded-lg">
-                                <p className="text-sm text-purple-300">{adminResponse}</p>
-                            </div>
-                        )}
-                        {adminError && (
-                            <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg">
-                                <p className="text-sm text-red-300">{adminError}</p>
-                            </div>
-                        )}
-                    </div>
-                </div> */}
             </div>
         </div>
     );

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Star } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Editor } from '@monaco-editor/react';
 
 interface ProjectCardProps {
   postId: number;
@@ -8,6 +9,7 @@ interface ProjectCardProps {
   tags?: string[];
   description?: string;
   favorited?: boolean;
+  code?: string;
   onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
   onOpen?: () => void;
 }
@@ -18,18 +20,21 @@ const ProjectCard = ({
   tags = ["tags"],
   description = "A description of the project",
   favorited: initialFavorited = false,
+  code,
   onFavoriteToggle,
-  onOpen = () => {}
+  onOpen = () => {},
 }: ProjectCardProps) => {
   const [favorited, setFavorited] = useState(initialFavorited);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [editorHeight, setEditorHeight] = useState('200px');
+  const editorRef = useRef<any>(null);
+  const dialogContentRef = useRef<HTMLDivElement>(null);
 
   const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    
     if (isTogglingFavorite) return;
-    
+
     setIsTogglingFavorite(true);
     const newFavoritedState = !favorited;
     
@@ -45,31 +50,80 @@ const ProjectCard = ({
     }
   };
 
-  const handleOpenClick = () => {
-    setIsModalOpen(true);
-  };
+  const handleOpenClick = () => setIsModalOpen(true);
 
   const handleOpenProject = () => {
     setIsModalOpen(false);
     onOpen();
   };
 
+  // Handle editor mount
+  const handleEditorDidMount = (editor: any) => {
+    editorRef.current = editor;
+    
+    // Force layout after mount - this helps with initial sizing issues because the editor doesn't like to be resized dynamically
+    setTimeout(() => {
+      editor.layout();
+    }, 0);
+  };
+
+  // Update editor height based on screen size
+  useEffect(() => {
+    const updateEditorHeight = () => {
+      if (window.innerWidth < 640) { // sm breakpoint
+        setEditorHeight('150px');
+      } else {
+        setEditorHeight('200px');
+      }
+    };
+
+    updateEditorHeight();
+    window.addEventListener('resize', updateEditorHeight);
+    
+    return () => window.removeEventListener('resize', updateEditorHeight);
+  }, []);
+
+  // Handle resize when modal opens and for general responsiveness
+  useEffect(() => {
+    if (isModalOpen && editorRef.current) {
+      const updateLayout = () => {
+        requestAnimationFrame(() => {
+          if (editorRef.current) {
+            editorRef.current.layout();
+          }
+        });
+      };
+
+      updateLayout();
+      
+      // Use ResizeObserver for container changes
+      if (dialogContentRef.current) {
+        const resizeObserver = new ResizeObserver(updateLayout);
+        resizeObserver.observe(dialogContentRef.current);
+        
+        return () => {
+          resizeObserver.disconnect();
+        };
+      }
+    }
+  }, [isModalOpen]);
+
   return (
     <div className="bg-zinc-700 rounded-lg shadow-md p-6 border border-zinc-600 hover:shadow-lg transition-shadow">
-      {/* Header with title and star */}
+      
+      {/* Header */}
       <div className="flex items-start justify-between mb-4">
-        <h3 className="text-xl font-bold text-zinc-100 flex-1 truncate pr-2">{title}</h3>
+        <h3 className="text-xl font-bold text-zinc-100 flex-1 truncate pr-2">
+          {title} - {postId}
+        </h3>
+
         <button 
           onClick={toggleFavorite}
           disabled={isTogglingFavorite}
           className="shrink-0 text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
           aria-label={favorited ? "Unfavorite" : "Favorite"}
         >
-          <Star 
-            size={28}
-            fill={favorited ? "currentColor" : "none"}
-            strokeWidth={2}
-          />
+          <Star size={28} fill={favorited ? "currentColor" : "none"} strokeWidth={2} />
         </button>
       </div>
 
@@ -83,9 +137,7 @@ const ProjectCard = ({
             {tag}
           </span>
         ))}
-        {tags.length > 2 && (
-          <span className="text-zinc-400 self-center">...</span>
-        )}
+        {tags.length > 2 && <span className="text-zinc-400 self-center">...</span>}
       </div>
 
       {/* Description */}
@@ -103,28 +155,35 @@ const ProjectCard = ({
 
       {/* Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-zinc-800 border-zinc-700 text-zinc-100 [&>button]:hidden"> 
+        <DialogContent
+          ref={dialogContentRef}
+          className="w-full max-w-[95vw] sm:max-w-2xl bg-zinc-800 border-zinc-700 text-zinc-100"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <div className="flex items-start justify-between">
               <DialogTitle className="text-2xl font-bold text-zinc-100 pr-8">
                 {title}
               </DialogTitle>
+
+              {/* shadcn accessibility, sr-only so it doesn't show up for non-screenreaders */}
+              <DialogDescription className="sr-only">
+                Detailed view of project {title}
+              </DialogDescription>
+
               <button 
                 onClick={toggleFavorite}
                 disabled={isTogglingFavorite}
                 className="text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
                 aria-label={favorited ? "Unfavorite" : "Favorite"}
               >
-                <Star 
-                  size={32}
-                  fill={favorited ? "currentColor" : "none"}
-                  strokeWidth={2}
-                />
+                <Star size={32} fill={favorited ? "currentColor" : "none"} strokeWidth={2} />
               </button>
             </div>
           </DialogHeader>
           
           <div className="mt-4">
+            
             {/* All Tags */}
             <div className="flex flex-wrap gap-2 mb-6">
               {tags.map((tag, index) => (
@@ -142,14 +201,40 @@ const ProjectCard = ({
               {description}
             </p>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
+            {/* Code Viewer */}
+            <div className="mb-6 w-full min-w-0 bg-zinc-900 rounded-lg overflow-hidden">
+              <Editor
+                height={editorHeight}
+                defaultLanguage="python"
+                value={code}
+                theme="vs-dark"
+                options={{
+                  readOnly: true,
+                  minimap: { enabled: false },
+                  lineNumbers: "off",
+                  scrollBeyondLastLine: false,
+                  renderLineHighlight: "none",
+                  folding: false,
+                  glyphMargin: false,
+                  automaticLayout: true,
+                  overviewRulerLanes: 0,
+                  hideCursorInOverviewRuler: true,
+                  overviewRulerBorder: false,
+                }}
+                onMount={handleEditorDidMount}
+                className="min-h-[120px]"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <button 
                 onClick={handleOpenProject}
                 className="flex-1 bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
               >
                 Open Project
               </button>
+
               <button 
                 onClick={() => setIsModalOpen(false)}
                 className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 font-semibold py-3 px-6 rounded-lg transition-colors"
@@ -157,6 +242,7 @@ const ProjectCard = ({
                 Cancel
               </button>
             </div>
+
           </div>
         </DialogContent>
       </Dialog>

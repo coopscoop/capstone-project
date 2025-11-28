@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { Post } from '@/models/Post';
+import type { Post } from '@/types';
 
 interface ProjectContextType {
   currentProject: Post | null;
