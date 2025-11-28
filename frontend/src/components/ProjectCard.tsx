@@ -30,6 +30,7 @@ const ProjectCard = ({
   const [editorHeight, setEditorHeight] = useState('200px');
   const editorRef = useRef<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
+  const openProjectButtonRef = useRef<HTMLButtonElement>(null);
 
   const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -50,7 +51,12 @@ const ProjectCard = ({
     }
   };
 
-  const handleOpenClick = () => setIsModalOpen(true);
+  const handleOpenClick = () => {
+    // Had to add a slight delay to ensure modal opens correctly and shadcn can focus properly
+    setTimeout(() => {
+      setIsModalOpen(true);
+    }, 10);
+  };
 
   const handleOpenProject = () => {
     setIsModalOpen(false);
@@ -61,7 +67,7 @@ const ProjectCard = ({
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
     
-    // Force layout after mount - this helps with initial sizing issues because the editor doesn't like to be resized dynamically
+    // Force layout after mount
     setTimeout(() => {
       editor.layout();
     }, 0);
@@ -147,6 +153,7 @@ const ProjectCard = ({
 
       {/* Open Button */}
       <button 
+        ref={openProjectButtonRef}
         onClick={handleOpenClick}
         className="w-full bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
       >
@@ -159,16 +166,22 @@ const ProjectCard = ({
           ref={dialogContentRef}
           className="w-full max-w-[95vw] sm:max-w-2xl bg-zinc-800 border-zinc-700 text-zinc-100"
           onOpenAutoFocus={(e) => e.preventDefault()}
+          
+          // Restore focus to the button that opened the dialog, shadcn accessibility
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            openProjectButtonRef.current?.focus();
+          }}
         >
           <DialogHeader>
             <div className="flex items-start justify-between">
               <DialogTitle className="text-2xl font-bold text-zinc-100 pr-8">
                 {title}
               </DialogTitle>
-
-              {/* shadcn accessibility, sr-only so it doesn't show up for non-screenreaders */}
+            
+              {/* shadcn accessibility */}
               <DialogDescription className="sr-only">
-                Detailed view of project {title}
+                Project details including tags, description, and code preview for {title}
               </DialogDescription>
 
               <button 

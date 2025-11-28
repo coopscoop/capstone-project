@@ -1,14 +1,11 @@
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useProject } from '@/contexts/ProjectContext';
-import { usePosts } from '@/hooks/usePosts';
-import { useFavourites } from '@/hooks/useFavourites';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom';
+import { useAuth, useProject } from '@/contexts';
+import { usePosts, useFavourites } from '@/hooks';
 import { Shield, User, LogOut, Trash, Code, Plus, X, Edit } from 'lucide-react';
+// this is annoying why can't i import project card
 import ProjectCard from '@/components/ProjectCard';
-import { PostForm } from '@/components/PostForm';
-import { CodeExecutor } from '@/components/CodeExecutor';
-import { CodeLinter } from '@/components/CodeLinter';
+import { PostForm, CodeExecutor, CodeLinter } from '@/components';
 import type { Post } from '@/types';
 
 const ControlPanelPage = () => {
@@ -16,7 +13,7 @@ const ControlPanelPage = () => {
     const { posts, loading: postsLoading, error: postsError, createPost, updatePost, deletePost } = usePosts();
     const { favourites, toggleFavourite } = useFavourites(user?.userId);
     const { setCurrentProject } = useProject();
-    const navigate = useNavigate(); // Add this hook
+    const navigate = useNavigate();
     
     // Form visibility state
     const [showCreateForm, setShowCreateForm] = useState(false);
