@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { User } from '@/models/User';
-import type { AuthContextType } from '@/models/AuthContextType';
+import type { AuthContext, User } from '@/types';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContext | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -11,8 +10,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5225/api';
-  const API_BASE_URL = 'https://capstone-backend-657482441130.northamerica-northeast2.run.app/api';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5225/api';
+  // const API_BASE_URL = 'https://capstone-backend-657482441130.northamerica-northeast2.run.app/api';
   console.log('API_BASE_URL:', API_BASE_URL);
 
   // Load user from localStorage on mount

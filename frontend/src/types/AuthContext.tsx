@@ -1,6 +1,6 @@
-import type { User } from '@/models/User';
+import type { User } from '@/types/User';
 
-export interface AuthContextType {
+export interface AuthContext {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;

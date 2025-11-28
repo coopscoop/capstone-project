@@ -96,7 +96,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy => policy
-            .WithOrigins("http://localhost:3000", "https://capstone-frontend-657482441130.northamerica-northeast2.run.app")  // react front end
+            .WithOrigins("http://localhost:5173", "https://capstone-frontend-657482441130.northamerica-northeast2.run.app")  // react front end
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
