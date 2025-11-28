@@ -1,6 +1,6 @@
 import type { User } from '@/types/User';
 
-export interface AuthContext {
+export interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
