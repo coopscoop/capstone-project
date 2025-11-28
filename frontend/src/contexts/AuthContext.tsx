@@ -11,7 +11,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5225/api';
-  // const API_BASE_URL = 'https://capstone-backend-657482441130.northamerica-northeast2.run.app/api';
   console.log('API_BASE_URL:', API_BASE_URL);
 
   // Load user from localStorage on mount
@@ -36,7 +35,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tokenData = JSON.parse(atob(token.split('.')[1]));
     const expiresAt = tokenData.exp * 1000; // Convert to milliseconds
 
-    // log expiration time
     console.log('Token expiration time:', new Date(expiresAt));
     const now = Date.now();
     const timeUntilExpiry = expiresAt - now;
@@ -179,8 +177,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('user');
   };
 
+  const clearTokens = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    logout();
+  };
+
+  const updateUserProfile = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isLoading, error }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      login, 
+      register, 
+      logout, 
+      clearTokens,
+      updateUserProfile,
+      isLoading, 
+      error 
+    }}>
       {children}
     </AuthContext.Provider>
   );
