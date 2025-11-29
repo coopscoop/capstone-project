@@ -7,6 +7,7 @@ using Capstone.Core.Models.Dtos;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 public class PostService : IPostService
 {
@@ -30,8 +31,9 @@ public class PostService : IPostService
     public async Task<PostDto?> GetByIdAsync(int postId, int? currentUserId = null, bool? isAdmin = null)
     {
         var post = await _postRepository.GetByIdAsync(postId, currentUserId, isAdmin);
-        if (post == null) return null;
         
+        // If post is null, return an empty dto
+        if (post == null) return new PostDto();
         return MapToDto(post);
     }
 

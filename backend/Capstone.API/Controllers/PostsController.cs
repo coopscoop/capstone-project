@@ -82,13 +82,6 @@ public class PostsController : ControllerBase
         var (currentUserId, isAdmin) = GetCurrentUserInfo();
 
         _logger.LogInformation("User {UserId} (IsAdmin: {IsAdmin}) is attempting to create a post for User {PostUserId}", currentUserId, isAdmin, postDto.UserId);
-        
-        // if (currentUserId == 0)
-        //     return Unauthorized(new { error = "Authentication required to create posts" });
-
-        // Ensure the user can only create posts for themselves
-        // if (postDto.UserId != currentUserId && !isAdmin)
-        //     return Forbid();
 
         try
         {
@@ -111,17 +104,11 @@ public class PostsController : ControllerBase
     public async Task<ActionResult<PostDto>> Update(int id, [FromBody] PostDto postDto)
     {
         var (currentUserId, isAdmin) = GetCurrentUserInfo();
-        
-        // if (currentUserId == 0)
-        //     return Unauthorized(new { error = "Authentication required to update posts" });
 
         // Check if user owns the post or is admin
         var existingPost = await _postsService.GetByIdAsync(id);
         if (existingPost == null)
             return NotFound(new { error = $"Post with ID '{id}' not found" });
-
-        // if (existingPost.UserId != currentUserId && !isAdmin)
-        //     return Forbid();
 
         var post = await _postsService.UpdateAsync(id, postDto);
         
