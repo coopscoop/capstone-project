@@ -12,7 +12,7 @@ const Sidebar = () => {
     { path: '/explore', icon: Compass, label: 'Explore' },
     { path: '/editor', icon: FileCode, label: 'Editor' },
     { path: '/settings', icon: User, label: 'Settings' },
-    { path: '/control-panel', icon: ArchiveIcon, label: 'Archive' },
+    { path: '/control-panel', icon: ArchiveIcon, label: 'Control Panel' },
   ];
 
   const pythonLogo = '/python-logo.png';
