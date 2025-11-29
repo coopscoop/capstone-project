@@ -12,8 +12,12 @@ const Sidebar = () => {
     { path: '/explore', icon: Compass, label: 'Explore' },
     { path: '/editor', icon: FileCode, label: 'Editor' },
     { path: '/settings', icon: User, label: 'Settings' },
-    { path: '/control-panel', icon: ArchiveIcon, label: 'Control Panel' },
   ];
+
+  // Add Control Panel to nav if admin
+  if (user?.isAdmin) navItems.push(
+    { path: '/control-panel', icon: ArchiveIcon, label: 'Control Panel' }
+  );
 
   const pythonLogo = '/python-logo.png';
 
@@ -98,16 +102,6 @@ const Sidebar = () => {
               </Link>
             );
           })}
-          
-          {/* Admin Indicator (mobile) */}
-          {user?.isAdmin && (
-            <div className="flex flex-col items-center justify-center p-2 flex-1 max-w-[20%]" title="Admin User">
-              <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center mb-1">
-                <span className="text-purple-600 text-xs font-bold">A</span>
-              </div>
-              <span className="text-xs text-zinc-600">Admin</span>
-            </div>
-          )}
 
           {/* Logout Button (mobile) */}
           <button

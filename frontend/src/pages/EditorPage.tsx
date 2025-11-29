@@ -3,12 +3,35 @@ import { Editor } from '@monaco-editor/react';
 import { Play, Save } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
 import { useNavigate } from 'react-router-dom';
+import { useCodeExecution } from '@/hooks/useCodeExecution';
 
 const EditorPage = () => {
   const { currentProject, isLoading } = useProject();
   const navigate = useNavigate();
   const [code, setCode] = useState('');
 
+  const {
+    executeCode,
+    executionResult,
+    isExecuting,
+    executionError,
+    startLintInterval,
+    stopLintInterval,
+    lintResult,
+    isLinting,
+    lintError,
+    clearResults,
+  } = useCodeExecution();
+
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  const [activeTab, setActiveTab] = useState<'editor' | 'output'>('editor');
+  const [editorWidth, setEditorWidth] = useState(60);
+  const [isDragging, setIsDragging] = useState(false);
+  const editorRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const monacoRef = useRef<any>(null);
+
+  // Initialize code from current project
   useEffect(() => {
     if (isLoading) return;
 
@@ -17,53 +40,79 @@ const EditorPage = () => {
     }
   }, [currentProject, isLoading]);
 
-  if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-zinc-50">
-        <div className="text-lg text-zinc-400">Loading...</div>
-      </div>
-    );
-  }
+  // Start the linting interval when code changes
+  useEffect(() => {
+    if (code.trim()) {
+      startLintInterval(code);
+    } else {
+      stopLintInterval();
+    }
 
-  if (!currentProject) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-zinc-50">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-zinc-900 mb-4">No Project Open</h2>
-          <p className="text-zinc-600 mb-6">Select or create a project to get started!</p>
-          <button
-            onClick={() => navigate('/explore')}
-            className="px-6 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors"
-          >
-            Browse Projects
-          </button>
-        </div>
-      </div>
-    );
-  }
+    return () => {
+      stopLintInterval();
+    };
+  }, [code, startLintInterval, stopLintInterval]);
 
-  const [output, setOutput] = useState('');
-  const [isRunning, setIsRunning] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
-  const [activeTab, setActiveTab] = useState<'editor' | 'output'>('editor');
-  const [editorWidth, setEditorWidth] = useState(60); // percentage
-  const [isDragging, setIsDragging] = useState(false);
-  const editorRef = useRef(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  // Update editor markers when lint results change
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current) return;
+
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+
+    // Get all issues from both lint and execution results
+    const allIssues = [
+      ...(lintResult?.issues || []),
+      ...(executionResult?.lintIssues || [])
+    ];
+
+    // Create markers for the editor
+    const markers = allIssues.map(issue => ({
+      severity: issue.severity === 'error' 
+        ? monaco.MarkerSeverity.Error 
+        : issue.severity === 'warning' 
+        ? monaco.MarkerSeverity.Warning 
+        : monaco.MarkerSeverity.Info,
+      message: issue.message,
+      startLineNumber: issue.line,
+      startColumn: issue.column + 1, // Monaco uses 1-based columns
+      endLineNumber: issue.line,
+      endColumn: issue.column + 100, // Extend to end of line
+      source: 'Linter',
+    }));
+
+    // Set the markers
+    monaco.editor.setModelMarkers(editor.getModel(), 'linter', markers);
+  }, [lintResult, executionResult]);
+
+  const handleRunCode = async () => {
+    try {
+      await executeCode({
+        code,
+        timeoutMs: 30000,
+      });
+      if (!isDesktop) {
+        setActiveTab('output');
+      }
+    } catch (err) {
+      console.error('Execution failed:', err);
+    }
+  };
 
   const handleEditorChange = (value: string | undefined): void => {
     setCode(value || '');
   };
 
-  const handleEditorMount = (editor: any) => {
+  const handleEditorMount = (editor: any, monaco: any) => {
     editorRef.current = editor;
+    monacoRef.current = monaco;
   };
 
   // Trigger editor layout on container size changes
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       if (editorRef.current) {
-        (editorRef.current as any).layout();
+        editorRef.current.layout();
       }
     });
 
@@ -75,16 +124,6 @@ const EditorPage = () => {
       resizeObserver.disconnect();
     };
   }, []);
-
-  const handleRun = async () => {
-    setIsRunning(true);
-    setOutput('Running code...\n');
-
-    setTimeout(() => {
-      setOutput(`Running code...\n\n\n\nConnect to a Python backend to execute code.\nOutput would appear here.`);
-      setIsRunning(false);
-    }, 500);
-  };
 
   const handleSave = () => {
     const blob = new Blob([code], { type: 'text/plain' });
@@ -117,7 +156,6 @@ const EditorPage = () => {
       const rect = container.getBoundingClientRect();
       const newWidth = ((e.clientX - rect.left) / rect.width) * 100;
 
-      // Clamp between 30% and 70%
       if (newWidth >= 30 && newWidth <= 70) {
         setEditorWidth(newWidth);
       }
@@ -135,6 +173,40 @@ const EditorPage = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);
+
+  // Get all issues for display
+  // const allIssues = [
+  //   ...(lintResult?.issues || []),
+  //   ...(executionResult?.lintIssues || [])
+  // ];
+
+  // Display execution output or error
+  const displayOutput = executionResult?.output || executionError || '';
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-zinc-50">
+        <div className="text-lg text-zinc-400">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!currentProject) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-zinc-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-zinc-900 mb-4">No Project Open</h2>
+          <p className="text-zinc-600 mb-6">Select or create a project to get started!</p>
+          <button
+            onClick={() => navigate('/explore')}
+            className="px-6 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors"
+          >
+            Browse Projects
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (isDesktop) {
     // Desktop: Side-by-side with resizable divider
@@ -186,13 +258,13 @@ const EditorPage = () => {
                   Save
                 </button>
                 <button
-                  onClick={handleRun}
-                  disabled={isRunning}
+                  onClick={handleRunCode}
+                  disabled={isExecuting}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm bg-python-blue hover:bg-[#0092d4] text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Run code"
                 >
                   <Play size={16} />
-                  {isRunning ? 'Running...' : 'Run'}
+                  {isExecuting ? 'Running...' : 'Run'}
                 </button>
               </div>
             </div>
@@ -200,9 +272,16 @@ const EditorPage = () => {
 
           {/* Output Content */}
           <div className="flex-1 overflow-auto p-6 bg-[#1e1e1e]">
-            {output ? (
+            {isExecuting ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-python-blue mx-auto mb-4"></div>
+                  <p className="text-zinc-400">Executing code...</p>
+                </div>
+              </div>
+            ) : displayOutput ? (
               <pre className="text-sm text-zinc-100 font-mono whitespace-pre-wrap leading-relaxed">
-                {output}
+                {displayOutput}
               </pre>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-center">
@@ -215,6 +294,38 @@ const EditorPage = () => {
               </div>
             )}
           </div>
+
+          {/* Lint Results */}
+          {lintResult && lintResult.issues.length > 0 && (
+            <div className="border-t border-[#3e3e42] bg-[#252526] max-h-32 overflow-y-auto">
+              <div className="p-3">
+                <h4 className="text-sm font-medium text-zinc-400 mb-2">
+                  Lint Issues ({lintResult.issues.length})
+                </h4>
+                <div className="space-y-1">
+                  {lintResult.issues.slice(0, 3).map((issue, index) => (
+                    <div
+                      key={index}
+                      className={`text-xs ${
+                        issue.severity === 'error'
+                          ? 'text-red-400'
+                          : issue.severity === 'warning'
+                          ? 'text-yellow-400'
+                          : 'text-blue-400'
+                      }`}
+                    >
+                      Line {issue.line}:{issue.column} - {issue.message}
+                    </div>
+                  ))}
+                  {lintResult.issues.length > 3 && (
+                    <div className="text-xs text-zinc-500">
+                      +{lintResult.issues.length - 3} more issues
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -253,22 +364,19 @@ const EditorPage = () => {
         <div className="flex items-center gap-2 pr-2">
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-300 hover:bg-[#2a2d2e] rounded-md transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-200 rounded-md transition-colors"
             title="Save code"
           >
             <Save size={16} />
           </button>
           <button
-            onClick={() => {
-              handleRun();
-              setActiveTab('output');
-            }}
-            disabled={isRunning}
+            onClick={handleRunCode}
+            disabled={isExecuting}
             className="flex items-center gap-2 px-3 py-1.5 text-sm bg-python-blue hover:bg-[#0092d4] text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Run code and show output"
           >
             <Play size={16} />
-            {isRunning ? 'Running...' : 'Run'}
+            {isExecuting ? 'Running...' : 'Run'}
           </button>
         </div>
       </div>
@@ -307,9 +415,16 @@ const EditorPage = () => {
 
             {/* Output Content */}
             <div className="flex-1 overflow-auto p-4 bg-[#1e1e1e]">
-              {output ? (
+              {isExecuting ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-python-blue mx-auto mb-4"></div>
+                    <p className="text-zinc-400">Executing code...</p>
+                  </div>
+                </div>
+              ) : displayOutput ? (
                 <pre className="text-sm text-zinc-100 font-mono whitespace-pre-wrap leading-relaxed">
-                  {output}
+                  {displayOutput}
                 </pre>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center">
@@ -322,6 +437,38 @@ const EditorPage = () => {
                 </div>
               )}
             </div>
+
+            {/* Lint Results for Mobile */}
+            {lintResult && lintResult.issues.length > 0 && (
+              <div className="border-t border-[#3e3e42] bg-[#252526] max-h-24 overflow-y-auto">
+                <div className="p-3">
+                  <h4 className="text-sm font-medium text-zinc-400 mb-1">
+                    Lint Issues ({lintResult.issues.length})
+                  </h4>
+                  <div className="space-y-1">
+                    {lintResult.issues.slice(0, 2).map((issue, index) => (
+                      <div
+                        key={index}
+                        className={`text-xs ${
+                          issue.severity === 'error'
+                            ? 'text-red-400'
+                            : issue.severity === 'warning'
+                            ? 'text-yellow-400'
+                            : 'text-blue-400'
+                        }`}
+                      >
+                        Line {issue.line}:{issue.column} - {issue.message}
+                      </div>
+                    ))}
+                    {lintResult.issues.length > 2 && (
+                      <div className="text-xs text-zinc-500">
+                        +{lintResult.issues.length - 2} more issues
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

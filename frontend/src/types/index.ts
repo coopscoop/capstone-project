@@ -1,6 +1,4 @@
 export * from './AuthContextType';
-export * from './CodeExecutionRequest';
-export * from './CodeLintRequest';
 export * from './CreatePostRequest';
 export * from './Favourite';
 export * from './Post';
@@ -8,3 +6,8 @@ export * from './UpdatePostRequest';
 export * from './User';
 export * from './UpdateUserRequest';
 export * from './CreateUserRequest';
+export * from './CodeExecutionRequest';
+export * from './CodeExecutionResult';
+export * from './CodeLintRequest';
+export * from './CodeLintResult';
+export * from './CodeLintIssue';

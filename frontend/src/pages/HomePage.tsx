@@ -62,9 +62,6 @@ const HomePage = () => {
               <Star className="stroke-yellow-300" size={28} />
               <h2 className="text-2xl font-bold text-zinc-900">Favorite Projects</h2>
             </div>
-            <span className="bg-zinc-100 text-zinc-700 px-3 py-1 rounded-full text-sm font-medium">
-              {favoritePosts.length} {favoritePosts.length === 1 ? 'project' : 'projects'}
-            </span>
           </div>
 
           {postsLoading ? (
