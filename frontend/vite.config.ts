@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react-swc'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
@@ -12,9 +11,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        // target: process.env.VITE_API_URL || 'http://localhost:5225/api',
-        target: 'https://capstone-backend-657482441130.northamerica-northeast2.run.app/api',
+        target: 'http://localhost:5225',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     }
   },
