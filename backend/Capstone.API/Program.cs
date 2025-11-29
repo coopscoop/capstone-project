@@ -6,13 +6,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Capstone.Core.Models.Configuration;
 using System.Security.Claims;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 // many imports but makes the middleware instancing easier to read
 using Capstone.Infrastructure;
 using Capstone.Infrastructure.Persistence;
 using Capstone.Infrastructure.Persistence.Repositories;
 
+using Capstone.API.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,8 +57,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Configure logging to be easier to read
+// builder.Logging.ClearProviders();
+builder.Logging.AddConsole(options =>
+{
+    options.FormatterName = "custom";
+});
+
+builder.Logging.AddConsoleFormatter<CustomConsoleFormatter, ConsoleFormatterOptions>();
+
+// Authorization
 builder.Services.AddAuthorization();
 
+// Email settings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
 // linter/execution services
@@ -74,7 +87,6 @@ builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
 
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -97,8 +109,7 @@ builder.Services.AddHostedService<JwtTokenCleanupService>();
 // db connection
 builder.Services.AddSingleton<DatabaseConnection>();
 
-// CORS configuration for React frontend, used in middleware (eventually, will probably need to change)
-// NOTE: currently using http, should be changed to https later
+// CORS configuration for React frontend, used in middleware
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",

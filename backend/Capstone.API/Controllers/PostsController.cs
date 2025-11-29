@@ -3,7 +3,6 @@ namespace Capstone.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Dtos;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
 /// <summary>
