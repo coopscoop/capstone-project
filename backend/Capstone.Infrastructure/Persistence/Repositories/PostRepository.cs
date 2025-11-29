@@ -32,6 +32,7 @@ public class PostRepository : IPostRepository
                 description,
                 number_of_likes,
                 code,
+                is_visible,
                 created,
                 last_edited
             )
@@ -41,6 +42,7 @@ public class PostRepository : IPostRepository
                 @Description,
                 @NumberOfLikes,
                 @Code,
+                @IsVisible,
                 @Created,
                 @LastEdited
             )
@@ -51,12 +53,11 @@ public class PostRepository : IPostRepository
                 description AS Description,
                 number_of_likes AS NumberOfLikes,
                 code AS Code,
+                is_visible AS IsVisible,
                 created AS Created,
                 last_edited AS LastEdited";
 
         post.Created = DateTime.UtcNow;
-        
-        // When it's created, just set the last edited time to the same as the created time
         post.LastEdited = DateTime.UtcNow;
 
         await using var connection = _dbConnection.CreateConnection();
@@ -81,111 +82,188 @@ public class PostRepository : IPostRepository
         return affected > 0;
     }
 
-    public async Task<IEnumerable<Post>> GetAllAsync()
+    public async Task<IEnumerable<Post>> GetAllAsync(int? currentUserId = null, bool? isAdmin = null)
     {
-        // join to get the tags
-        const string sql = @"
-            SELECT 
-                p.post_id AS PostId,
-                p.user_id AS UserId,
-                p.title AS Title,
-                p.description AS Description,
-                p.number_of_likes AS NumberOfLikes,
-                p.code AS Code,
-                p.created AS Created,
-                p.last_edited AS LastEdited,
-                t.tag_name AS TagName
-            FROM posts p
-            LEFT JOIN tags t ON p.post_id = t.post_id
-            ORDER BY p.created DESC";
+        string sql;
+        if (isAdmin == true)
+        {
+            // Admins can see all posts
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                LEFT JOIN tags t ON p.post_id = t.post_id
+                ORDER BY p.created DESC";
+        }
+        else
+        {
+            // Regular users can only see visible posts OR their own posts
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                LEFT JOIN tags t ON p.post_id = t.post_id
+                WHERE p.is_visible = TRUE OR p.user_id = @CurrentUserId
+                ORDER BY p.created DESC";
+        }
 
-        await using var connection = _dbConnection.CreateConnection();
-        
-        var postDictionary = new Dictionary<int, Post>();
-        
-        await connection.QueryAsync<Post, string, Post>(
-            sql,
-            // weird and annoying but it gets the tags then maps them to the post
-            (post, tagName) =>
-            {
-                if (!postDictionary.TryGetValue(post.PostId, out var postEntry))
-                {
-                    postEntry = post;
-                    postEntry.Tags = new List<string>();
-                    postDictionary.Add(post.PostId, postEntry);
-                }
-
-                if (!string.IsNullOrEmpty(tagName))
-                {
-                    postEntry.Tags.Add(tagName);
-                }
-
-                return postEntry;
-            },
-            splitOn: "TagName"
-        );
-
-        return postDictionary.Values;
+        return await GetPostsWithTags(sql, new { CurrentUserId = currentUserId ?? 0 });
     }
 
-    public async Task<Post?> GetByIdAsync(int postId)
+    public async Task<Post?> GetByIdAsync(int postId, int? currentUserId = null, bool? isAdmin = null)
     {
-        const string sql = @"
-            SELECT 
-                post_id AS PostId,
-                user_id AS UserId,
-                title AS Title,
-                description AS Description,
-                number_of_likes AS NumberOfLikes,
-                code AS Code,
-                created AS Created,
-                last_edited AS LastEdited,
-                created AS Created
-            FROM posts 
-            WHERE post_id = @PostId";
+        string sql;
+        if (isAdmin == true)
+        {
+            // Admins can see any post
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                LEFT JOIN tags t ON p.post_id = t.post_id
+                WHERE p.post_id = @PostId";
+        }
+        else
+        {
+            // Regular users can only see visible posts OR their own posts
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                LEFT JOIN tags t ON p.post_id = t.post_id
+                WHERE p.post_id = @PostId AND (p.is_visible = TRUE OR p.user_id = @CurrentUserId)";
+        }
 
-        await using var connection = _dbConnection.CreateConnection();
-        return await connection.QuerySingleOrDefaultAsync<Post>(sql, new { PostId = postId });
+        var posts = await GetPostsWithTags(sql, new { PostId = postId, CurrentUserId = currentUserId ?? 0 });
+        return posts.FirstOrDefault();
     }
 
-    public async Task<IEnumerable<Post>> GetByTagAsync(string tagName)
+    public async Task<IEnumerable<Post>> GetByUserIdAsync(int userId, int? currentUserId = null, bool? isAdmin = null)
     {
-        const string sql = @"
-            SELECT 
-                post_id AS PostId,
-                user_id AS UserId,
-                title AS Title,
-                description AS Description,
-                number_of_likes AS NumberOfLikes,
-                code AS Code,
-                created AS Created,
-                last_edited AS LastEdited,
-                created AS Created
-            FROM posts 
-            WHERE tag_name = @TagName";
+        string sql;
+        if (isAdmin == true || userId == currentUserId)
+        {
+            // Admins or users viewing their own posts can see all
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                LEFT JOIN tags t ON p.post_id = t.post_id
+                WHERE p.user_id = @UserId
+                ORDER BY p.created DESC";
+        }
+        else
+        {
+            // Regular users viewing others' posts can only see visible ones
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                LEFT JOIN tags t ON p.post_id = t.post_id
+                WHERE p.user_id = @UserId AND p.is_visible = TRUE
+                ORDER BY p.created DESC";
+        }
 
-        await using var connection = _dbConnection.CreateConnection();
-        return await connection.QueryAsync<Post>(sql, new { TagName = tagName });
+        return await GetPostsWithTags(sql, new { UserId = userId });
     }
 
-    public async Task<IEnumerable<Post>> GetByUserIdAsync(int userId)
+    public async Task<IEnumerable<Post>> GetByTagAsync(string tagName, int? currentUserId = null, bool? isAdmin = null)
     {
-        const string sql = @"
-            SELECT 
-                post_id AS PostId,
-                user_id AS UserId,
-                title AS Title,
-                description AS Description,
-                number_of_likes AS NumberOfLikes,
-                code AS Code,
-                created AS Created,
-                last_edited AS LastEdited,
-                created AS Created
-            FROM posts 
-            WHERE user_id = @UserId";
+        string sql;
+        if (isAdmin == true)
+        {
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                JOIN tags t ON p.post_id = t.post_id
+                WHERE t.tag_name = @TagName
+                ORDER BY p.created DESC";
+        }
+        else
+        {
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                JOIN tags t ON p.post_id = t.post_id
+                WHERE t.tag_name = @TagName AND (p.is_visible = TRUE OR p.user_id = @CurrentUserId)
+                ORDER BY p.created DESC";
+        }
 
-        await using var connection = _dbConnection.CreateConnection();
-        return await connection.QueryAsync<Post>(sql, new { UserId = userId });
+        return await GetPostsWithTags(sql, new { TagName = tagName, CurrentUserId = currentUserId ?? 0 });
     }
 
     public async Task<bool> IncrementLikesAsync(int postId)
@@ -206,11 +284,44 @@ public class PostRepository : IPostRepository
                 description = @Description,
                 number_of_likes = @NumberOfLikes,
                 code = @Code,
+                is_visible = @IsVisible,
                 last_edited = @LastEdited
             WHERE post_id = @PostId";
 
         await using var connection = _dbConnection.CreateConnection();
         var affected = await connection.ExecuteAsync(sql, post);
         return affected > 0;
+    }
+
+    // Helper method to handle the tag mapping
+    private async Task<IEnumerable<Post>> GetPostsWithTags(string sql, object? parameters = null)
+    {
+        await using var connection = _dbConnection.CreateConnection();
+        
+        var postDictionary = new Dictionary<int, Post>();
+        
+        await connection.QueryAsync<Post, string, Post>(
+            sql,
+            (post, tagName) =>
+            {
+                if (!postDictionary.TryGetValue(post.PostId, out var postEntry))
+                {
+                    postEntry = post;
+                    postEntry.Tags = new List<string>();
+                    postDictionary.Add(post.PostId, postEntry);
+                }
+
+                if (!string.IsNullOrEmpty(tagName))
+                {
+                    postEntry.Tags.Add(tagName);
+                }
+
+                return postEntry;
+            },
+            parameters,
+            splitOn: "TagName"
+        );
+
+        return postDictionary.Values;
     }
 }

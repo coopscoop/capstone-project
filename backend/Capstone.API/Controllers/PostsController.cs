@@ -3,9 +3,11 @@ namespace Capstone.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Dtos;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 /// <summary>
-/// API endpoints for user management
+/// API endpoints for post management
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -24,12 +26,16 @@ public class PostsController : ControllerBase
 
     /// <summary>
     /// Get all posts
+    /// Automatically applies visibility rules based on current user status
+    /// If the user is an admin, all posts are returned
+    /// If the user is a regular user, only visible posts, plus their own regardless of visibility rules, are returned
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
     {
-        var posts = await _postsService.GetAllAsync();
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        var posts = await _postsService.GetAllAsync(currentUserId, isAdmin);
         return Ok(posts);
     }
 
@@ -41,10 +47,11 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PostDto>> GetById(int id)
     {
-        var post = await _postsService.GetByIdAsync(id);
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        var post = await _postsService.GetByIdAsync(id, currentUserId, isAdmin);
         
         if (post == null)
-            return NotFound(new { error = $"Post with ID '{id}' not found" });
+            return NotFound(new { error = $"Post with ID '{id}' not found or access denied" });
 
         return Ok(post);
     }
@@ -57,6 +64,15 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PostDto>> Create([FromBody] PostDto postDto)
     {
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        
+        if (currentUserId == 0)
+            return Unauthorized(new { error = "Authentication required to create posts" });
+
+        // Ensure the user can only create posts for themselves
+        if (postDto.UserId != currentUserId && !isAdmin)
+            return Forbid();
+
         try
         {
             var post = await _postsService.CreateAsync(postDto);
@@ -74,8 +90,22 @@ public class PostsController : ControllerBase
     [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<PostDto>> Update(int id, [FromBody] PostDto postDto)
     {
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        
+        if (currentUserId == 0)
+            return Unauthorized(new { error = "Authentication required to update posts" });
+
+        // Check if user owns the post or is admin
+        var existingPost = await _postsService.GetByIdAsync(id);
+        if (existingPost == null)
+            return NotFound(new { error = $"Post with ID '{id}' not found" });
+
+        if (existingPost.UserId != currentUserId && !isAdmin)
+            return Forbid();
+
         var post = await _postsService.UpdateAsync(id, postDto);
         
         if (post == null)
@@ -90,8 +120,22 @@ public class PostsController : ControllerBase
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Delete(int id)
     {
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        
+        if (currentUserId == 0)
+            return Unauthorized(new { error = "Authentication required to delete posts" });
+
+        // Check if user owns the post or is admin
+        var existingPost = await _postsService.GetByIdAsync(id);
+        if (existingPost == null)
+            return NotFound(new { error = $"Post with ID '{id}' not found" });
+
+        if (existingPost.UserId != currentUserId && !isAdmin)
+            return Forbid();
+
         var deleted = await _postsService.DeleteAsync(id);
 
         if (!deleted)
@@ -101,24 +145,42 @@ public class PostsController : ControllerBase
     }
     
     /// <summary>
-    /// Get posts by user
+    /// Get posts by user (with visibility rules applied)
     /// </summary>
     [HttpGet("user/{userId:int}")]
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetByUserId(int userId)
     {
-        var posts = await _postsService.GetByUserIdAsync(userId);
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        var posts = await _postsService.GetByUserIdAsync(userId, currentUserId, isAdmin);
         return Ok(posts);
     }
 
     /// <summary>
-    /// Get posts by tag
+    /// Get posts by tag (with visibility rules applied)
     /// </summary>
     [HttpGet("tag/{tagName}")]
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetByTag(string tagName)
     {
-        var posts = await _postsService.GetByTagAsync(tagName);
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        var posts = await _postsService.GetByTagAsync(tagName, currentUserId, isAdmin);
         return Ok(posts);
+    }
+
+    /// <summary>
+    /// Helper method to get current user info from claims
+    /// </summary>
+    private (int userId, bool isAdmin) GetCurrentUserInfo()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var isAdminClaim = User.FindFirst("isAdmin")?.Value;
+
+        if (int.TryParse(userIdClaim, out int userId) && bool.TryParse(isAdminClaim, out bool isAdmin))
+        {
+            return (userId, isAdmin);
+        }
+
+        return (0, false); // Not authenticated
     }
 }

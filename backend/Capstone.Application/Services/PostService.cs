@@ -11,68 +11,40 @@ using System.Linq;
 public class PostService : IPostService
 {
     private readonly IPostRepository _postRepository;
-    private readonly ITagRepository _tagRepository;
     private readonly ILogger<PostService> _logger;
 
     public PostService(
         IPostRepository postRepository,
-        ITagRepository tagRepository, // Add this
         ILogger<PostService> logger)
     {
         _postRepository = postRepository;
-        _tagRepository = tagRepository; // Add this
         _logger = logger;
     }
 
-    public async Task<IEnumerable<PostDto>> GetAllAsync()
+    public async Task<IEnumerable<PostDto>> GetAllAsync(int? currentUserId = null, bool? isAdmin = null)
     {
-        var posts = await _postRepository.GetAllAsync();
-        
-        // Load tags for each post
-        var postDtos = new List<PostDto>();
-        foreach (var post in posts)
-        {
-            var dto = await MapToDto(post);
-            postDtos.Add(dto);
-        }
-        
-        return postDtos;
+        var posts = await _postRepository.GetAllAsync(currentUserId, isAdmin);
+        return posts.Select(MapToDto);
     }
 
-    public async Task<PostDto?> GetByIdAsync(int postId)
+    public async Task<PostDto?> GetByIdAsync(int postId, int? currentUserId = null, bool? isAdmin = null)
     {
-        var post = await _postRepository.GetByIdAsync(postId);
+        var post = await _postRepository.GetByIdAsync(postId, currentUserId, isAdmin);
         if (post == null) return null;
         
-        return await MapToDto(post);
+        return MapToDto(post);
     }
 
-    public async Task<IEnumerable<PostDto>> GetByUserIdAsync(int userId)
+    public async Task<IEnumerable<PostDto>> GetByUserIdAsync(int userId, int? currentUserId = null, bool? isAdmin = null)
     {
-        var posts = await _postRepository.GetByUserIdAsync(userId);
-        
-        var postDtos = new List<PostDto>();
-        foreach (var post in posts)
-        {
-            var dto = await MapToDto(post);
-            postDtos.Add(dto);
-        }
-        
-        return postDtos;
+        var posts = await _postRepository.GetByUserIdAsync(userId, currentUserId, isAdmin);
+        return posts.Select(MapToDto);
     }
 
-    public async Task<IEnumerable<PostDto>> GetByTagAsync(string tagName)
+    public async Task<IEnumerable<PostDto>> GetByTagAsync(string tagName, int? currentUserId = null, bool? isAdmin = null)
     {
-        var posts = await _postRepository.GetByTagAsync(tagName);
-        
-        var postDtos = new List<PostDto>();
-        foreach (var post in posts)
-        {
-            var dto = await MapToDto(post);
-            postDtos.Add(dto);
-        }
-        
-        return postDtos;
+        var posts = await _postRepository.GetByTagAsync(tagName, currentUserId, isAdmin);
+        return posts.Select(MapToDto);
     }
 
     public async Task<PostDto> CreateAsync(PostDto postDto)
@@ -83,11 +55,12 @@ public class PostService : IPostService
             Title = postDto.Title,
             Description = postDto.Description,
             NumberOfLikes = 0,
-            Code = postDto.Code
+            Code = postDto.Code,
+            IsVisible = postDto.IsVisible
         };
 
         var created = await _postRepository.CreateAsync(post);
-        return await MapToDto(created);
+        return MapToDto(created);
     }
 
     public async Task<PostDto?> UpdateAsync(int postId, PostDto postDto)
@@ -98,12 +71,13 @@ public class PostService : IPostService
         existingPost.Title = postDto.Title;
         existingPost.Description = postDto.Description;
         existingPost.Code = postDto.Code;
+        existingPost.IsVisible = postDto.IsVisible;
         existingPost.LastEdited = DateTime.UtcNow;
 
         var success = await _postRepository.UpdateAsync(existingPost);
         if (!success) return null;
 
-        return await MapToDto(existingPost);
+        return MapToDto(existingPost);
     }
 
     public async Task<bool> DeleteAsync(int postId)
@@ -111,13 +85,9 @@ public class PostService : IPostService
         return await _postRepository.DeleteAsync(postId);
     }
 
-    // Helper method to map Post to PostDto with tags
-    private async Task<PostDto> MapToDto(Post post)
+    // Helper method to map Post to PostDto
+    private PostDto MapToDto(Post post)
     {
-        // Get tags for this post
-        var tags = await _tagRepository.GetByPostIdAsync(post.PostId);
-        var tagNames = tags.Select(t => t.TagName).ToList();
-
         return new PostDto
         {
             PostId = post.PostId,
@@ -126,9 +96,10 @@ public class PostService : IPostService
             Description = post.Description,
             NumberOfLikes = post.NumberOfLikes,
             Code = post.Code,
+            IsVisible = post.IsVisible,
             Created = post.Created,
             LastEdited = post.LastEdited,
-            Tags = tagNames
+            Tags = post.Tags ?? new List<string>()
         };
     }
 }

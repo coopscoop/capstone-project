@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS posts (
     description TEXT,
     number_of_likes INTEGER DEFAULT 0,
     code CHARACTER VARYING(500) NOT NULL,
+    is_visible BOOLEAN DEFAULT TRUE,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_edited TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_posts_user
@@ -15,14 +16,8 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 -- Lots of indexes for faster queries as this is the primary table the user will interact with
--- Index for faster queries by user
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);
-
--- Index for faster queries by creation time
 CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(created DESC);
-
--- Index for faster queries by last edited time
 CREATE INDEX IF NOT EXISTS idx_posts_last_edited ON posts(last_edited DESC);
-
--- Index for faster queries by likes (for trending/popular posts)
 CREATE INDEX IF NOT EXISTS idx_posts_number_of_likes ON posts(number_of_likes DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_is_visible ON posts(is_visible);
