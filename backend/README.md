@@ -156,6 +156,8 @@ If for whatever reason you want to test the API endpoints without logging in, si
   - Using Bcrype.net to hash passwords, easier than the built in .net implementation of hashing
 - https://learn.microsoft.com/en-us/dotnet/core/extensions/windows-service
   - Background service for cleaning up expired tokens/password reset tokens
+- https://learn.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
+  - for my console logging, makes reading the massive debug/warnings that .NET spits out a bit easier
 
 ### Tests - still .NET
 - [xUnit](https://xunit.net/?tabs=cs)
@@ -174,3 +176,7 @@ If for whatever reason you want to test the API endpoints without logging in, si
   - Free for non-commercial uses past v.8
     - Still don't know how it's legal to just swap the lisence out from Apache to whatever Xceed decided to use on an open source community project
     - Might swap over to [shouldly](https://github.com/shouldly/shouldly) in the future as its FluentAssertions-like but not with out of touch licenses
+
+### Postgres
+- https://www.postgresql.org/docs/9.5/functions-aggregate.html
+  - For the aggregate functions used in the SQL queries, made pulling the tags much easier

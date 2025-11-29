@@ -18,7 +18,7 @@ public sealed class CustomConsoleFormatter : ConsoleFormatter
         {
             LogLevel.Trace => (ConsoleColor.Gray, "TRACE: "),
             LogLevel.Debug => (ConsoleColor.Blue, "DEBUG: "),
-            LogLevel.Information => (ConsoleColor.Green, "INFO: "),
+            LogLevel.Information => (ConsoleColor.DarkGreen, "INFO: "),
             LogLevel.Warning => (ConsoleColor.Yellow, "WARN: "),
             LogLevel.Error => (ConsoleColor.Red, "ERROR: "),
             LogLevel.Critical => (ConsoleColor.DarkRed, "CRITICAL: "),

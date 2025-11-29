@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, FileCode, Settings, LogOut, ArchiveIcon } from 'lucide-react';
+import { Home, Compass, FileCode, User, LogOut, ArchiveIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Sidebar = () => {
@@ -11,7 +11,7 @@ const Sidebar = () => {
     { path: '/', icon: Home, label: 'Home' },
     { path: '/explore', icon: Compass, label: 'Explore' },
     { path: '/editor', icon: FileCode, label: 'Editor' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/settings', icon: User, label: 'Settings' },
     { path: '/control-panel', icon: ArchiveIcon, label: 'Archive' },
   ];
 
