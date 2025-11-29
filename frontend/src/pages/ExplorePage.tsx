@@ -14,8 +14,7 @@ const ExplorePage = () => {
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchTags, setSearchTags] = useState<string[]>([]);
-  const [currentTag, setCurrentTag] = useState('');
+  const [searchFilters, setSearchFilters] = useState<string[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
 
   // Filter posts based on search criteria
@@ -24,31 +23,22 @@ const ExplorePage = () => {
 
     let filtered = posts;
 
-    // Filter by search term (title, description, tags)
-    if (searchTerm.trim() || searchTags.length > 0) {
+    // Apply all search filters
+    if (searchFilters.length > 0) {
       filtered = posts.filter(post => {
-        const searchLower = searchTerm.toLowerCase();
-        const inTitle = post.title.toLowerCase().includes(searchLower);
-        const inDescription = post.description?.toLowerCase().includes(searchLower) || false;
-        const inTags = post.tags?.some(tag => tag.toLowerCase().includes(searchLower)) || false;
-        
-        // Check if post matches search term
-        const matchesSearchTerm = searchTerm.trim() === '' || inTitle || inDescription || inTags;
-        
-        // Check if post matches all selected tags
-        const matchesTags = searchTags.length === 0 || 
-          searchTags.every(searchTag => 
-            post.tags?.some(postTag => 
-              postTag.toLowerCase().includes(searchTag.toLowerCase())
-            )
-          );
-
-        return matchesSearchTerm && matchesTags;
+        return searchFilters.every(filter => {
+          const filterLower = filter.toLowerCase();
+          const inTitle = post.title.toLowerCase().includes(filterLower);
+          const inDescription = post.description?.toLowerCase().includes(filterLower) || false;
+          const inTags = post.tags?.some(tag => tag.toLowerCase().includes(filterLower)) || false;
+          
+          return inTitle || inDescription || inTags;
+        });
       });
     }
 
     setFilteredPosts(filtered);
-  }, [posts, searchTerm, searchTags]);
+  }, [posts, searchFilters]);
 
   const handleOpenInEditor = (post: Post) => {
     setCurrentProject(post);
@@ -63,35 +53,31 @@ const ExplorePage = () => {
     }
   };
 
-  const addSearchTag = (tag: string) => {
-    const trimmedTag = tag.trim();
-    if (trimmedTag && !searchTags.includes(trimmedTag)) {
-      setSearchTags([...searchTags, trimmedTag]);
-      setCurrentTag('');
+  const addSearchFilter = (filter: string) => {
+    const trimmedFilter = filter.trim();
+    if (trimmedFilter && !searchFilters.includes(trimmedFilter)) {
+      setSearchFilters([...searchFilters, trimmedFilter]);
+      setSearchTerm('');
     }
   };
 
-  const removeSearchTag = (tagToRemove: string) => {
-    setSearchTags(searchTags.filter(tag => tag !== tagToRemove));
+  const removeSearchFilter = (filterToRemove: string) => {
+    setSearchFilters(searchFilters.filter(filter => filter !== filterToRemove));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && currentTag.trim()) {
+    if (e.key === 'Enter' && searchTerm.trim()) {
       e.preventDefault();
-      addSearchTag(currentTag);
-    } else if (e.key === 'Backspace' && currentTag === '' && searchTags.length > 0) {
-      removeSearchTag(searchTags[searchTags.length - 1]);
+      addSearchFilter(searchTerm);
+    } else if (e.key === 'Backspace' && searchTerm === '' && searchFilters.length > 0) {
+      removeSearchFilter(searchFilters[searchFilters.length - 1]);
     }
   };
 
   const clearAllFilters = () => {
+    setSearchFilters([]);
     setSearchTerm('');
-    setSearchTags([]);
-    setCurrentTag('');
   };
-
-  // Get all unique tags from posts for suggestions
-  const allTags = Array.from(new Set(posts?.flatMap(post => post.tags || []) || [])).sort();
 
   return (
     <div className="min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 p-4">
@@ -113,23 +99,24 @@ const ExplorePage = () => {
           </p>
         </div>
 
-        {/* Search Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-zinc-900">Search Projects</h2>
-            {(searchTerm || searchTags.length > 0) && (
+        {/* Simplified Search Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-zinc-900">Search Projects</h2>
+            {searchFilters.length > 0 && (
               <button
                 onClick={clearAllFilters}
                 className="text-sm text-zinc-500 hover:text-zinc-700 flex items-center gap-1"
               >
                 <X size={16} />
-                Clear filters
+                Clear all
               </button>
             )}
           </div>
 
-          {/* Search Bar */}
-          <div className="mb-6">
+          {/* Search Bar with Filter Bubbles */}
+          <div className="space-y-3">
+            {/* Search Input */}
             <div className="relative">
               <Search
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
@@ -140,78 +127,43 @@ const ExplorePage = () => {
                 placeholder="Search by title, description, or tags..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full pl-12 pr-4 py-3 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent"
               />
             </div>
-          </div>
 
-          {/* Tag Input */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-zinc-700 mb-2">
-              Filter by Tags
-            </label>
-            <div className="flex flex-wrap gap-2 p-3 border border-zinc-300 rounded-lg focus-within:ring-2 focus-within:ring-zinc-900 focus-within:border-transparent">
-              {/* Selected Tags */}
-              {searchTags.map((tag) => (
-                <div
-                  key={tag}
-                  className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
-                >
-                  {tag}
-                  <button
-                    onClick={() => removeSearchTag(tag)}
-                    className="hover:text-blue-900 focus:outline-none"
+            {/* Filter Bubbles */}
+            {searchFilters.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {searchFilters.map((filter) => (
+                  <div
+                    key={filter}
+                    className="bg-python-yellow text-white px-4 py-2 rounded-lg text-sm font-semibold p-2 my-2"
                   >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-              
-              {/* Tag Input */}
-              <input
-                type="text"
-                value={currentTag}
-                onChange={(e) => setCurrentTag(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={searchTags.length === 0 ? "Add tags to filter..." : ""}
-                className="flex-1 min-w-[120px] outline-none bg-transparent"
-              />
-            </div>
-            
-            {/* Tag Suggestions */}
-            {currentTag && allTags.length > 0 && (
-              <div className="mt-2 p-2 bg-white border border-zinc-200 rounded-lg shadow-lg max-h-32 overflow-y-auto">
-                {allTags
-                  .filter(tag => 
-                    tag.toLowerCase().includes(currentTag.toLowerCase()) && 
-                    !searchTags.includes(tag)
-                  )
-                  .slice(0, 5)
-                  .map(tag => (
+                    <span>{filter}</span>
                     <button
-                      key={tag}
-                      onClick={() => addSearchTag(tag)}
-                      className="w-full text-left px-3 py-2 hover:bg-zinc-50 rounded-md text-sm"
+                      onClick={() => removeSearchFilter(filter)}
+                      className="hover:text-yellow-900 focus:outline-none"
                     >
-                      {tag}
+                      <X size={14} />
                     </button>
-                  ))
-                }
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
           {/* Results Count */}
-          <div className="flex items-center justify-between">
-            <span className="text-zinc-600">
+          <div className="mt-4">
+            <span className="text-zinc-600 text-sm">
               {filteredPosts.length} {filteredPosts.length === 1 ? 'project' : 'projects'} found
-              {searchTerm || searchTags.length > 0 ? ' matching your search' : ''}
+              {searchFilters.length > 0 ? ' matching your search' : ''}
             </span>
           </div>
         </div>
 
         {/* Projects Grid */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           {postsLoading ? (
             <div className="text-center py-12">
               <div className="inline-flex items-center gap-3">
@@ -229,11 +181,11 @@ const ExplorePage = () => {
             <div className="text-center py-12">
               <Search className="mx-auto text-zinc-300 mb-4" size={48} />
               <h3 className="text-xl font-semibold text-zinc-700 mb-2">
-                {searchTerm || searchTags.length > 0 ? 'No projects found' : 'No projects available'}
+                {searchFilters.length > 0 ? 'No projects found' : 'No projects available'}
               </h3>
               <p className="text-zinc-500">
-                {searchTerm || searchTags.length > 0 
-                  ? 'Try adjusting your search terms or filters.'
+                {searchFilters.length > 0 
+                  ? 'Try adjusting your search terms.'
                   : 'Check back later for new projects or create your own!'
                 }
               </p>
