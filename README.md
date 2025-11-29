@@ -102,7 +102,7 @@ To publish/update the frontend, we push from local (current working directory) t
 
 `cd frontend`
 
-`gcloud run deploy capstone-frontend --source . --platform managed --region northamerica-northeast2 --allow-unauthenticated --memory 512Mi --cpu 1 --min-instances 0 --max-instances 1 --port 8080 --build-env VITE_API_URL=https://capstone-backend-657482441130.northamerica-northeast2.run.app`
+`gcloud run deploy capstone-frontend --source . --platform managed --region northamerica-northeast2 --allow-unauthenticated --memory 512Mi --cpu 1 --min-instances 0 --max-instances 1 --port 8080 --set-build-env-vars VITE_API_URL=https://capstone-backend-657482441130.northamerica-northeast2.run.app/api`
 
 Most the flags are self explainatory, but the `--allow-unauthenticated` flag is required to allow the frontend to be accessed without a login.
 Because this is on cloud run it scales to useage automatically. 0 minimum allows it to scale to 0, and 2 caps it so worst case I don't have a big bill to pay.
