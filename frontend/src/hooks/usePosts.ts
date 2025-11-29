@@ -29,6 +29,7 @@ export const usePosts = () => {
     title: string,
     description: string,
     code: string,
+    isVisible: boolean,
     tags: string[]
   ) => {
     const createdPost = await postService.create({
@@ -37,6 +38,8 @@ export const usePosts = () => {
       description,
       code,
       numberOfLikes: 0,
+      isVisible,
+      tags: [],
     });
 
     if (tags.length > 0) {
@@ -54,6 +57,7 @@ export const usePosts = () => {
     description: string,
     code: string,
     numberOfLikes: number,
+    isVisible: boolean,
     tags: string[]
   ) => {
     await postService.update(postId, {
@@ -62,6 +66,7 @@ export const usePosts = () => {
       title,
       description,
       code,
+      isVisible,
       numberOfLikes,
       tags,
     });

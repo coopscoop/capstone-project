@@ -8,12 +8,14 @@ interface PostFormProps {
     description: string;
     code: string;
     tags: string[];
+    isVisible?: boolean;
   };
   onSubmit: (data: {
     title: string;
     description: string;
     code: string;
     tags: string[];
+    isVisible: boolean;
   }) => Promise<void>;
   onCancel: () => void;
   loading: boolean;
@@ -33,6 +35,7 @@ export const PostForm = ({
   const [code, setCode] = useState(initialData?.code || '');
   const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [tagInput, setTagInput] = useState('');
+  const [isVisible, setIsVisible] = useState(initialData?.isVisible ?? true);
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && tagInput.trim()) {
@@ -51,7 +54,7 @@ export const PostForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit({ title, description, code, tags });
+    await onSubmit({ title, description, code, tags, isVisible });
   };
 
   return (
@@ -121,7 +124,7 @@ export const PostForm = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-zinc-300 mb-2">
+          <label className="block text-sm font-medium text-zinc-300 my-2">
             Code
           </label>
           <textarea
@@ -131,6 +134,19 @@ export const PostForm = ({
             placeholder="print('Hello, World!')"
             required
           />
+        </div>
+
+        <div className="flex items-center gap-3 p-4 bg-zinc-700 rounded-lg my-2">
+          <input
+            type="checkbox"
+            id="isVisible"
+            checked={isVisible}
+            onChange={(e) => setIsVisible(e.target.checked)}
+            className="w-5 h-5 text-blue-600 bg-zinc-600 border-zinc-500 rounded focus:ring-0 focus:ring-offset-0 cursor-pointer"
+          />
+          <label htmlFor="isVisible" className="text-sm font-medium text-zinc-300 cursor-pointer">
+            Make this post publicly available
+          </label>
         </div>
 
         {error && (
@@ -143,7 +159,7 @@ export const PostForm = ({
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-2"
           >
             {loading ? (mode === 'create' ? 'Creating...' : 'Updating...') : (mode === 'create' ? 'Create Post' : 'Update Post')}
           </button>

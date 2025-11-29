@@ -6,6 +6,7 @@ export interface Post {
   numberOfLikes: number;
   code: string;
   created: string;
+  isVisible: boolean;
   lastEdited: string;
   tags: string[];
 }

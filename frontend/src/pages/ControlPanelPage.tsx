@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useProject } from '@/contexts';
 import { usePosts, useFavourites } from '@/hooks';
-import { Shield, User, LogOut, Trash, Code, Plus, X, Edit } from 'lucide-react';
+import { Shield, User, LogOut, Trash, Code, Plus, X, Edit, Download } from 'lucide-react';
 // this is annoying why can't i import project card
 import ProjectCard from '@/components/ProjectCard';
 import { PostForm, CodeExecutor, CodeLinter } from '@/components';
@@ -10,7 +10,7 @@ import type { Post } from '@/types';
 
 const ControlPanelPage = () => {
     const { user, logout, clearTokens } = useAuth();
-    const { posts, loading: postsLoading, error: postsError, createPost, updatePost, deletePost } = usePosts();
+    const { posts, loading: postsLoading, error: postsError, createPost, updatePost, deletePost, loadPosts } = usePosts();
     const { favourites, toggleFavourite } = useFavourites(user?.userId);
     const { setCurrentProject } = useProject();
     const navigate = useNavigate();
@@ -33,6 +33,7 @@ const ControlPanelPage = () => {
         title: string;
         description: string;
         code: string;
+        isVisible: boolean;
         tags: string[];
     }) => {
         if (!user) return;
@@ -41,7 +42,7 @@ const ControlPanelPage = () => {
         setFormError('');
 
         try {
-            await createPost(user.userId, data.title, data.description, data.code, data.tags);
+            await createPost(user.userId, data.title, data.description, data.code, data.isVisible, data.tags);
             setShowCreateForm(false);
         } catch (err) {
             setFormError(err instanceof Error ? err.message : 'Failed to create post');
@@ -55,6 +56,7 @@ const ControlPanelPage = () => {
         title: string;
         description: string;
         code: string;
+        isVisible: boolean;
         tags: string[];
     }) => {
         if (!editingPost || !user) return;
@@ -70,6 +72,7 @@ const ControlPanelPage = () => {
                 data.description,
                 data.code,
                 editingPost.numberOfLikes,
+                data.isVisible,
                 data.tags
             );
             setEditingPost(null);
@@ -186,13 +189,20 @@ const ControlPanelPage = () => {
                             <h2 className="text-2xl font-bold text-zinc-200">Recent Projects</h2>
                         </div>
                         {!editingPost && (
-                            <button
-                                onClick={() => setShowCreateForm(!showCreateForm)}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                {showCreateForm ? <X size={18} /> : <Plus size={18} />}
-                                {showCreateForm ? 'Cancel' : 'Create Post'}
-                            </button>
+                            <div className="flex gap-3">
+                                <button 
+                                onClick={loadPosts} 
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <Download size={18} /> Get Posts
+                                </button>
+                                <button
+                                    onClick={() => setShowCreateForm(!showCreateForm)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    {showCreateForm ? <X size={18} /> : <Plus size={18} />}
+                                    {showCreateForm ? 'Cancel' : 'Create Post'}
+                                </button>
+                            </div>
                         )}
                     </div>
 
@@ -216,6 +226,7 @@ const ControlPanelPage = () => {
                                 description: editingPost.description || '',
                                 code: editingPost.code,
                                 tags: editingPost.tags || [],
+                                isVisible: editingPost.isVisible,
                             }}
                             onSubmit={handleUpdatePost}
                             onCancel={handleCancelEdit}

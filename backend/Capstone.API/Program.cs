@@ -85,6 +85,10 @@ builder.Services.AddScoped<ITagService, TagService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+
+// Http context accessor - used in services
+builder.Services.AddHttpContextAccessor();
 
 // Background services
 builder.Services.AddHostedService<ResetTokenCleanupService>();

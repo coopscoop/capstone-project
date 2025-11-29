@@ -5,5 +5,6 @@ export interface UpdatePostRequest {
   description: string;
   code: string;
   numberOfLikes: number;
+  isVisible: boolean;
   tags: string[];
 }

@@ -16,7 +16,7 @@ public class DapperTypeHandlers
 
 public class StringArrayToListHandler : SqlMapper.TypeHandler<List<string>>
 {
-    public override void SetValue(IDbDataParameter parameter, List<string> value)
+    public override void SetValue(IDbDataParameter parameter, List<string>? value)
     {
         parameter.Value = value?.ToArray();
     }

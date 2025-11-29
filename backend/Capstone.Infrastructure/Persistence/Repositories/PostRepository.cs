@@ -6,6 +6,7 @@ using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Domain;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 
 /// <summary>
 /// Post repository implementation using Dapper
@@ -84,53 +85,36 @@ public class PostRepository : IPostRepository
 
     public async Task<IEnumerable<Post>> GetAllAsync(int? currentUserId = null, bool? isAdmin = null)
     {
-        string sql;
-        if (isAdmin == true)
-        {
-            // Admins can see all posts
-            sql = @"
-                SELECT 
-                    p.post_id AS PostId,
-                    p.user_id AS UserId,
-                    p.title AS Title,
-                    p.description AS Description,
-                    p.number_of_likes AS NumberOfLikes,
-                    p.code AS Code,
-                    p.is_visible AS IsVisible,
-                    p.created AS Created,
-                    p.last_edited AS LastEdited,
-                    t.tag_name AS TagName
-                FROM posts p
-                LEFT JOIN tags t ON p.post_id = t.post_id
-                ORDER BY p.created DESC";
-        }
-        else
-        {
-            // Regular users can only see visible posts OR their own posts
-            sql = @"
-                SELECT 
-                    p.post_id AS PostId,
-                    p.user_id AS UserId,
-                    p.title AS Title,
-                    p.description AS Description,
-                    p.number_of_likes AS NumberOfLikes,
-                    p.code AS Code,
-                    p.is_visible AS IsVisible,
-                    p.created AS Created,
-                    p.last_edited AS LastEdited,
-                    t.tag_name AS TagName
-                FROM posts p
-                LEFT JOIN tags t ON p.post_id = t.post_id
-                WHERE p.is_visible = TRUE OR p.user_id = @CurrentUserId
-                ORDER BY p.created DESC";
-        }
+        _logger.LogInformation("Retrieving all posts for user {CurrentUserId} (IsAdmin: {IsAdmin})", currentUserId, isAdmin);
 
-        return await GetPostsWithTags(sql, new { CurrentUserId = currentUserId ?? 0 });
+        var sql = @"
+            SELECT 
+                p.post_id AS PostId,
+                p.user_id AS UserId,
+                p.title AS Title,
+                p.description AS Description,
+                p.number_of_likes AS NumberOfLikes,
+                p.code AS Code,
+                p.is_visible AS IsVisible,
+                p.created AS Created,
+                p.last_edited AS LastEdited,
+                ARRAY_AGG(DISTINCT t.tag_name) FILTER (WHERE t.tag_name IS NOT NULL) AS Tags
+            FROM posts p
+            LEFT JOIN tags pt ON p.post_id = pt.post_id
+            LEFT JOIN tags t ON pt.post_id = t.post_id
+            WHERE (@isAdmin = true OR p.is_visible = true OR p.user_id = @currentUserId)
+            GROUP BY p.post_id
+            ORDER BY p.created DESC";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Post>(sql, new { currentUserId, isAdmin });
     }
 
     public async Task<Post?> GetByIdAsync(int postId, int? currentUserId = null, bool? isAdmin = null)
     {
         string sql;
+        object parameters;
+        
         if (isAdmin == true)
         {
             // Admins can see any post
@@ -149,10 +133,11 @@ public class PostRepository : IPostRepository
                 FROM posts p
                 LEFT JOIN tags t ON p.post_id = t.post_id
                 WHERE p.post_id = @PostId";
+            parameters = new { PostId = postId };
         }
-        else
+        else if (currentUserId.HasValue)
         {
-            // Regular users can only see visible posts OR their own posts
+            // Authenticated users can see visible posts OR their own posts
             sql = @"
                 SELECT 
                     p.post_id AS PostId,
@@ -168,9 +153,30 @@ public class PostRepository : IPostRepository
                 FROM posts p
                 LEFT JOIN tags t ON p.post_id = t.post_id
                 WHERE p.post_id = @PostId AND (p.is_visible = TRUE OR p.user_id = @CurrentUserId)";
+            parameters = new { PostId = postId, CurrentUserId = currentUserId.Value };
+        }
+        else
+        {
+            // Unauthenticated users can only see visible posts
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                LEFT JOIN tags t ON p.post_id = t.post_id
+                WHERE p.post_id = @PostId AND p.is_visible = TRUE";
+            parameters = new { PostId = postId };
         }
 
-        var posts = await GetPostsWithTags(sql, new { PostId = postId, CurrentUserId = currentUserId ?? 0 });
+        var posts = await GetPostsWithTags(sql, parameters);
         return posts.FirstOrDefault();
     }
 
@@ -223,7 +229,10 @@ public class PostRepository : IPostRepository
 
     public async Task<IEnumerable<Post>> GetByTagAsync(string tagName, int? currentUserId = null, bool? isAdmin = null)
     {
+        _logger.LogInformation("Retrieving posts by tag {TagName} for user {CurrentUserId} (IsAdmin: {IsAdmin})", tagName, currentUserId, isAdmin);
         string sql;
+        object parameters;
+        
         if (isAdmin == true)
         {
             sql = @"
@@ -242,8 +251,9 @@ public class PostRepository : IPostRepository
                 JOIN tags t ON p.post_id = t.post_id
                 WHERE t.tag_name = @TagName
                 ORDER BY p.created DESC";
+            parameters = new { TagName = tagName };
         }
-        else
+        else if (currentUserId.HasValue)
         {
             sql = @"
                 SELECT 
@@ -261,9 +271,30 @@ public class PostRepository : IPostRepository
                 JOIN tags t ON p.post_id = t.post_id
                 WHERE t.tag_name = @TagName AND (p.is_visible = TRUE OR p.user_id = @CurrentUserId)
                 ORDER BY p.created DESC";
+            parameters = new { TagName = tagName, CurrentUserId = currentUserId.Value };
+        }
+        else
+        {
+            sql = @"
+                SELECT 
+                    p.post_id AS PostId,
+                    p.user_id AS UserId,
+                    p.title AS Title,
+                    p.description AS Description,
+                    p.number_of_likes AS NumberOfLikes,
+                    p.code AS Code,
+                    p.is_visible AS IsVisible,
+                    p.created AS Created,
+                    p.last_edited AS LastEdited,
+                    t.tag_name AS TagName
+                FROM posts p
+                JOIN tags t ON p.post_id = t.post_id
+                WHERE t.tag_name = @TagName AND p.is_visible = TRUE
+                ORDER BY p.created DESC";
+            parameters = new { TagName = tagName };
         }
 
-        return await GetPostsWithTags(sql, new { TagName = tagName, CurrentUserId = currentUserId ?? 0 });
+        return await GetPostsWithTags(sql, parameters);
     }
 
     public async Task<bool> IncrementLikesAsync(int postId)

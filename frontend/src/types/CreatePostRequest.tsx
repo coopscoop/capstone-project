@@ -3,5 +3,7 @@ export interface CreatePostRequest {
   title: string;
   description: string;
   code: string;
+  isVisible: boolean;
+  tags: string[];
   numberOfLikes: number;
 }
