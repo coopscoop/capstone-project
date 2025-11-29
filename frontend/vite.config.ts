@@ -12,7 +12,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5225/api',
+        // target: process.env.VITE_API_URL || 'http://localhost:5225/api',
+        target: 'https://capstone-backend-657482441130.northamerica-northeast2.run.app/api',
         changeOrigin: true,
       }
     }

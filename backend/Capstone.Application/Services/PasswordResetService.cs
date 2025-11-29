@@ -82,14 +82,13 @@ public class PasswordResetService : IPasswordResetService
         // Send email with reset code
         try
         {
-            var resetUrl = "http://localhost:3000/reset-password"; // Update with your frontend URL
+            var resetUrl = "http://localhost:3000/reset-password";
             await _emailService.SendPasswordResetEmailAsync(user.Email, resetCode, resetUrl);
             _logger.LogInformation("Password reset email sent to user {UserId}", userId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send password reset email to user {UserId}", userId);
-            // Don't throw - we still created the reset request, they can use the code manually
         }
 
         return MapToDto(created);

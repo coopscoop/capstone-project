@@ -18,9 +18,9 @@ const EditorPage = () => {
     startLintInterval,
     stopLintInterval,
     lintResult,
-    isLinting,
-    lintError,
-    clearResults,
+    // isLinting,
+    // lintError,
+    // clearResults,
   } = useCodeExecution();
 
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -89,7 +89,7 @@ const EditorPage = () => {
     try {
       await executeCode({
         code,
-        timeoutMs: 30000,
+        timeoutSeconds: 30,
       });
       if (!isDesktop) {
         setActiveTab('output');

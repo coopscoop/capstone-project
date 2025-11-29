@@ -1,3 +1,3 @@
-export interface LintRequest {
+export interface CodeLintRequest {
   code: string;
 }
