@@ -4,22 +4,22 @@ DROP TABLE IF EXISTS tags CASCADE;
 DROP TABLE IF EXISTS password_reset CASCADE;
 DROP TABLE IF EXISTS refresh_tokens CASCADE;
 DROP TABLE IF EXISTS posts CASCADE;
--- DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
 -- Users table (must be created first as it's referenced by other tables)
--- CREATE TABLE users (
---     user_id SERIAL PRIMARY KEY,
---     email CHARACTER VARYING(255) UNIQUE NOT NULL,
---     password CHARACTER VARYING(255) NOT NULL,
---     is_admin BOOLEAN DEFAULT FALSE,
---     display_name CHARACTER VARYING(100),
---     bio TEXT,
---     time_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
--- );
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    email CHARACTER VARYING(255) UNIQUE NOT NULL,
+    password CHARACTER VARYING(255) NOT NULL,
+    is_admin BOOLEAN DEFAULT FALSE,
+    display_name CHARACTER VARYING(100),
+    bio TEXT,
+    time_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Indexes
--- CREATE INDEX idx_users_email ON users(email);
--- CREATE INDEX idx_users_time_created ON users(time_created DESC);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_time_created ON users(time_created DESC);
 
 -- Posts table
 CREATE TABLE posts (

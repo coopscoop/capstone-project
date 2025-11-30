@@ -19,12 +19,12 @@ using Capstone.API.Logging;
 var builder = WebApplication.CreateBuilder(args);
 
 // listen to port 0.0.0.0 for cloud run
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+/* var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(int.Parse(port));
-});
+}) */;
 
 // CORS configuration for React frontend, used in middleware
 builder.Services.AddCors(options =>

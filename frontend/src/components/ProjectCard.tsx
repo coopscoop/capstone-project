@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Star } from 'lucide-react';
+import { Star, User } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Editor } from '@monaco-editor/react';
 
@@ -10,6 +10,7 @@ interface ProjectCardProps {
   description?: string;
   favorited?: boolean;
   code?: string;
+  displayName?: string; // Added this
   onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
   onOpen?: () => void;
 }
@@ -21,6 +22,7 @@ const ProjectCard = ({
   description = "A description of the project",
   favorited: initialFavorited = false,
   code,
+  displayName, // Added this
   onFavoriteToggle,
   onOpen = () => {},
 }: ProjectCardProps) => {
@@ -28,6 +30,7 @@ const ProjectCard = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [editorHeight, setEditorHeight] = useState('200px');
+  const [formattedCode, setFormattedCode] = useState(code);
   const editorRef = useRef<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement>(null);
@@ -83,6 +86,13 @@ const ProjectCard = ({
       }
     };
 
+    // fix formatting on the small code display
+    if (code) {
+      // Convert \n escape sequences to actual newlines
+      const formattedCode = code.replace(/\\n/g, '\n');
+      setFormattedCode(formattedCode);
+    }
+
     updateEditorHeight();
     window.addEventListener('resize', updateEditorHeight);
     
@@ -117,11 +127,19 @@ const ProjectCard = ({
   return (
     <div className="bg-zinc-700 rounded-lg shadow-md p-6 border border-zinc-600 hover:shadow-lg transition-shadow">
       
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="text-xl font-bold text-zinc-100 flex-1 truncate pr-2">
-          {title} - {postId}
-        </h3>
+      {/* Header - Fixed to allow wrapping */}
+      <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-xl font-bold text-zinc-100 wrap-break-word">
+            {title}
+          </h3>
+          {displayName && (
+            <div className="flex items-center gap-1.5 mt-1 text-sm text-zinc-400">
+              <User size={14} />
+              <span>{displayName}</span>
+            </div>
+          )}
+        </div>
 
         <button 
           onClick={toggleFavorite}
@@ -175,9 +193,17 @@ const ProjectCard = ({
         >
           <DialogHeader>
             <div className="flex items-start justify-between">
-              <DialogTitle className="text-2xl font-bold text-zinc-100 pr-8">
-                {title}
-              </DialogTitle>
+              <div className="flex-1 pr-8">
+                <DialogTitle className="text-2xl font-bold text-zinc-100">
+                  {title}
+                </DialogTitle>
+                {displayName && (
+                  <div className="flex items-center gap-2 mt-2 text-sm text-zinc-400">
+                    <User size={16} />
+                    <span>by {displayName}</span>
+                  </div>
+                )}
+              </div>
             
               {/* shadcn accessibility */}
               <DialogDescription className="sr-only">
@@ -219,7 +245,7 @@ const ProjectCard = ({
               <Editor
                 height={editorHeight}
                 defaultLanguage="python"
-                value={code}
+                value={formattedCode}
                 theme="vs-dark"
                 options={{
                   readOnly: true,
@@ -233,6 +259,7 @@ const ProjectCard = ({
                   overviewRulerLanes: 0,
                   hideCursorInOverviewRuler: true,
                   overviewRulerBorder: false,
+                  stickyScroll: { enabled: false },
                 }}
                 onMount={handleEditorDidMount}
                 className="min-h-[120px]"
