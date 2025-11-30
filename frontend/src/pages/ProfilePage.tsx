@@ -366,7 +366,7 @@ const ProfilePage = () => {
                     onOpen={() => handleOpenProject(post)}
                     onUpdate={handleUpdatePost}
                     code={post.code}
-                    displayName={post.displayName}
+                    displayName={displayName}
                   />
                 ))}
               </div>
