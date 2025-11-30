@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
-import { Play, Save, AlertCircle, AlertTriangle, Info } from "lucide-react";
+import { Play, Save, AlertCircle, AlertTriangle, Info, Check } from "lucide-react";
 import { useProject } from "@/contexts/ProjectContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +27,7 @@ const EditorPage = () => {
   } = useCodeExecution();
 
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
-  const [activeTab, setActiveTab] = useState<"editor" | "output" | "issues">(
+  const [activeTab, setActiveTab] = useState<"editor" | "output" | "info">(
     "editor"
   );
   const [editorWidth, setEditorWidth] = useState(60);
@@ -36,7 +36,6 @@ const EditorPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const monacoRef = useRef<any>(null);
 
-  // Initialize code from current project - FIXED: Replace \n with actual newlines
   useEffect(() => {
     if (isLoading) return;
 
@@ -45,9 +44,8 @@ const EditorPage = () => {
       const formattedCode = currentProject.code.replace(/\\n/g, "\n");
       setCode(formattedCode);
     }
-  }, [currentProject?.postId, isLoading]); // Only run when project ID changes
+  }, [currentProject?.postId, isLoading]);
 
-  // Update project context whenever code changes (local state only, not saved)
   useEffect(() => {
     if (currentProject && code) {
       const updatedProject = { ...currentProject, code };
@@ -276,7 +274,7 @@ const EditorPage = () => {
   }
 
   // Issues Panel Component
-  const IssuesPanel = ({ maxHeight = "max-h-48" }: { maxHeight?: string }) => {
+  const InfoPanel = ({ maxHeight = "max-h-48" }: { maxHeight?: string }) => {
     if (allIssues.length === 0) return null;
 
     return (
@@ -286,7 +284,7 @@ const EditorPage = () => {
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-zinc-300">
-              Issues ({allIssues.length})
+              Info ({allIssues.length})
             </h4>
             <div className="flex gap-3 text-xs">
               {errorIssues.length > 0 && (
@@ -417,9 +415,6 @@ const EditorPage = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-zinc-400">Output</span>
               <div className="flex items-center gap-2">
-                {saveSuccess && (
-                  <span className="text-xs text-green-400 mr-2">Saved!</span>
-                )}
                 {saveError && (
                   <span className="text-xs text-red-400 mr-2">{saveError}</span>
                 )}
@@ -429,8 +424,12 @@ const EditorPage = () => {
                   className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-300 hover:bg-[#2a2d2e] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   title={!canEdit ? "You don't have permission to edit this post" : "Save code to server"}
                 >
-                  <Save size={16} />
-                  {isSaving ? "Saving..." : "Save"}
+                  {saveSuccess ? (
+                    <Check size={16} className="text-green-400" />
+                  ) : (
+                    <Save size={16} />
+                  )}
+                  {isSaving ? "Saving..." : saveSuccess ? "Saved" : "Save"}
                 </button>
                 <button
                   onClick={handleRunCode}
@@ -472,8 +471,8 @@ const EditorPage = () => {
             )}
           </div>
 
-          {/* Issues Panel */}
-          <IssuesPanel />
+          {/* Info Panel */}
+          <InfoPanel />
         </div>
       </div>
     );
@@ -507,14 +506,14 @@ const EditorPage = () => {
           Output
         </button>
         <button
-          onClick={() => setActiveTab("issues")}
+          onClick={() => setActiveTab("info")}
           className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
-            activeTab === "issues"
+            activeTab === "info"
               ? "bg-white text-zinc-900 border-b-2 border-python-blue"
               : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200"
           }`}
         >
-          Issues
+          Info
           {allIssues.length > 0 && (
             <span className="absolute -top-2 -right-2 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full min-w-[18px] text-center border-2 border-white">
               {allIssues.length}
@@ -523,17 +522,18 @@ const EditorPage = () => {
         </button>
         {/* Action Buttons */}
         <div className="flex items-center gap-2 px-3">
-          {saveSuccess && (
-            <span className="text-xs text-green-600">Saved!</span>
-          )}
-        <button
-          onClick={handleSave}
-          disabled={isSaving || !canEdit}
-          className="flex items-center gap-1 px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-200 rounded-md transition-colors disabled:opacity-50"
-          title={!canEdit ? "You don't have permission to edit this post" : "Save code"}
-        >
-          <Save size={16} />
-        </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving || !canEdit}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-200 rounded-md transition-colors disabled:opacity-50"
+            title={!canEdit ? "You don't have permission to edit this post" : "Save code"}
+          >
+            {saveSuccess ? (
+              <Check size={16} className="text-green-500" />
+            ) : (
+              <Save size={16} />
+            )}
+          </button>
           <button
             onClick={handleRunCode}
             disabled={isExecuting}
@@ -648,11 +648,9 @@ const EditorPage = () => {
               </div>
             </div>
 
-            {/* Issues Content - Fixed height with proper scrolling */}
+            {/* Info Content */}
             <div className="flex-1 overflow-hidden">
               <div className="h-full p-4 overflow-auto">
-                {" "}
-                {/* Added overflow-auto here */}
                 {allIssues.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <div className="max-w-sm">
@@ -669,7 +667,7 @@ const EditorPage = () => {
                     {allIssues.map((issue, index) => (
                       <div
                         key={index}
-                        className="flex items-start gap-3 p-3 rounded bg-[#252526] hover:bg-[#2a2d2e] transition-colors cursor-pointer border border-[#3e3e42]"
+                        className="flex items-start gap-3 p-3 rounded bg-[#252526] hover:bg-[#2a2d2e] transition-colors cursor-pointer border border-[#3e3e42] my-2"
                         onClick={() => {
                           setActiveTab("editor");
                           // Focus the editor on the issue line after a brief delay
