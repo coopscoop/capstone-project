@@ -8,18 +8,6 @@
 >
 > Past this date hosting locally would be the easiest solution to run the project.
 
-# TODO
-- backend
-  - move jwt/email env variables to secrets on remote
-  - fix linter api - some isValid checks are failing
-  - logging
-- frontend
-  - fix logout
-  - add backend objects to frontend
-  - add util classes for all api calls
-  - finish user flow/menus
-  - logging
-
 # Capstone - Online Python IDE
 
 Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python with a custom made linter.
