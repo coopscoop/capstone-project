@@ -131,9 +131,16 @@ const EditorPage = () => {
     monacoRef.current = monaco;
   };
 
-  // Save to server
   const handleSave = async () => {
     if (!currentProject || !user) return;
+
+    // Check if user owns the post or is an admin
+    const isOwner = currentProject.userId === user.userId;
+
+    if (!isOwner && !user.isAdmin) {
+      setSaveError("You don't have permission to edit this post");
+      return;
+    }
 
     setIsSaving(true);
     setSaveError("");
@@ -159,7 +166,7 @@ const EditorPage = () => {
       setCurrentProject({ ...currentProject, code });
 
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000); // Clear success message after 3s
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       setSaveError(
         err instanceof Error ? err.message : "Failed to save project"
@@ -168,6 +175,9 @@ const EditorPage = () => {
       setIsSaving(false);
     }
   };
+
+  // for disabling the save button
+  const canEdit = currentProject && user && (currentProject.userId === user.userId || user.isAdmin);
 
   // Trigger editor layout on container size changes
   useEffect(() => {
@@ -415,9 +425,9 @@ const EditorPage = () => {
                 )}
                 <button
                   onClick={handleSave}
-                  disabled={isSaving}
+                  disabled={isSaving || !canEdit}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-300 hover:bg-[#2a2d2e] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Save code to server"
+                  title={!canEdit ? "You don't have permission to edit this post" : "Save code to server"}
                 >
                   <Save size={16} />
                   {isSaving ? "Saving..." : "Save"}
@@ -516,14 +526,14 @@ const EditorPage = () => {
           {saveSuccess && (
             <span className="text-xs text-green-600">Saved!</span>
           )}
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center gap-1 px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-200 rounded-md transition-colors disabled:opacity-50"
-            title="Save code"
-          >
-            <Save size={16} />
-          </button>
+        <button
+          onClick={handleSave}
+          disabled={isSaving || !canEdit}
+          className="flex items-center gap-1 px-3 py-2 text-sm text-zinc-600 hover:bg-zinc-200 rounded-md transition-colors disabled:opacity-50"
+          title={!canEdit ? "You don't have permission to edit this post" : "Save code"}
+        >
+          <Save size={16} />
+        </button>
           <button
             onClick={handleRunCode}
             disabled={isExecuting}

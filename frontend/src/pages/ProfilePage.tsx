@@ -1,38 +1,33 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, KeyRound, Edit, Save, FileText } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiRequest } from "@/utils/api";
 import ProjectCard from "@/components/ProjectCard";
-import { usePosts, useFavourites } from "@/hooks";
+import { usePosts, useUserPostsWithFavorites } from "@/hooks";
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const { userPosts, loading: postsLoading, error: postsError, getUserPosts, updatePost, updatePostLikes } = usePosts();
-  const { favourites, toggleFavourite } = useFavourites(user?.userId);
+  // const { userPosts, loading: postsLoading, error: postsError, getUserPosts, updatePost, updatePostLikes } = usePosts();
+  const { 
+  posts: userPostsWithFavorites, 
+  loading: postsLoading, 
+  error: postsError, 
+  refetch: fetchUserPosts, 
+  toggleFavorite 
+} = useUserPostsWithFavorites(user?.userId);
+  const { updatePost } = usePosts();
   const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState("");
   const [updateSuccess, setUpdateSuccess] = useState("");
 
-  const fetchUserPosts = useCallback(() => {
-    if (user) {
-      getUserPosts(user.userId);
-    }
-  }, [user, getUserPosts]);
-
-  useEffect(() => {
-    fetchUserPosts();
-  }, [fetchUserPosts]);
-
   const handleFavoriteToggle = async (postId: number, isFavorited: boolean) => {
     try {
-      await toggleFavourite(postId, isFavorited, (increment) => {
-        updatePostLikes(postId, increment);
-      });
+      await toggleFavorite(postId, isFavorited);
     } catch (err) {
       console.error('Error toggling favorite:', err);
     }
@@ -137,7 +132,7 @@ const ProfilePage = () => {
     if (!user) return;
 
     try {
-      const postToUpdate = userPosts.find((post) => post.postId === postId);
+      const postToUpdate = userPostsWithFavorites.find((post) => post.postId === postId);
       if (!postToUpdate) return;
 
       await updatePost(
@@ -355,22 +350,23 @@ const ProfilePage = () => {
                   Error loading posts: {postsError}
                 </p>
               </div>
-            ) : userPosts.length > 0 ? (
+            ) : userPostsWithFavorites.length > 0 ? (
               <div className="grid gap-4">
-                {userPosts.map((post) => (
+                {userPostsWithFavorites.map((post) => (
                   <ProjectCard
                     key={post.postId}
                     postId={post.postId}
                     title={post.title}
                     tags={post.tags || []}
                     description={post.description || "No description available"}
-                    favorited={favourites.has(post.postId)}
+                    favorited={post.isFavorited}
                     userId={post.userId}
                     numberOfLikes={post.numberOfLikes}
                     onFavoriteToggle={handleFavoriteToggle}
                     onOpen={() => handleOpenProject(post)}
                     onUpdate={handleUpdatePost}
                     code={post.code}
+                    displayName={post.displayName}
                   />
                 ))}
               </div>

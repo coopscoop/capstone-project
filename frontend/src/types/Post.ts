@@ -9,4 +9,6 @@ export interface Post {
   isVisible: boolean;
   lastEdited: string;
   tags: string[];
+  displayName: string;
+  isFavorited: boolean;
 }

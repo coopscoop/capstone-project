@@ -10,17 +10,12 @@ const ExplorePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError, updatePost, updatePostLikes, loadPosts } = usePosts();
+  const { posts, loading: postsLoading, error: postsError, updatePost, updatePostLikes } = usePosts();
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
   const [searchFilters, setSearchFilters] = useState<string[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-
-  // Get posts
-  useEffect(() => {
-    loadPosts();
-  }, []);
 
   // Filter posts based on search criteria
   useEffect(() => {
@@ -243,6 +238,7 @@ const ExplorePage = () => {
                   onOpen={() => handleOpenInEditor(post)}
                   onUpdate={handleUpdatePost}
                   code={post.code}
+                  displayName={post.displayName}
                 />
               ))}
             </div>

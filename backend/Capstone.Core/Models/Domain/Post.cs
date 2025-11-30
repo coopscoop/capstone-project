@@ -10,6 +10,7 @@ public class Post
     public string Code { get; set; } = string.Empty;
     public List<string> Tags { get; set; } = new();
     public bool IsVisible { get; set; } = true;
+    public String DisplayName { get; set; } = string.Empty;
     public DateTime Created { get; set; }
     public DateTime LastEdited { get; set; }
 }

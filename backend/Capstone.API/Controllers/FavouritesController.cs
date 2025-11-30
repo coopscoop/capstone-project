@@ -12,13 +12,16 @@ using Capstone.Core.Models.Dtos;
 public class FavouriteController : ControllerBase
 {
     private readonly IFavouriteService _favouriteService;
+    private readonly IPostService _postService; // Used to increment favourite count
     private readonly ILogger<FavouriteController> _logger;
 
     public FavouriteController(
         IFavouriteService favouriteService,
+        IPostService postService,
         ILogger<FavouriteController> logger)
     {
         _favouriteService = favouriteService;
+        _postService = postService;
         _logger = logger;
     }
 
@@ -85,6 +88,13 @@ public class FavouriteController : ControllerBase
         try
         {
             var favourite = await _favouriteService.AddFavouriteAsync(postId, userId);
+
+            // if the favourite is added, increment the post's favourite count
+            if (favourite != null)
+            {
+                await _postService.IncrementLikesAsync(postId);
+            }
+
             return CreatedAtAction(nameof(IsFavourited), new { postId, userId }, favourite);
         }
         catch (Exception ex)

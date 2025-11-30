@@ -87,6 +87,26 @@ public class PostService : IPostService
         return await _postRepository.DeleteAsync(postId);
     }
 
+    public async Task<bool> IncrementLikesAsync(int postId)
+    {
+        var post = await _postRepository.GetByIdAsync(postId);
+        if (post == null) return false;
+
+        post.NumberOfLikes++;
+        var success = await _postRepository.UpdateAsync(post);
+        return success;
+    }
+
+    public async Task<bool> DecrementLikesAsync(int postId)
+    {
+        var post = await _postRepository.GetByIdAsync(postId);
+        if (post == null) return false;
+
+        post.NumberOfLikes--;
+        var success = await _postRepository.UpdateAsync(post);
+        return success;
+    }
+
     // Helper method to map Post to PostDto
     private PostDto MapToDto(Post post)
     {
@@ -101,6 +121,7 @@ public class PostService : IPostService
             IsVisible = post.IsVisible,
             Created = post.Created,
             LastEdited = post.LastEdited,
+            DisplayName = post.DisplayName,
             Tags = post.Tags ?? new List<string>()
         };
     }

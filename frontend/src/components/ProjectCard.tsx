@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Editor } from '@monaco-editor/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PostForm } from '@/components';
-import { userService } from '@/services';
 
 interface ProjectCardProps {
   postId: number;
@@ -15,6 +14,7 @@ interface ProjectCardProps {
   code?: string;
   userId?: number;
   numberOfLikes?: number;
+  displayName?: string;
   onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
   onOpen?: () => void;
   onUpdate?: (postId: number, data: any) => Promise<void>;
@@ -29,6 +29,7 @@ const ProjectCard = ({
   code,
   userId,
   numberOfLikes = 0, // Default to 0
+  displayName,
   onFavoriteToggle,
   onOpen = () => {},
   onUpdate,
@@ -40,31 +41,12 @@ const ProjectCard = ({
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [editorHeight, setEditorHeight] = useState('200px');
   const [formattedCode, setFormattedCode] = useState(code);
-  const [ownerDisplayName, setOwnerDisplayName] = useState<string>('');
   const editorRef = useRef<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement>(null);
 
   // Check if current user can edit this post (owner or admin)
   const canEdit = user && (user.isAdmin || user.userId === userId);
-
-  // Fetch owner's display name
-  // TODO: ADD THE USER DISPLAY NAME TO THE POSTS RETURN
-  useEffect(() => {
-    const fetchOwnerName = async () => {
-      if (userId) {
-        try {
-          const owner = await userService.getById(userId);
-          setOwnerDisplayName(owner.displayName || 'Unknown User');
-        } catch (err) {
-          console.error('Failed to fetch owner name:', err);
-          setOwnerDisplayName('Unknown User');
-        }
-      }
-    };
-
-    fetchOwnerName();
-  }, [userId]);
 
   const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -279,12 +261,10 @@ const ProjectCard = ({
             {title}
           </h3>
           {/* Owner's Display Name */}
-          {ownerDisplayName && (
-            <div className="flex items-center gap-1.5 mt-1 text-sm text-zinc-400">
-              <User size={14} />
-              <span>by {ownerDisplayName}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 mt-1 text-sm text-zinc-400">
+            <User size={14} />
+            <span>by {displayName}</span>
+          </div>
         </div>
 
         {/* Favorite and Likes Section */}
@@ -350,10 +330,10 @@ const ProjectCard = ({
                 <DialogTitle className="text-2xl font-bold text-zinc-100 text-left">
                   {isEditing ? 'Edit Project' : title}
                 </DialogTitle>
-                {!isEditing && ownerDisplayName && (
+                {!isEditing && (
                   <div className="flex items-center gap-2 mt-2 text-sm text-zinc-400">
                     <User size={16} />
-                    <span>by {ownerDisplayName}</span>
+                    <span>{displayName}</span>
                   </div>
                 )}
               </div>

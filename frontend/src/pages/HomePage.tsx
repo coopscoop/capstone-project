@@ -212,6 +212,7 @@ const HomePage = () => {
                   onOpen={() => handleOpenProject(post)}
                   onUpdate={handleUpdatePost}
                   code={post.code}
+                  displayName={post.displayName}
                 />
               ))}
             </div>

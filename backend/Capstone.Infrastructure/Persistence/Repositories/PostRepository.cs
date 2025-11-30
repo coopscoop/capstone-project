@@ -97,12 +97,14 @@ public class PostRepository : IPostRepository
                 p.is_visible AS IsVisible,
                 p.created AS Created,
                 p.last_edited AS LastEdited,
+                u.display_name AS DisplayName,
                 ARRAY_AGG(DISTINCT t.tag_name) FILTER (WHERE t.tag_name IS NOT NULL) AS Tags
             FROM posts p
+            LEFT JOIN users u ON p.user_id = u.user_id
             LEFT JOIN tags pt ON p.post_id = pt.post_id
             LEFT JOIN tags t ON pt.post_id = t.post_id
             WHERE (@isAdmin = true OR p.is_visible = true OR p.user_id = @currentUserId)
-            GROUP BY p.post_id
+            GROUP BY p.post_id, u.display_name
             ORDER BY p.created DESC";
 
         await using var connection = _dbConnection.CreateConnection();

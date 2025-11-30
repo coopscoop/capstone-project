@@ -21,7 +21,6 @@ const ResetPasswordPage = () => {
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  // const [userId, setUserId] = useState<number | null>(null);
 
   // Determine if this is an authenticated password change
   const isAuthenticatedChange = !!user;
@@ -32,7 +31,9 @@ const ResetPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      // First, get the user by email to get their userId
+      // Get the user by email to get their userId
+      // If the user is logged we could just use the userId from the token, although this keeps the process the same between logged in and logged out states
+
       const userResponse = await fetch(`http://localhost:5225/api/User/email/${email}`);
       
       if (!userResponse.ok) {
@@ -44,7 +45,7 @@ const ResetPasswordPage = () => {
       // setUserId(userData.userId);
 
       // Create password reset request
-      const response = await fetch(`http://localhost:5225/api/passwordreset/create/${userData.userId}`, {
+      const response = await fetch(`http://localhost:5225/api/PasswordReset/create/${userData.userId}`, {
         method: 'POST',
       });
 
@@ -79,7 +80,7 @@ const ResetPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5225/api/passwordreset/reset', {
+      const response = await fetch('http://localhost:5225/api/PasswordReset/reset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +134,7 @@ const ResetPasswordPage = () => {
       setIsLoading(true);
 
       // Request reset code
-      const response = await fetch(`http://localhost:5225/api/passwordreset/request/${user.userId}`, {
+      const response = await fetch(`http://localhost:5225/api/PasswordReset/request/${user.userId}`, {
         method: 'POST',
       });
 
