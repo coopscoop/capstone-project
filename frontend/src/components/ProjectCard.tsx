@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Editor } from '@monaco-editor/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PostForm } from '@/components';
-import { userService } from '@/services'; // Import userService
+import { userService } from '@/services';
 
 interface ProjectCardProps {
   postId: number;
@@ -14,7 +14,7 @@ interface ProjectCardProps {
   favorited?: boolean;
   code?: string;
   userId?: number;
-  numberOfLikes?: number; // Add numberOfLikes to props
+  numberOfLikes?: number;
   onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
   onOpen?: () => void;
   onUpdate?: (postId: number, data: any) => Promise<void>;
@@ -49,6 +49,7 @@ const ProjectCard = ({
   const canEdit = user && (user.isAdmin || user.userId === userId);
 
   // Fetch owner's display name
+  // TODO: ADD THE USER DISPLAY NAME TO THE POSTS RETURN
   useEffect(() => {
     const fetchOwnerName = async () => {
       if (userId) {

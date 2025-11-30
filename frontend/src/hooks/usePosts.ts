@@ -50,7 +50,7 @@ export const usePosts = () => {
       title,
       description,
       code,
-      numberOfLikes: 0,
+      numberOfLikes: 1,
       isVisible,
       tags: [],
     });

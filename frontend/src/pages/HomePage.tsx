@@ -135,7 +135,7 @@ const HomePage = () => {
         <div className="flex justify-center mb-8">
           <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
             <DialogTrigger asChild>
-              <button className="flex items-center gap-2 px-6 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium">
+              <button className="flex items-center gap-2 px-6 py-3 bg-python-blue text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium">
                 <Plus size={20} />
                 Create New Project
               </button>
@@ -163,7 +163,7 @@ const HomePage = () => {
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <Star className="stroke-yellow-300" size={28} />
+              <Star className="fill-yellow-300 stroke-yellow-300" size={28} />
               <h2 className="text-2xl font-bold text-zinc-900">Favorite Projects</h2>
             </div>
           </div>
