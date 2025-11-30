@@ -18,6 +18,30 @@ using Capstone.API.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// listen to port 0.0.0.0 for cloud run
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
+
+// CORS configuration for React frontend, used in middleware
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy => policy
+            .WithOrigins(
+                "https://capstone-frontend-657482441130.northamerica-northeast2.run.app",
+                "https://capstone-frontend-tkgjilqdma-pd.a.run.app",
+                "http://localhost:5173",  // For local dev
+                "http://localhost:5174"
+            )  // react front end
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
 // Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -109,17 +133,6 @@ builder.Services.AddHostedService<JwtTokenCleanupService>();
 // db connection
 builder.Services.AddSingleton<DatabaseConnection>();
 
-// CORS configuration for React frontend, used in middleware
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp",
-        policy => policy
-            .WithOrigins("http://localhost:5173", "https://capstone-frontend-657482441130.northamerica-northeast2.run.app")  // react front end
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -134,8 +147,8 @@ if (app.Environment.IsDevelopment())
 }
 
 // Middleware
-app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 

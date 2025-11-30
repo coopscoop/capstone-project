@@ -180,3 +180,8 @@ If for whatever reason you want to test the API endpoints without logging in, si
 ### Postgres
 - https://www.postgresql.org/docs/9.5/functions-aggregate.html
   - For the aggregate functions used in the SQL queries, made pulling the tags much easier
+
+### Google Cloud Run
+Less so fits in the backend as it's both frontend and backend, but I'm putting it here for the sake of its more backend-focused.
+- https://docs.cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-dotnet-service#local-shell
+- https://docs.cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-nodejs-service#local-shell

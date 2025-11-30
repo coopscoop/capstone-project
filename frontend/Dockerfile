@@ -6,24 +6,17 @@ RUN npm install
 
 COPY . .
 
-# Accept API URL as build argument
-ARG VITE_API_URL
-RUN echo "VITE_API_URL=${VITE_API_URL}" > .env.production
+# Hardcode the env var during build
+RUN echo "VITE_API_URL=https://capstone-backend-657482441130.northamerica-northeast2.run.app/api" > .env.production
 
-# DEBUG: Verify the env file was created correctly
-RUN echo "=== Checking .env.production ===" && \
-    cat .env.production
-
-# Explicitly set production mode
+# Set production mode
 ENV NODE_ENV=production
 
-# Build with the env var
+# Build
 RUN npm run build
 
-# DEBUG: Check if the backend URL made it into the bundle
-RUN echo "=== Checking built files ===" && \
-    grep -r "localhost" dist/ || echo "No localhost found" && \
-    grep -r "capstone-backend" dist/ || echo "Backend URL found!"
+# Verify it worked
+RUN grep -r "capstone-backend" dist/ && echo "SUCCESS!" || echo "FAILED - still has localhost"
 
 FROM node:18-alpine
 WORKDIR /app

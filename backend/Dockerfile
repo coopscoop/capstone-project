@@ -5,6 +5,7 @@ WORKDIR /app
 # http and https ports
 EXPOSE 80
 EXPOSE 443
+EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
@@ -29,5 +30,8 @@ COPY --from=publish /app/publish .
 
 # Copy Python scripts explicitly
 COPY Capstone.Infrastructure/Python /app/Python
+
+# Set the port env var
+ENV ASPNETCORE_URLS=http://+:8080
 
 ENTRYPOINT ["dotnet", "Capstone.API.dll"]

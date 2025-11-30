@@ -41,7 +41,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:5225/api
+        # VITE_API_URL: http://localhost:5225/api
     environment:
       PORT: 8080
     ports:
