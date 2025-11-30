@@ -19,13 +19,15 @@ export const useFavourites = (userId?: number) => {
     loadFavourites();
   }, [userId]);
 
-  const toggleFavourite = async (postId: number, isFavorited: boolean) => {
+  // funkly way of handling the increment/decrement of likes but it works without adding new stuff so this is how it's done
+  const toggleFavourite = async (postId: number, isFavorited: boolean, onLikeUpdate?: (increment: boolean) => void) => {
     if (!userId) return;
 
     try {
       if (isFavorited) {
         await favouriteService.add(postId, userId);
         setFavourites(prev => new Set(prev).add(postId));
+        onLikeUpdate?.(true); // increment like count
       } else {
         await favouriteService.remove(postId, userId);
         setFavourites(prev => {
@@ -33,6 +35,7 @@ export const useFavourites = (userId?: number) => {
           newSet.delete(postId);
           return newSet;
         });
+        onLikeUpdate?.(false); // decrement like count
       }
     } catch (err) {
       console.error('Error toggling favorite:', err);

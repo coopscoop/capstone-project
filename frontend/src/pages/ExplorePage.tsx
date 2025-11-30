@@ -10,12 +10,17 @@ const ExplorePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError } = usePosts();
+  const { posts, loading: postsLoading, error: postsError, updatePost, updatePostLikes, loadPosts } = usePosts();
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
   const [searchFilters, setSearchFilters] = useState<string[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+
+  // Get posts
+  useEffect(() => {
+    loadPosts();
+  }, []);
 
   // Filter posts based on search criteria
   useEffect(() => {
@@ -47,9 +52,41 @@ const ExplorePage = () => {
 
   const handleFavoriteToggle = async (postId: number, isFavorited: boolean) => {
     try {
-      await toggleFavourite(postId, isFavorited);
+      await toggleFavourite(postId, isFavorited, (increment) => {
+        // Update the like count locally
+        updatePostLikes(postId, increment);
+      });
     } catch (err) {
       console.error('Error toggling favorite:', err);
+    }
+  };
+
+  const handleUpdatePost = async (postId: number, data: {
+    title: string;
+    description: string;
+    code: string;
+    isVisible: boolean;
+    tags: string[];
+  }) => {
+    if (!user) return;
+
+    try {
+      const postToUpdate = posts.find(post => post.postId === postId);
+      if (!postToUpdate) return;
+
+      await updatePost(
+        postId,
+        user.userId,
+        data.title,
+        data.description,
+        data.code,
+        postToUpdate.numberOfLikes,
+        data.isVisible,
+        data.tags
+      );
+    } catch (err) {
+      console.error('Failed to update post:', err);
+      throw err;
     }
   };
 
@@ -200,8 +237,11 @@ const ExplorePage = () => {
                   tags={post.tags || []}
                   description={post.description || 'No description available'}
                   favorited={favourites.has(post.postId)}
+                  userId={post.userId}
+                  numberOfLikes={post.numberOfLikes}
                   onFavoriteToggle={handleFavoriteToggle}
                   onOpen={() => handleOpenInEditor(post)}
+                  onUpdate={handleUpdatePost}
                   code={post.code}
                 />
               ))}

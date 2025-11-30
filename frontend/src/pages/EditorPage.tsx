@@ -361,7 +361,7 @@ const EditorPage = () => {
   };
 
   if (isDesktop) {
-    // Desktop: Side-by-side with resizable divider
+    // Desktop: has no tabs, side-by-side with resizable divider, issues panel is at the bottom of the output panel
     return (
       <div ref={containerRef} className="h-screen flex bg-zinc-50">
         {/* Editor Panel */}
@@ -469,17 +469,11 @@ const EditorPage = () => {
     );
   }
 
-  // ... existing code ...
-
-  // ... existing code ...
-
-  // ... existing code ...
-
   // Mobile: Tabbed interface
   return (
     <div className="h-screen flex flex-col bg-zinc-50">
       {/* Tab Bar - Fixed height, no bottom padding */}
-      <div className="bg-zinc-100 border-b border-zinc-200 flex items-center gap-0 pt-2 flex-shrink-0">
+      <div className="bg-zinc-100 border-b border-zinc-200 flex items-center gap-0 pt-2 shrink-0">
         {" "}
         {/* Removed pb-3, added flex-shrink-0 */}
         <button

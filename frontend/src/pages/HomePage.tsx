@@ -1,17 +1,33 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Code } from 'lucide-react';
+import { Star, Code, Plus } from 'lucide-react';
 import { useAuth, useProject } from '@/contexts';
 import { useFavourites, usePosts } from '@/hooks';
 import ProjectCard from '@/components/ProjectCard';
+import { PostForm } from '@/components';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import type { Post } from '@/types';
 
 const HomePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError } = usePosts();
+  const { posts, loading: postsLoading, error: postsError, createPost, updatePost, updatePostLikes, loadPosts } = usePosts();
   const [favoritePosts, setFavoritePosts] = useState<Post[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  // Get posts
+  useEffect(() => {
+    loadPosts();
+  }, []);
 
   // Filter posts to only show favorites
   useEffect(() => {
@@ -23,7 +39,9 @@ const HomePage = () => {
 
   const handleFavoriteToggle = async (postId: number, isFavorited: boolean) => {
     try {
-      await toggleFavourite(postId, isFavorited);
+      await toggleFavourite(postId, isFavorited, (increment) => {
+        updatePostLikes(postId, increment);
+      });
     } catch (err) {
       console.error('Error toggling favorite:', err);
     }
@@ -31,8 +49,66 @@ const HomePage = () => {
 
   const handleOpenProject = (post: Post) => {
     setCurrentProject(post);
-    // Navigate to editor or project view
     window.location.href = '/editor';
+  };
+
+  const handleUpdatePost = async (postId: number, data: {
+    title: string;
+    description: string;
+    code: string;
+    isVisible: boolean;
+    tags: string[];
+  }) => {
+    if (!user) return;
+
+    try {
+      // Find the post to get its current numberOfLikes
+      const postToUpdate = posts.find(post => post.postId === postId);
+      if (!postToUpdate) return;
+
+      await updatePost(
+        postId,
+        user.userId,
+        data.title,
+        data.description,
+        data.code,
+        postToUpdate.numberOfLikes, // Use the current post's like count
+        data.isVisible,
+        data.tags
+      );
+    } catch (err) {
+      console.error('Failed to update post:', err);
+      throw err; // This will show error in the PostForm
+    }
+  };
+
+  const handleCreatePost = async (data: {
+    title: string;
+    description: string;
+    code: string;
+    isVisible: boolean;
+    tags: string[];
+  }) => {
+    if (!user) return;
+
+    setFormLoading(true);
+    setFormError('');
+
+    try {
+      const createdPost = await createPost(user.userId, data.title, data.description, data.code, data.isVisible, data.tags);
+      
+      if (createdPost && createdPost.postId) {
+        await toggleFavourite(createdPost.postId, true);
+      }
+      
+      setIsCreateModalOpen(false);
+      setFormError('');
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Failed to create post');
+      throw err;
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   return (
@@ -53,6 +129,34 @@ const HomePage = () => {
           <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
             Welcome to your dashboard.
           </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex justify-center mb-8">
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+            <DialogTrigger asChild>
+              <button className="flex items-center gap-2 px-6 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium">
+                <Plus size={20} />
+                Create New Project
+              </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] bg-white **:data-dialog-close-btn:hidden">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-zinc-900">
+                  Create New Project
+                </DialogTitle>
+              </DialogHeader>
+              <div className="mt-4">
+                <PostForm
+                  mode="create"
+                  onSubmit={handleCreatePost}
+                  onCancel={() => setIsCreateModalOpen(false)}
+                  loading={formLoading}
+                  error={formError}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Favorite Projects Section */}
@@ -102,8 +206,11 @@ const HomePage = () => {
                   tags={post.tags || []}
                   description={post.description || 'No description available'}
                   favorited={favourites.has(post.postId)}
+                  userId={post.userId}
+                  numberOfLikes={post.numberOfLikes}
                   onFavoriteToggle={handleFavoriteToggle}
                   onOpen={() => handleOpenProject(post)}
+                  onUpdate={handleUpdatePost}
                   code={post.code}
                 />
               ))}

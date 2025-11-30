@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Post } from '@/types';
 import { postService, tagService } from '@/services';
 
 export const usePosts = () => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -18,13 +19,25 @@ export const usePosts = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const getUserPosts = useCallback(async (userId: number) => {
+    setLoading(true);
+    try {
+      const data = await postService.getUserPosts(userId);
+      setUserPosts(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load user posts');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [loadPosts]);
 
-  const createPost = async (
+  const createPost = useCallback(async (
     userId: number,
     title: string,
     description: string,
@@ -48,9 +61,9 @@ export const usePosts = () => {
 
     await loadPosts();
     return createdPost;
-  };
+  }, [loadPosts]);
 
-  const updatePost = async (
+  const updatePost = useCallback(async (
     postId: number,
     userId: number,
     title: string,
@@ -77,20 +90,35 @@ export const usePosts = () => {
     }
 
     await loadPosts();
-  };
+  }, [loadPosts]);
 
-  const deletePost = async (postId: number) => {
+  const updatePostLikes = useCallback(async (postId: number, increment: boolean) => {
+    setPosts(prev => prev.map(post => {
+      if (post.postId === postId) {
+        return {
+          ...post,
+          numberOfLikes: increment ? post.numberOfLikes + 1 : Math.max(0, post.numberOfLikes - 1)
+        };
+      }
+      return post;
+    }));
+  }, []);
+
+  const deletePost = useCallback(async (postId: number) => {
     await postService.delete(postId);
     setPosts(prev => prev.filter(p => p.postId !== postId));
-  };
+  }, []);
 
   return {
     posts,
     loading,
     error,
+    userPosts,
     loadPosts,
     createPost,
     updatePost,
+    updatePostLikes,
     deletePost,
+    getUserPosts,
   };
 };

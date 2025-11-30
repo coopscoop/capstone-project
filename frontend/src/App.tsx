@@ -7,7 +7,7 @@ import ControlPanelPage from '@/pages/ControlPanelPage';
 import HomePage from '@/pages/HomePage';
 import ExplorePage from '@/pages/ExplorePage';
 import EditorPage from '@/pages/EditorPage';
-import SettingsPage from '@/pages/SettingsPage';
+import ProfilePage from '@/pages/ProfilePage';
 import MainLayout from '@/components/layout/MainLayout';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 
@@ -43,7 +43,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public routes - NO sidebar */}
+      {/* Public routes - no sidebar, can be accessed without logging in */}
       <Route 
         path="/login" 
         element={user ? <Navigate to="/" /> : <LoginPage />} 
@@ -59,7 +59,7 @@ function AppRoutes() {
         element={<ResetPasswordPage />} 
       />
 
-      {/* Control Panel - separate from MainLayout */}
+      {/* Control Panel - separate from MainLayout as its only really meant for admins/testing */}
       <Route
         path="/control-panel"
         element={
@@ -80,7 +80,7 @@ function AppRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/editor" element={<EditorPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       {/* Catch all - redirect to home if logged in, login if not */}

@@ -11,12 +11,12 @@ const Sidebar = () => {
     { path: '/', icon: Home, label: 'Home' },
     { path: '/explore', icon: Compass, label: 'Explore' },
     { path: '/editor', icon: FileCode, label: 'Editor' },
-    { path: '/settings', icon: User, label: 'Settings' },
+    { path: '/profile', icon: User, label: 'Profile' },
   ];
 
   // Add Control Panel to nav if admin
   if (user?.isAdmin) navItems.push(
-    { path: '/control-panel', icon: ArchiveIcon, label: 'Control Panel' }
+    { path: '/control-panel', icon: ArchiveIcon, label: 'Admin' }
   );
 
   const pythonLogo = '/python-logo.png';

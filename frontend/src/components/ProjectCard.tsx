@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Star, User } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Star, User, Edit } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Editor } from '@monaco-editor/react';
+import { useAuth } from '@/contexts/AuthContext';
+import { PostForm } from '@/components';
+import { userService } from '@/services'; // Import userService
 
 interface ProjectCardProps {
   postId: number;
@@ -10,9 +13,11 @@ interface ProjectCardProps {
   description?: string;
   favorited?: boolean;
   code?: string;
-  displayName?: string; // Added this
+  userId?: number;
+  numberOfLikes?: number; // Add numberOfLikes to props
   onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
   onOpen?: () => void;
+  onUpdate?: (postId: number, data: any) => Promise<void>;
 }
 
 const ProjectCard = ({ 
@@ -22,18 +27,43 @@ const ProjectCard = ({
   description = "A description of the project",
   favorited: initialFavorited = false,
   code,
-  displayName, // Added this
+  userId,
+  numberOfLikes = 0, // Default to 0
   onFavoriteToggle,
   onOpen = () => {},
+  onUpdate,
 }: ProjectCardProps) => {
+  const { user } = useAuth();
   const [favorited, setFavorited] = useState(initialFavorited);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [editorHeight, setEditorHeight] = useState('200px');
   const [formattedCode, setFormattedCode] = useState(code);
+  const [ownerDisplayName, setOwnerDisplayName] = useState<string>('');
   const editorRef = useRef<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Check if current user can edit this post (owner or admin)
+  const canEdit = user && (user.isAdmin || user.userId === userId);
+
+  // Fetch owner's display name
+  useEffect(() => {
+    const fetchOwnerName = async () => {
+      if (userId) {
+        try {
+          const owner = await userService.getById(userId);
+          setOwnerDisplayName(owner.displayName || 'Unknown User');
+        } catch (err) {
+          console.error('Failed to fetch owner name:', err);
+          setOwnerDisplayName('Unknown User');
+        }
+      }
+    };
+
+    fetchOwnerName();
+  }, [userId]);
 
   const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -47,6 +77,7 @@ const ProjectCard = ({
         await onFavoriteToggle(postId, newFavoritedState);
       }
       setFavorited(newFavoritedState);
+
     } catch (error) {
       console.error('Failed to toggle favorite:', error);
     } finally {
@@ -55,9 +86,9 @@ const ProjectCard = ({
   };
 
   const handleOpenClick = () => {
-    // Had to add a slight delay to ensure modal opens correctly and shadcn can focus properly
     setTimeout(() => {
       setIsModalOpen(true);
+      setIsEditing(false); // Reset to details view when opening
     }, 10);
   };
 
@@ -66,11 +97,30 @@ const ProjectCard = ({
     onOpen();
   };
 
+  const handleStartEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleUpdatePost = async (data: {
+    title: string;
+    description: string;
+    code: string;
+    isVisible: boolean;
+    tags: string[];
+  }) => {
+    if (onUpdate) {
+      await onUpdate(postId, data);
+    }
+    setIsEditing(false);
+  };
+
   // Handle editor mount
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
-    
-    // Force layout after mount
     setTimeout(() => {
       editor.layout();
     }, 0);
@@ -79,16 +129,14 @@ const ProjectCard = ({
   // Update editor height based on screen size
   useEffect(() => {
     const updateEditorHeight = () => {
-      if (window.innerWidth < 640) { // sm breakpoint
+      if (window.innerWidth < 640) {
         setEditorHeight('150px');
       } else {
         setEditorHeight('200px');
       }
     };
 
-    // fix formatting on the small code display
     if (code) {
-      // Convert \n escape sequences to actual newlines
       const formattedCode = code.replace(/\\n/g, '\n');
       setFormattedCode(formattedCode);
     }
@@ -99,7 +147,7 @@ const ProjectCard = ({
     return () => window.removeEventListener('resize', updateEditorHeight);
   }, []);
 
-  // Handle resize when modal opens and for general responsiveness
+  // Handle resize when modal opens
   useEffect(() => {
     if (isModalOpen && editorRef.current) {
       const updateLayout = () => {
@@ -112,7 +160,6 @@ const ProjectCard = ({
 
       updateLayout();
       
-      // Use ResizeObserver for container changes
       if (dialogContentRef.current) {
         const resizeObserver = new ResizeObserver(updateLayout);
         resizeObserver.observe(dialogContentRef.current);
@@ -124,31 +171,138 @@ const ProjectCard = ({
     }
   }, [isModalOpen]);
 
+  // Project Details View
+  const renderDetailsView = () => (
+    <>
+      {/* All Tags */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {tags.map((tag, index) => (
+          <span 
+            key={index}
+            className="bg-python-yellow text-white px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      {/* Full Description */}
+      <p className="text-zinc-300 text-base leading-relaxed mb-6">
+        {description}
+      </p>
+
+      {/* Code Viewer */}
+      <div className="mb-6 w-full min-w-0 bg-zinc-900 rounded-lg overflow-hidden">
+        <Editor
+          height={editorHeight}
+          defaultLanguage="python"
+          value={formattedCode}
+          theme="vs-dark"
+          options={{
+            readOnly: true,
+            minimap: { enabled: false },
+            lineNumbers: "off",
+            scrollBeyondLastLine: false,
+            renderLineHighlight: "none",
+            folding: false,
+            glyphMargin: false,
+            automaticLayout: true,
+            overviewRulerLanes: 0,
+            hideCursorInOverviewRuler: true,
+            overviewRulerBorder: false,
+            stickyScroll: { enabled: false },
+          }}
+          onMount={handleEditorDidMount}
+          className="min-h-[120px]"
+        />
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button 
+          onClick={handleOpenProject}
+          className="flex-1 bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+          style={{ flex: canEdit ? '0 0 40%' : '0 0 50%' }}
+        >
+          Open Project
+        </button>
+
+        {canEdit && (
+          <button 
+            onClick={handleStartEdit}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            style={{ flex: '0 0 40%' }}
+          >
+            <Edit size={16} className="inline mr-2" />
+            Edit Properties
+          </button>
+        )}
+
+        <button 
+          onClick={() => setIsModalOpen(false)}
+          className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 font-semibold py-3 px-6 rounded-lg transition-colors"
+          style={{ flex: canEdit ? '0 0 20%' : '0 0 50%' }}
+        >
+          Close
+        </button>
+      </div>
+    </>
+  );
+
+  // Edit Form View
+  const renderEditView = () => (
+    <div className="mt-2">
+      <PostForm
+        mode="edit"
+        initialData={{
+          title: title,
+          description: description || '',
+          code: code || '',
+          tags: tags || [],
+          isVisible: true,
+        }}
+        onSubmit={handleUpdatePost}
+        onCancel={handleCancelEdit}
+        loading={false}
+        error=""
+      />
+    </div>
+  );
+
   return (
     <div className="bg-zinc-700 rounded-lg shadow-md p-6 border border-zinc-600 hover:shadow-lg transition-shadow">
       
-      {/* Header - Fixed to allow wrapping */}
+      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
         <div className="flex-1 min-w-0">
           <h3 className="text-xl font-bold text-zinc-100 wrap-break-word">
             {title}
           </h3>
-          {displayName && (
+          {/* Owner's Display Name */}
+          {ownerDisplayName && (
             <div className="flex items-center gap-1.5 mt-1 text-sm text-zinc-400">
               <User size={14} />
-              <span>{displayName}</span>
+              <span>by {ownerDisplayName}</span>
             </div>
           )}
         </div>
 
-        <button 
-          onClick={toggleFavorite}
-          disabled={isTogglingFavorite}
-          className="shrink-0 text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
-          aria-label={favorited ? "Unfavorite" : "Favorite"}
-        >
-          <Star size={28} fill={favorited ? "currentColor" : "none"} strokeWidth={2} />
-        </button>
+        {/* Favorite and Likes Section */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Likes Count */}
+          <div className="flex items-center gap-1 text-zinc-300 bg-zinc-600 px-2 py-1 rounded-lg">
+            <span className="text-sm font-medium">{numberOfLikes}</span>
+          </div>
+          
+          {/* Favorite Button */}
+          <button 
+            onClick={toggleFavorite}
+            disabled={isTogglingFavorite}
+            className="text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
+            aria-label={favorited ? "Unfavorite" : "Favorite"}
+          >
+            <Star size={28} fill={favorited ? "currentColor" : "none"} strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
       {/* Tags */}
@@ -178,14 +332,12 @@ const ProjectCard = ({
         Open
       </button>
 
-      {/* Modal */}
+      {/* Modal - Updated to show owner name and likes in modal too */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
           ref={dialogContentRef}
-          className="w-full max-w-[95vw] sm:max-w-2xl bg-zinc-800 border-zinc-700 text-zinc-100"
+          className="w-full max-w-[95vw] sm:max-w-2xl bg-zinc-800 border-zinc-700 text-zinc-100 [&>button]:hidden"
           onOpenAutoFocus={(e) => e.preventDefault()}
-          
-          // Restore focus to the button that opened the dialog, shadcn accessibility
           onCloseAutoFocus={(e) => {
             e.preventDefault();
             openProjectButtonRef.current?.focus();
@@ -193,96 +345,40 @@ const ProjectCard = ({
         >
           <DialogHeader>
             <div className="flex items-start justify-between">
-              <div className="flex-1 pr-8">
-                <DialogTitle className="text-2xl font-bold text-zinc-100">
-                  {title}
+              <div className="flex-1">
+                <DialogTitle className="text-2xl font-bold text-zinc-100 text-left">
+                  {isEditing ? 'Edit Project' : title}
                 </DialogTitle>
-                {displayName && (
+                {!isEditing && ownerDisplayName && (
                   <div className="flex items-center gap-2 mt-2 text-sm text-zinc-400">
                     <User size={16} />
-                    <span>by {displayName}</span>
+                    <span>by {ownerDisplayName}</span>
                   </div>
                 )}
               </div>
-            
-              {/* shadcn accessibility */}
-              <DialogDescription className="sr-only">
-                Project details including tags, description, and code preview for {title}
-              </DialogDescription>
 
-              <button 
-                onClick={toggleFavorite}
-                disabled={isTogglingFavorite}
-                className="text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
-                aria-label={favorited ? "Unfavorite" : "Favorite"}
-              >
-                <Star size={32} fill={favorited ? "currentColor" : "none"} strokeWidth={2} />
-              </button>
+              {!isEditing && (
+                <div className="flex items-center gap-3 ml-4">
+                  {/* Likes in modal */}
+                  <div className="flex items-center gap-1 text-zinc-300">
+                    <span className="text-sm font-medium">{numberOfLikes}</span>
+                  </div>
+                  
+                  <button 
+                    onClick={toggleFavorite}
+                    disabled={isTogglingFavorite}
+                    className="text-yellow-400 hover:scale-110 transition-transform disabled:opacity-50"
+                    aria-label={favorited ? "Unfavorite" : "Favorite"}
+                  >
+                    <Star size={32} fill={favorited ? "currentColor" : "none"} strokeWidth={2} />
+                  </button>
+                </div>
+              )}
             </div>
           </DialogHeader>
           
           <div className="mt-4">
-            
-            {/* All Tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {tags.map((tag, index) => (
-                <span 
-                  key={index}
-                  className="bg-python-yellow text-white px-4 py-2 rounded-lg text-sm font-semibold"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            {/* Full Description */}
-            <p className="text-zinc-300 text-base leading-relaxed mb-6">
-              {description}
-            </p>
-
-            {/* Code Viewer */}
-            <div className="mb-6 w-full min-w-0 bg-zinc-900 rounded-lg overflow-hidden">
-              <Editor
-                height={editorHeight}
-                defaultLanguage="python"
-                value={formattedCode}
-                theme="vs-dark"
-                options={{
-                  readOnly: true,
-                  minimap: { enabled: false },
-                  lineNumbers: "off",
-                  scrollBeyondLastLine: false,
-                  renderLineHighlight: "none",
-                  folding: false,
-                  glyphMargin: false,
-                  automaticLayout: true,
-                  overviewRulerLanes: 0,
-                  hideCursorInOverviewRuler: true,
-                  overviewRulerBorder: false,
-                  stickyScroll: { enabled: false },
-                }}
-                onMount={handleEditorDidMount}
-                className="min-h-[120px]"
-              />
-            </div>
-
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button 
-                onClick={handleOpenProject}
-                className="flex-1 bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-              >
-                Open Project
-              </button>
-
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 font-semibold py-3 px-6 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-
+            {isEditing ? renderEditView() : renderDetailsView()}
           </div>
         </DialogContent>
       </Dialog>

@@ -41,4 +41,12 @@ export const postService = {
       throw new Error('Failed to delete post');
     }
   },
+
+  async getUserPosts(userId: number): Promise<Post[]> {
+    const response = await apiRequest(`/Posts/user/${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch user posts');
+    }
+    return response.json();
+  },
 };

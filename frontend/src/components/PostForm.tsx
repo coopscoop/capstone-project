@@ -123,19 +123,6 @@ export const PostForm = ({
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-zinc-300 my-2">
-            Code
-          </label>
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="w-full px-4 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-200 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
-            placeholder="print('Hello, World!')"
-            required
-          />
-        </div>
-
         <div className="flex items-center gap-3 p-4 bg-zinc-700 rounded-lg my-2">
           <input
             type="checkbox"
@@ -167,7 +154,7 @@ export const PostForm = ({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-3 bg-zinc-600 text-white rounded-lg hover:bg-zinc-500 transition-colors font-medium"
+              className="flex-1 px-4 py-3 bg-zinc-600 text-white rounded-lg hover:bg-zinc-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               Cancel
             </button>
