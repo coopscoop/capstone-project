@@ -2,12 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, KeyRound, Edit, Save, FileText } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProject } from "@/contexts/ProjectContext";
 import { apiRequest } from "@/utils/api";
 import ProjectCard from "@/components/ProjectCard";
 import { usePosts, useUserPostsWithFavorites } from "@/hooks";
+import type { Post } from "@/types";
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
+  const { setCurrentProject } = useProject();
   const navigate = useNavigate();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   // const { userPosts, loading: postsLoading, error: postsError, getUserPosts, updatePost, updatePostLikes } = usePosts();
@@ -112,11 +115,9 @@ const ProfilePage = () => {
     }
   };
 
-  // You'll need to implement these handlers similar to ExplorePage
-  const handleOpenProject = (post: any) => {
-    // Implement what happens when a project is opened
-    console.log("Open project:", post);
-    // You might want to navigate to the editor or show a modal
+ const handleOpenInEditor = (post: Post) => {
+    setCurrentProject(post);
+    window.location.href = '/editor';
   };
 
   const handleUpdatePost = async (
@@ -363,7 +364,7 @@ const ProfilePage = () => {
                     userId={post.userId}
                     numberOfLikes={post.numberOfLikes}
                     onFavoriteToggle={handleFavoriteToggle}
-                    onOpen={() => handleOpenProject(post)}
+                    onOpen={() => handleOpenInEditor(post)}
                     onUpdate={handleUpdatePost}
                     code={post.code}
                     displayName={displayName}
