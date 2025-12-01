@@ -11,3 +11,5 @@ export * from './CodeExecutionResult';
 export * from './CodeLintRequest';
 export * from './CodeLintResult';
 export * from './CodeLintIssue';
+export * from './PasswordResetResponse';
+export * from './ResetPasswordRequest';

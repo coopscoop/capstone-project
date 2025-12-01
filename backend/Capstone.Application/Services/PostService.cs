@@ -65,20 +65,35 @@ public class PostService : IPostService
         return MapToDto(created);
     }
 
-    public async Task<PostDto?> UpdateAsync(int postId, PostDto postDto)
+    public async Task<PostDto?> UpdateAsync(int postId, PostDto postDto, int? currentUserId = null, bool? isAdmin = null)
     {
-        var existingPost = await _postRepository.GetByIdAsync(postId);
-        if (existingPost == null) return null;
+        _logger.LogInformation("UpdateAsync called for post {PostId} with IsVisible = {IsVisible}", postId, postDto.IsVisible);
+        
+        var existingPost = await _postRepository.GetByIdAsync(postId, currentUserId, isAdmin);
+        if (existingPost == null)
+        {
+            _logger.LogWarning("Post {PostId} not found for update", postId);
+            return null;
+        }
 
+        _logger.LogInformation("Before update - Post {PostId} IsVisible: {CurrentIsVisible}", postId, existingPost.IsVisible);
+        
         existingPost.Title = postDto.Title;
         existingPost.Description = postDto.Description;
         existingPost.Code = postDto.Code;
         existingPost.IsVisible = postDto.IsVisible;
         existingPost.LastEdited = DateTime.UtcNow;
 
-        var success = await _postRepository.UpdateAsync(existingPost);
-        if (!success) return null;
+        _logger.LogInformation("After update - Post {PostId} IsVisible: {NewIsVisible}", postId, existingPost.IsVisible);
 
+        var success = await _postRepository.UpdateAsync(existingPost);
+        if (!success)
+        {
+            _logger.LogError("Failed to update post {PostId} in repository", postId);
+            return null;
+        }
+
+        _logger.LogInformation("Successfully updated post {PostId}", postId);
         return MapToDto(existingPost);
     }
 

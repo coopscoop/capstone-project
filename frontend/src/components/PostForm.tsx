@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface PostFormProps {
@@ -35,7 +35,23 @@ export const PostForm = ({
   const [code, setCode] = useState(initialData?.code || '');
   const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [tagInput, setTagInput] = useState('');
-  const [isVisible, setIsVisible] = useState(initialData?.isVisible ?? true);
+  const [isVisible, setIsVisible] = useState(initialData?.isVisible ?? false);
+
+  // debug print on load
+  useEffect(() => {
+    console.log('PostForm initialData:', initialData);
+  }, [initialData]);
+
+  // Add this useEffect to update form state when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || '');
+      setDescription(initialData.description || '');
+      setCode(initialData.code || '');
+      setTags(initialData.tags || []);
+      setIsVisible(initialData.isVisible ?? true); // Default to true
+    }
+  }, [initialData]);
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && tagInput.trim()) {

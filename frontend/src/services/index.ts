@@ -3,3 +3,4 @@ export * from './favouriteService';
 export * from './postService';
 export * from './tagService';
 export * from './userService';
+export * from './passwordResetService';

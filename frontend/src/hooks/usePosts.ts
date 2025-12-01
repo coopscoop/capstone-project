@@ -73,27 +73,57 @@ export const usePosts = () => {
     isVisible: boolean,
     tags: string[]
   ) => {
-    await postService.update(postId, {
-      postId,
-      userId,
-      title,
-      description,
-      code,
-      isVisible,
-      numberOfLikes,
-      tags,
-    });
+    try {
+      // Update the post and get the response
+      const updatedPost = await postService.update(postId, {
+        postId,
+        userId,
+        title,
+        description,
+        code,
+        isVisible,
+        numberOfLikes,
+        tags,
+      });
 
-    await tagService.deletePostTags(postId);
-    if (tags.length > 0) {
-      await tagService.addMultipleTags(postId, tags);
+      // Update tags
+      await tagService.deletePostTags(postId);
+      if (tags.length > 0) {
+        await tagService.addMultipleTags(postId, tags);
+      }
+
+      // Update local state with the returned post data
+      if (updatedPost != null) {
+        setPosts(prev => prev.map(post => 
+          post.postId === postId ? updatedPost : post
+        ));
+        setUserPosts(prev => prev.map(post => 
+          post.postId === postId ? updatedPost : post
+        ));
+      } else {
+        // If no post returned, refresh from server
+        await loadPosts();
+      }
+
+      return updatedPost;
+    } catch (error) {
+      console.error('Error updating post:', error);
+      throw error;
     }
-
-    await loadPosts();
   }, [loadPosts]);
 
   const updatePostLikes = useCallback(async (postId: number, increment: boolean) => {
     setPosts(prev => prev.map(post => {
+      if (post.postId === postId) {
+        return {
+          ...post,
+          numberOfLikes: increment ? post.numberOfLikes + 1 : Math.max(0, post.numberOfLikes - 1)
+        };
+      }
+      return post;
+    }));
+
+    setUserPosts(prev => prev.map(post => {
       if (post.postId === postId) {
         return {
           ...post,
@@ -107,6 +137,7 @@ export const usePosts = () => {
   const deletePost = useCallback(async (postId: number) => {
     await postService.delete(postId);
     setPosts(prev => prev.filter(p => p.postId !== postId));
+    setUserPosts(prev => prev.filter(p => p.postId !== postId));
   }, []);
 
   return {

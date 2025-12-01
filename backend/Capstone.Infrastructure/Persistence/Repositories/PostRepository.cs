@@ -126,16 +126,24 @@ public class PostRepository : IPostRepository
                 p.is_visible AS IsVisible,
                 p.created AS Created,
                 p.last_edited AS LastEdited,
+                u.display_name AS DisplayName,
                 ARRAY_AGG(DISTINCT t.tag_name) FILTER (WHERE t.tag_name IS NOT NULL) AS Tags
             FROM posts p
-            LEFT JOIN tags pt ON p.post_id = pt.post_id
-            LEFT JOIN tags t ON pt.post_id = t.post_id
+            LEFT JOIN users u ON p.user_id = u.user_id
+            LEFT JOIN tags t ON p.post_id = t.post_id
             WHERE p.post_id = @PostId
-            GROUP BY p.post_id
-            ORDER BY p.created DESC";
+                AND (@isAdmin = true OR p.is_visible = true OR p.user_id = @currentUserId)
+            GROUP BY p.post_id, u.display_name";
 
         await using var connection = _dbConnection.CreateConnection();
-        return await connection.QuerySingleAsync<Post>(sql, new { PostId = postId });
+        var result = await connection.QuerySingleOrDefaultAsync<Post>(sql, new { 
+            PostId = postId, 
+            currentUserId, 
+            isAdmin 
+        });
+        
+        _logger.LogInformation("GetByIdAsync result for post {PostId}: {Result}", postId, result != null ? "Found" : "Not found");
+        return result;
     }
 
     public async Task<IEnumerable<Post>> GetByUserIdAsync(int userId, int? currentUserId = null, bool? isAdmin = null)
@@ -214,7 +222,15 @@ public class PostRepository : IPostRepository
             WHERE post_id = @PostId";
 
         await using var connection = _dbConnection.CreateConnection();
-        var affected = await connection.ExecuteAsync(sql, post);
+        var affected = await connection.ExecuteAsync(sql, new { 
+            post.Title,
+            post.Description,
+            post.NumberOfLikes,
+            post.Code,
+            post.IsVisible,
+            post.LastEdited,
+            post.PostId
+        });
         return affected > 0;
     }
 }

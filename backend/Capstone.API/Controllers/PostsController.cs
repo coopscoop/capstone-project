@@ -105,14 +105,19 @@ public class PostsController : ControllerBase
         var (currentUserId, isAdmin) = GetCurrentUserInfo();
 
         // Check if user owns the post or is admin
-        var existingPost = await _postsService.GetByIdAsync(id);
+        var existingPost = await _postsService.GetByIdAsync(id, currentUserId, isAdmin);
         if (existingPost == null)
             return NotFound(new { error = $"Post with ID '{id}' not found" });
 
-        var post = await _postsService.UpdateAsync(id, postDto);
+        if (existingPost.UserId != currentUserId && !isAdmin)
+            return Forbid();
+
+        var post = await _postsService.UpdateAsync(id, postDto, currentUserId, isAdmin);
         
         if (post == null)
             return NotFound(new { error = $"Post with ID '{id}' not found" });
+        
+        _logger.LogInformation("Updated post {PostId} by user {UserId}", post.PostId, currentUserId);
 
         return Ok(post);
     }

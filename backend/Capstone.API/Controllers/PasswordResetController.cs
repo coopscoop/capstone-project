@@ -28,7 +28,7 @@ public class PasswordResetController : ControllerBase
     /// Get password reset request by user ID
     /// </summary>
     [HttpGet("user/{userId}")]
-    [Authorize] // Only authenticated users can check their own reset requests
+    [AllowAnonymous] // Only authenticated users can check their own reset requests
     public async Task<ActionResult<PasswordResetDto>> GetByUserId(int userId)
     {
         try
@@ -138,7 +138,7 @@ public class PasswordResetController : ControllerBase
     /// Delete a password reset request
     /// </summary>
     [HttpDelete("{userId}")]
-    [Authorize] // Only authenticated users can delete their own reset requests
+    [AllowAnonymous] // Only authenticated users can delete their own reset requests
     public async Task<ActionResult> Delete(int userId)
     {
         try

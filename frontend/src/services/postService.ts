@@ -22,15 +22,18 @@ export const postService = {
     return response.json();
   },
 
-  async update(postId: number, post: UpdatePostRequest): Promise<void> {
-    const response = await apiRequest(`/Posts/${postId}`, {
+  async update(id: number, data: UpdatePostRequest): Promise<Post> {
+    const response = await apiRequest(`/posts/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(post),
+      body: JSON.stringify(data),
     });
+
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to update post: ${errorText}`);
+      throw new Error(errorText || 'Failed to update post');
     }
+
+    return response.json();
   },
 
   async delete(postId: number): Promise<void> {

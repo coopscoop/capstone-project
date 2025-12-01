@@ -239,6 +239,7 @@ const ExplorePage = () => {
                   onUpdate={handleUpdatePost}
                   code={post.code}
                   displayName={post.displayName}
+                  isVisible={post.isVisible}
                 />
               ))}
             </div>

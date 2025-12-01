@@ -15,6 +15,7 @@ interface ProjectCardProps {
   userId?: number;
   numberOfLikes?: number;
   displayName?: string;
+  isVisible?: boolean;
   onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
   onOpen?: () => void;
   onUpdate?: (postId: number, data: any) => Promise<void>;
@@ -30,6 +31,7 @@ const ProjectCard = ({
   userId,
   numberOfLikes = 0, // Default to 0
   displayName,
+  isVisible,
   onFavoriteToggle,
   onOpen = () => {},
   onUpdate,
@@ -47,6 +49,11 @@ const ProjectCard = ({
 
   // Check if current user can edit this post (owner or admin)
   const canEdit = user && (user.isAdmin || user.userId === userId);
+
+  // debug print on modal open
+  useEffect(() => {
+    console.log('title:', title, ' isVisible:', isVisible);
+  }, [isEditing]);
 
   const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -213,7 +220,7 @@ const ProjectCard = ({
           <button 
             onClick={handleStartEdit}
             className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-            style={{ flex: '0 0 40%' }}
+            style={{ flex: '0 0 36%' }} // unsure why this is 36% instead of 40% but it works
           >
             <Edit size={16} className="inline mr-2" />
             Edit Properties
@@ -241,7 +248,7 @@ const ProjectCard = ({
           description: description || '',
           code: code || '',
           tags: tags || [],
-          isVisible: true,
+          isVisible: isVisible ?? false,
         }}
         onSubmit={handleUpdatePost}
         onCancel={handleCancelEdit}
