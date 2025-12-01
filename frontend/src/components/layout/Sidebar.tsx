@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, FileCode, User, LogOut, ArchiveIcon } from 'lucide-react';
+import { Home, Compass, FileCode, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Sidebar = () => {
@@ -13,11 +13,6 @@ const Sidebar = () => {
     { path: '/editor', icon: FileCode, label: 'Editor' },
     { path: '/profile', icon: User, label: 'Profile' },
   ];
-
-  // Add Control Panel to nav if admin
-  if (user?.isAdmin) navItems.push(
-    { path: '/control-panel', icon: ArchiveIcon, label: 'Admin' }
-  );
 
   const pythonLogo = '/python-logo.png';
 

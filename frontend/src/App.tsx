@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
-import ControlPanelPage from '@/pages/ControlPanelPage';
 import HomePage from '@/pages/HomePage';
 import ExplorePage from '@/pages/ExplorePage';
 import EditorPage from '@/pages/EditorPage';
@@ -57,16 +56,6 @@ function AppRoutes() {
       <Route 
         path="/reset-password" 
         element={<ResetPasswordPage />} 
-      />
-
-      {/* Control Panel - separate from MainLayout as its only really meant for admins/testing */}
-      <Route
-        path="/control-panel"
-        element={
-          <ProtectedRoute>
-            <ControlPanelPage />
-          </ProtectedRoute>
-        }
       />
       
       {/* Protected routes WITH sidebar layout */}
