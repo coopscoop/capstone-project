@@ -301,10 +301,10 @@ const ProfilePage = () => {
               </div>
 
               {/* Update Button */}
-              <div className="pt-6 border-t border-zinc-200">
+              <div className="pt-6">
                 <button 
                   onClick={toggleEditing}
-                  className="w-full flex items-center justify-center gap-3 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  className="w-full flex items-center justify-center gap-3 bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                 >
                   <Edit size={20} />
                   Update Profile Settings
@@ -364,7 +364,8 @@ const ProfilePage = () => {
                     <label className="block text-xs font-semibold text-zinc-500 uppercase mb-2">
                       ACCOUNT CREATED
                     </label>
-                    <p className="text-zinc-900 text-lg">
+                    <p className="text-zinc-900 te
+            <div className=xt-lg">
                       {user?.timeCreated
                         ? new Date(user.timeCreated).toLocaleDateString()
                         : "Unknown"}
@@ -420,7 +421,7 @@ const ProfilePage = () => {
           </p>
           <button
             onClick={handlePasswordReset}
-            className="w-full flex items-center justify-center gap-3 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            className="w-full flex items-center justify-center gap-3 bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             <KeyRound size={20} />
             Change Your Password
