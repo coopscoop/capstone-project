@@ -25,16 +25,41 @@ const EditorPage = () => {
     stopLintInterval,
     lintResult,
     parseError,
-    clearResults,
   } = useCodeExecution();
 
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
   const [activeTab, setActiveTab] = useState<"editor" | "output" | "info">("editor");
   const [editorWidth, setEditorWidth] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
+  const [mobileIssueCount, setMobileIssueCount] = useState(0);
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const monacoRef = useRef<any>(null);
+
+  // Helper functions to get current issues
+  const getCurrentLintIssues = () => lintResult?.issues || [];
+  
+  const getCurrentAllIssues = () => {
+    const currentLintIssues = getCurrentLintIssues();
+    const executionErrorData = executionResult?.error ? parseError(executionResult.error) : null;
+    
+    return [
+      ...currentLintIssues,
+      ...(executionErrorData ? [{
+        line: executionErrorData.line,
+        column: 0,
+        message: executionErrorData.error,
+        severity: "error" as const,
+        rule: "Execution Error",
+      }] : [])
+    ];
+  };
+
+  // Update mobile issue count when issues change
+  useEffect(() => {
+    const currentAllIssues = getCurrentAllIssues();
+    setMobileIssueCount(currentAllIssues.length);
+  }, [lintResult, executionResult]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -84,7 +109,7 @@ const EditorPage = () => {
     const monaco = monacoRef.current;
 
     // Show only linter results (not execution errors)
-    const lintIssues = lintResult?.issues || [];
+    const lintIssues = getCurrentLintIssues();
 
     const markers = lintIssues.map((issue) => ({
       severity:
@@ -131,25 +156,38 @@ const EditorPage = () => {
 
   const handleRunCode = async () => {
     try {
-      // Clear previous execution results and errors
-      clearResults();
-      
-      // Clear editor markers for previous execution errors
+      // Clear editor markers for previous execution errors ONLY
+      // (lint markers should persist)
       if (monacoRef.current && editorRef.current) {
-        // Clear only execution markers, keep linter markers
         monacoRef.current.editor.setModelMarkers(editorRef.current.getModel(), "execution", []);
       }
 
-      await executeCode({
+      // Execute code and get the result immediately
+      const result = await executeCode({
         code,
         timeoutSeconds: 30,
       });
 
+      // Check for execution errors using the returned result
+      const hasExecutionError = !result?.success && result?.error;
+      
+      // Check current linter issues for syntax errors
+      const hasLintSyntaxErrors = getCurrentLintIssues().some(issue => issue.severity === "error");
+      
+      // Only switch tabs on mobile/tablet
       if (!isDesktop) {
-        setActiveTab("output");
+        if (hasExecutionError || hasLintSyntaxErrors) {
+          setActiveTab("info");
+        } else {
+          setActiveTab("output");
+        }
       }
     } catch (err) {
       console.error("Execution failed:", err);
+      // On error, switch to info tab if not desktop
+      if (!isDesktop) {
+        setActiveTab("info");
+      }
     }
   };
 
@@ -268,27 +306,6 @@ const EditorPage = () => {
     };
   }, [isDragging]);
 
-  // Get all issues grouped by severity
-  // Combine linter issues and execution error
-  const linterIssues = lintResult?.issues || [];
-  const executionErrorData = executionResult?.error ? parseError(executionResult.error) : null;
-  
-  // Create combined issues array for the info panel
-  const allIssues = [
-    ...linterIssues,
-    ...(executionErrorData ? [{
-      line: executionErrorData.line,
-      column: 0,
-      message: executionErrorData.error,
-      severity: "error" as const,
-      rule: "Execution Error",
-    }] : [])
-  ];
-  
-  const errorIssues = allIssues.filter((i) => i.severity === "error");
-  const warningIssues = allIssues.filter((i) => i.severity === "warning");
-  const infoIssues = allIssues.filter((i) => i.severity === "info");
-
   // Display execution output or error
   const displayOutput = executionResult?.output || executionError || "";
 
@@ -323,7 +340,12 @@ const EditorPage = () => {
 
   // Issues Panel Component
   const InfoPanel = ({ maxHeight = "max-h-48" }: { maxHeight?: string }) => {
-    if (allIssues.length === 0) return null;
+    const currentAllIssues = getCurrentAllIssues();
+    const errorIssues = currentAllIssues.filter((i) => i.severity === "error");
+    const warningIssues = currentAllIssues.filter((i) => i.severity === "warning");
+    const infoIssues = currentAllIssues.filter((i) => i.severity === "info");
+
+    if (currentAllIssues.length === 0) return null;
 
     return (
       <div
@@ -332,7 +354,7 @@ const EditorPage = () => {
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-zinc-300">
-              Info ({allIssues.length})
+              Info ({currentAllIssues.length})
             </h4>
             <div className="flex gap-3 text-xs">
               {errorIssues.length > 0 && (
@@ -357,7 +379,7 @@ const EditorPage = () => {
           </div>
 
           <div className="space-y-2">
-            {allIssues.slice(0, 10).map((issue, index) => (
+            {currentAllIssues.slice(0, 10).map((issue, index) => (
               <div
                 key={index}
                 className="flex items-start gap-2 text-xs p-2 rounded bg-[#1e1e1e] hover:bg-[#2a2d2e] transition-colors cursor-pointer"
@@ -408,9 +430,9 @@ const EditorPage = () => {
                 </div>
               </div>
             ))}
-            {allIssues.length > 10 && (
+            {currentAllIssues.length > 10 && (
               <div className="text-xs text-zinc-500 text-center pt-2">
-                +{allIssues.length - 10} more issues
+                +{currentAllIssues.length - 10} more issues
               </div>
             )}
           </div>
@@ -565,9 +587,9 @@ const EditorPage = () => {
           }`}
         >
           Info
-          {allIssues.length > 0 && (
+          {mobileIssueCount > 0 && (
             <span className="absolute -top-2 -right-2 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full min-w-[18px] text-center border-2 border-white">
-              {allIssues.length}
+              {mobileIssueCount}
             </span>
           )}
         </button>
@@ -597,199 +619,194 @@ const EditorPage = () => {
         </div>
       </div>
 
-      {/* Content Area - Fixed height calculation */}
-      <div
-        className="flex-1 flex flex-col min-h-0"
-        style={{ height: "calc(100vh - 60px)" }}
-      >
-        {" "}
-        {/* Fixed height calculation */}
-        {activeTab === "editor" ? (
-          <div className="flex-1 flex flex-col">
-            <Editor
-              height="100%"
-              language="python"
-              value={code}
-              onChange={handleEditorChange}
-              onMount={handleEditorMount}
-              theme="vs-dark"
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                lineNumbers: "on",
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                padding: { top: 16, bottom: 16 },
-                cursorBlinking: "smooth",
-                smoothScrolling: true,
-                contextmenu: true,
-                quickSuggestions: true,
-              }}
-            />
-          </div>
-        ) : activeTab === "output" ? (
-          <div className="flex-1 flex flex-col bg-[#1e1e1e]">
-            {/* Output Header */}
-            <div className="bg-[#252526] border-b border-[#3e3e42] px-4 py-3 shrink-0">
-              <span className="text-sm font-medium text-zinc-400">Output</span>
-            </div>
+      {/* Set up is a bit weird, never unmount any of the tabs just hide them. This is to keep the highlighting working as remounting breaks it. Performance here isn't a concern */}
+      <div className="flex-1 flex flex-col min-h-0" style={{ height: "calc(100vh - 60px)" }}>
+        {/* Editor Panel */}
+        <div className={`flex-1 flex flex-col ${activeTab !== "editor" ? "hidden" : ""}`}>
+          <Editor
+            height="100%"
+            language="python"
+            value={code}
+            onChange={handleEditorChange}
+            onMount={handleEditorMount}
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: "on",
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              padding: { top: 16, bottom: 16 },
+              cursorBlinking: "smooth",
+              smoothScrolling: true,
+              contextmenu: true,
+              quickSuggestions: true,
+            }}
+          />
+        </div>
 
-            {/* Output Content - Fixed height with proper scrolling */}
-            <div className="flex-1 overflow-hidden">
-              <div className="h-full p-4 overflow-auto">
-                {" "}
-                {/* Added overflow-auto here */}
-                {isExecuting ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-python-blue mx-auto mb-4"></div>
-                      <p className="text-zinc-400">Executing code...</p>
-                    </div>
+        {/* Output Panel - always mounted */}
+        <div className={`flex-1 flex flex-col bg-[#1e1e1e] ${activeTab !== "output" ? "hidden" : ""}`}>
+          {/* Output Header */}
+          <div className="bg-[#252526] border-b border-[#3e3e42] px-4 py-3 shrink-0">
+            <span className="text-sm font-medium text-zinc-400">Output</span>
+          </div>
+
+          {/* Output Content - Fixed height with proper scrolling */}
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full p-4 overflow-auto">
+              {" "}
+              {/* Added overflow-auto here */}
+              {isExecuting ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-python-blue mx-auto mb-4"></div>
+                    <p className="text-zinc-400">Executing code...</p>
                   </div>
-                ) : displayOutput ? (
-                  <pre className="text-sm text-zinc-100 font-mono whitespace-pre-wrap leading-relaxed">
-                    {displayOutput}
-                  </pre>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <div className="max-w-sm">
-                      <p className="text-zinc-400 mb-4">No output yet</p>
-                      <p className="text-sm text-zinc-500">
-                        Click{" "}
-                        <span className="font-medium text-python-blue">
-                          Run
-                        </span>{" "}
-                        to execute your Python code
-                      </p>
-                    </div>
+                </div>
+              ) : displayOutput ? (
+                <pre className="text-sm text-zinc-100 font-mono whitespace-pre-wrap leading-relaxed">
+                  {displayOutput}
+                </pre>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <div className="max-w-sm">
+                    <p className="text-zinc-400 mb-4">No output yet</p>
+                    <p className="text-sm text-zinc-500">
+                      Click{" "}
+                      <span className="font-medium text-python-blue">
+                        Run
+                      </span>{" "}
+                      to execute your Python code
+                    </p>
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Issues Panel */}
+        <div className={`flex-1 flex flex-col bg-[#1e1e1e] ${activeTab !== "info" ? "hidden" : ""}`}>
+          {/* ... info content ... */}
+          <div className="bg-[#252526] border-b border-[#3e3e42] px-4 py-3 shrink-0">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-zinc-400">
+                Issues ({mobileIssueCount})
+              </span>
+              <div className="flex gap-3 text-xs">
+                {getCurrentAllIssues().filter(i => i.severity === "error").length > 0 && (
+                  <span className="flex items-center gap-1 text-red-400">
+                    <AlertCircle size={14} />
+                    {getCurrentAllIssues().filter(i => i.severity === "error").length}
+                  </span>
+                )}
+                {getCurrentAllIssues().filter(i => i.severity === "warning").length > 0 && (
+                  <span className="flex items-center gap-1 text-yellow-400">
+                    <AlertTriangle size={14} />
+                    {getCurrentAllIssues().filter(i => i.severity === "warning").length}
+                  </span>
+                )}
+                {getCurrentAllIssues().filter(i => i.severity === "info").length > 0 && (
+                  <span className="flex items-center gap-1 text-blue-400">
+                    <Info size={14} />
+                    {getCurrentAllIssues().filter(i => i.severity === "info").length}
+                  </span>
                 )}
               </div>
             </div>
           </div>
-        ) : (
-          // Issues Tab
-          <div className="flex-1 flex flex-col bg-[#1e1e1e]">
-            {/* Issues Header */}
-            <div className="bg-[#252526] border-b border-[#3e3e42] px-4 py-3 shrink-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-zinc-400">
-                  Issues ({allIssues.length})
-                </span>
-                <div className="flex gap-3 text-xs">
-                  {errorIssues.length > 0 && (
-                    <span className="flex items-center gap-1 text-red-400">
-                      <AlertCircle size={14} />
-                      {errorIssues.length}
-                    </span>
-                  )}
-                  {warningIssues.length > 0 && (
-                    <span className="flex items-center gap-1 text-yellow-400">
-                      <AlertTriangle size={14} />
-                      {warningIssues.length}
-                    </span>
-                  )}
-                  {infoIssues.length > 0 && (
-                    <span className="flex items-center gap-1 text-blue-400">
-                      <Info size={14} />
-                      {infoIssues.length}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
 
-            {/* Info Content */}
-            <div className="flex-1 overflow-hidden">
-              <div className="h-full p-4 overflow-auto">
-                {allIssues.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
-                    <div className="max-w-sm">
-                      <Info className="mx-auto text-zinc-500 mb-4" size={48} />
-                      <p className="text-zinc-400 mb-2">No issues found</p>
-                      <p className="text-sm text-zinc-500">
-                        Your code looks good! Any linting or execution issues will appear
-                        here.
-                      </p>
-                    </div>
+          {/* Info Content */}
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full p-4 overflow-auto">
+              {mobileIssueCount === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <div className="max-w-sm">
+                    <Info className="mx-auto text-zinc-500 mb-4" size={48} />
+                    <p className="text-zinc-400 mb-2">No issues found</p>
+                    <p className="text-sm text-zinc-500">
+                      Your code looks good! Any linting or execution issues will appear
+                      here.
+                    </p>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    {allIssues.map((issue, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start gap-3 p-3 rounded bg-[#252526] hover:bg-[#2a2d2e] transition-colors cursor-pointer border border-[#3e3e42] my-2"
-                        onClick={() => {
-                          setActiveTab("editor");
-                          // Focus the editor on the issue line after a brief delay
-                          setTimeout(() => {
-                            if (editorRef.current) {
-                              editorRef.current.setPosition({
-                                lineNumber: issue.line,
-                                column: issue.column + 1,
-                              });
-                              editorRef.current.revealLineInCenter(issue.line);
-                              editorRef.current.focus();
-                            }
-                          }, 100);
-                        }}
-                      >
-                        {issue.severity === "error" ? (
-                          <AlertCircle
-                            size={18}
-                            className="text-red-400 shrink-0 mt-0.5"
-                          />
-                        ) : issue.severity === "warning" ? (
-                          <AlertTriangle
-                            size={18}
-                            className="text-yellow-400 shrink-0 mt-0.5"
-                          />
-                        ) : (
-                          <Info
-                            size={18}
-                            className="text-blue-400 shrink-0 mt-0.5"
-                          />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-zinc-400 font-mono text-sm">
-                              Line {issue.line}:{issue.column}
-                            </span>
-                            <span
-                              className={`text-xs px-2 py-1 rounded ${
-                                issue.severity === "error"
-                                  ? "bg-red-900/50 text-red-300"
-                                  : issue.severity === "warning"
-                                  ? "bg-yellow-900/50 text-yellow-300"
-                                  : "bg-blue-900/50 text-blue-300"
-                              }`}
-                            >
-                              {issue.severity}
-                            </span>
-                            <span className="text-zinc-500 text-xs">
-                              ({issue.rule})
-                            </span>
-                          </div>
-                          <p
-                            className={`text-sm ${
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {getCurrentAllIssues().map((issue, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 rounded bg-[#252526] hover:bg-[#2a2d2e] transition-colors cursor-pointer border border-[#3e3e42] my-2"
+                      onClick={() => {
+                        setActiveTab("editor");
+                        // Focus the editor on the issue line after a brief delay
+                        setTimeout(() => {
+                          if (editorRef.current) {
+                            editorRef.current.setPosition({
+                              lineNumber: issue.line,
+                              column: issue.column + 1,
+                            });
+                            editorRef.current.revealLineInCenter(issue.line);
+                            editorRef.current.focus();
+                          }
+                        }, 100);
+                      }}
+                    >
+                      {issue.severity === "error" ? (
+                        <AlertCircle
+                          size={18}
+                          className="text-red-400 shrink-0 mt-0.5"
+                        />
+                      ) : issue.severity === "warning" ? (
+                        <AlertTriangle
+                          size={18}
+                          className="text-yellow-400 shrink-0 mt-0.5"
+                        />
+                      ) : (
+                        <Info
+                          size={18}
+                          className="text-blue-400 shrink-0 mt-0.5"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-zinc-400 font-mono text-sm">
+                            Line {issue.line}:{issue.column}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-1 rounded ${
                               issue.severity === "error"
-                                ? "text-red-300"
+                                ? "bg-red-900/50 text-red-300"
                                 : issue.severity === "warning"
-                                ? "text-yellow-300"
-                                : "text-blue-300"
+                                ? "bg-yellow-900/50 text-yellow-300"
+                                : "bg-blue-900/50 text-blue-300"
                             }`}
                           >
-                            {issue.message}
-                          </p>
+                            {issue.severity}
+                          </span>
+                          <span className="text-zinc-500 text-xs">
+                            ({issue.rule})
+                          </span>
                         </div>
+                        <p
+                          className={`text-sm ${
+                            issue.severity === "error"
+                              ? "text-red-300"
+                              : issue.severity === "warning"
+                              ? "text-yellow-300"
+                              : "text-blue-300"
+                          }`}
+                        >
+                          {issue.message}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
