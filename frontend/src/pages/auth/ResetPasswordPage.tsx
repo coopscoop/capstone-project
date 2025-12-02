@@ -7,7 +7,7 @@ import { usePasswordReset } from '@/hooks/usePasswordReset';
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout: LogOut } = useAuth();
   const { loading, error, validateResetCode, createResetRequest, resetPassword, clearError } = usePasswordReset();
   
   // Step tracking
@@ -169,7 +169,7 @@ const ResetPasswordPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-4"
               >
                 {loading ? 'Sending Code...' : 'Send Reset Code'}
               </button>
@@ -204,7 +204,7 @@ const ResetPasswordPage = () => {
               <button
                 type="submit"
                 disabled={loading || isValidatingCode }
-                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-4"
               >
                 {isValidatingCode ? 'Validating...' : 'Verify Code'}
               </button>
@@ -274,7 +274,7 @@ const ResetPasswordPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-4"
               >
                 {loading ? 'Resetting...' : 'Reset Password'}
               </button>
@@ -287,12 +287,15 @@ const ResetPasswordPage = () => {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle className="text-green-600" size={32} />
               </div>
-              <p className="text-zinc-600">
+              <p className="text-zinc-600 mt-2">
                 Your password has been successfully reset. You can now sign in with your new password.
               </p>
               <button
-                onClick={() => navigate('/login')}
-                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium"
+                onClick={() => {
+                  LogOut();
+                  navigate('/login')
+                }}
+                className="w-full px-4 py-3 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium mt-4"
               >
                 Go to Login
               </button>
