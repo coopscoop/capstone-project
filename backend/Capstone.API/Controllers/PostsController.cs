@@ -53,6 +53,18 @@ public class PostsController : ControllerBase
         return Ok(posts);
     }
 
+    [HttpGet("userfavourites/{userId:int}")]
+    [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<PostDto>>> GetAllUserFavourites(int userId)
+    {
+        var (currentUserId, isAdmin) = GetCurrentUserInfo();
+        var posts = await _postsService.GetAllUserFavouritesAsync(userId);
+
+        _logger.LogInformation("Retrieved {Count} posts for user {UserId} (IsAdmin: {IsAdmin})", posts.Count(), currentUserId, isAdmin);
+
+        return Ok(posts);
+    }
+
     /// <summary>
     /// Get post by ID
     /// </summary>

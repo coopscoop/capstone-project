@@ -34,7 +34,7 @@ const ProjectCard = ({
   favorited: initialFavorited = false,
   code,
   userId,
-  numberOfLikes = 0, // Default to 0
+  numberOfLikes,
   displayName,
   isVisible,
   onFavoriteToggle,

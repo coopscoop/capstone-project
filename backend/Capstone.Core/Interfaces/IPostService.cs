@@ -8,6 +8,7 @@ public interface IPostService
     Task<PostDto?> GetByIdAsync(int postId, int? currentUserId = null, bool? isAdmin = null);
     Task<IEnumerable<PostDto>> GetByUserIdAsync(int userId, int? currentUserId = null, bool? isAdmin = null);
     Task<IEnumerable<PostDto>> GetByTagAsync(string tagName, int? currentUserId = null, bool? isAdmin = null);
+    Task<IEnumerable<PostDto>> GetAllUserFavouritesAsync(int userId);
     Task<PostDto> CreateAsync(PostDto postDto);
     Task<PostDto?> UpdateAsync(int postId, PostDto postDto, int? currentUserId = null, bool? isAdmin = null);
     Task<bool> IncrementLikesAsync(int postId);

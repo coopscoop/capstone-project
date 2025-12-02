@@ -233,4 +233,31 @@ public class PostRepository : IPostRepository
         });
         return affected > 0;
     }
+
+    public async Task<IEnumerable<Post>> GetAllUserFavouritesAsync(int userId)
+    {
+        _logger.LogInformation("Retrieving all favorited posts for user {UserId}", userId);
+
+        var sql = @"
+            SELECT 
+                p.post_id AS PostId,
+                p.user_id AS UserId,
+                p.title AS Title,
+                p.description AS Description,
+                p.number_of_likes AS NumberOfLikes,
+                p.code AS Code,
+                p.is_visible AS IsVisible,
+                p.created AS Created,
+                p.last_edited AS LastEdited,
+                u.display_name AS DisplayName
+            FROM posts p
+            INNER JOIN users u ON p.user_id = u.user_id
+            INNER JOIN favourites f ON p.post_id = f.post_id
+            WHERE f.user_id = @userId
+                AND (p.is_visible = true OR p.user_id = @userId) -- Show visible posts OR user's own posts even if hidden
+            ORDER BY p.created DESC";
+
+        await using var connection = _dbConnection.CreateConnection();
+        return await connection.QueryAsync<Post>(sql, new { userId });
+    }
 }

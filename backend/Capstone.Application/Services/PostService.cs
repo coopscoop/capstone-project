@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Security.Cryptography;
 
 public class PostService : IPostService
 {
@@ -25,6 +26,12 @@ public class PostService : IPostService
     public async Task<IEnumerable<PostDto>> GetAllAsync(int? currentUserId = null, bool? isAdmin = null)
     {
         var posts = await _postRepository.GetAllAsync(currentUserId, isAdmin);
+        return posts.Select(MapToDto);
+    }
+
+    public async Task<IEnumerable<PostDto>> GetAllUserFavouritesAsync(int userId)
+    {
+        var posts = await _postRepository.GetAllUserFavouritesAsync(userId);
         return posts.Select(MapToDto);
     }
 

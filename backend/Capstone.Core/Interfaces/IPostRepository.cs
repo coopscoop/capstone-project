@@ -5,6 +5,7 @@ namespace Capstone.Core.Interfaces;
 public interface IPostRepository
 {
     Task<IEnumerable<Post>> GetAllAsync(int? currentUserId = null, bool? isAdmin = null);
+    Task<IEnumerable<Post>> GetAllUserFavouritesAsync(int userId);
     Task<Post?> GetByIdAsync(int postId, int? currentUserId = null, bool? isAdmin = null);
     Task<IEnumerable<Post>> GetByUserIdAsync(int userId, int? currentUserId = null, bool? isAdmin = null);
     Task<IEnumerable<Post>> GetByTagAsync(string tagName, int? currentUserId = null, bool? isAdmin = null);

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Post } from '@/types';
-import { postService, tagService } from '@/services';
+import { postService, tagService, favouriteService } from '@/services';
 
 export const usePosts = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -33,9 +33,17 @@ export const usePosts = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadPosts();
-  }, [loadPosts]);
+  const loadFavouritePosts = useCallback(async (userId: number) => {
+    setLoading(true);
+    try {
+      const data = await postService.getAllUserFavourites(userId);
+      setPosts(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load favourite posts');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const createPost = useCallback(async (
     userId: number,
@@ -45,23 +53,41 @@ export const usePosts = () => {
     isVisible: boolean,
     tags: string[]
   ) => {
-    const createdPost = await postService.create({
-      userId,
-      title,
-      description,
-      code,
-      numberOfLikes: 1,
-      isVisible,
-      tags: [],
-    });
+    try {
+      const createdPost = await postService.create({
+        userId,
+        title,
+        description,
+        code,
+        isVisible,
+        numberOfLikes: 0,
+        tags: [],
+      });
 
-    if (tags.length > 0) {
-      await tagService.addMultipleTags(createdPost.postId, tags);
+      // add tags if any
+      if (tags.length > 0) {
+        await tagService.addMultipleTags(createdPost.postId, tags);
+      }
+
+      // auto-favorite the post
+      await favouriteService.add(createdPost.postId, userId);
+
+      const likedPost = await postService.update(createdPost.postId, {
+        ...createdPost,
+        numberOfLikes: 1,
+      });
+
+      // update local state so that the like count is correct on the card
+      const finalPost = likedPost || { ...createdPost, numberOfLikes: 1 };
+      setPosts(prev => [finalPost, ...prev]);
+      setUserPosts(prev => [finalPost, ...prev]);
+
+      return finalPost;
+    } catch (err) {
+      console.error('Error creating post:', err);
+      throw err;
     }
-
-    await loadPosts();
-    return createdPost;
-  }, [loadPosts]);
+  }, []);
 
   const updatePost = useCallback(async (
     postId: number,
@@ -151,5 +177,6 @@ export const usePosts = () => {
     updatePostLikes,
     deletePost,
     getUserPosts,
+    loadFavouritePosts,
   };
 };

@@ -81,6 +81,10 @@ const ProfilePage = () => {
         };
         localStorage.setItem("user", JSON.stringify(updatedUser));
 
+        // Update user in context
+        setDisplayName(updatedUser.displayName || "");
+        setBio(updatedUser.bio || "");
+
         // Clear success message after 3 seconds
         setTimeout(() => setUpdateSuccess(""), 3000);
       } else {
@@ -103,6 +107,7 @@ const ProfilePage = () => {
     setUpdateError("");
   };
 
+  // not in a hook but its only used once? no real reason to have a user hook?
   const handleDeleteAccount = async () => {
     if (!user) return;
 

@@ -18,7 +18,7 @@ const HomePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError, createPost, updatePost, updatePostLikes, loadPosts } = usePosts();
+  const { posts, loading: postsLoading, error: postsError, createPost, updatePost, updatePostLikes, loadFavouritePosts } = usePosts();
   const [favoritePosts, setFavoritePosts] = useState<Post[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -26,8 +26,10 @@ const HomePage = () => {
 
   // Get posts
   useEffect(() => {
-    loadPosts();
-  }, []);
+    // UserID is nullable so we need to check
+    if (!user) return;
+    loadFavouritePosts(user?.userId || 0);
+  }, [user?.userId]);
 
   // Filter posts to only show favorites
   useEffect(() => {
@@ -72,7 +74,7 @@ const HomePage = () => {
         data.title,
         data.description,
         data.code,
-        postToUpdate.numberOfLikes, // Use the current post's like count
+        postToUpdate.numberOfLikes,
         data.isVisible,
         data.tags
       );
@@ -95,12 +97,11 @@ const HomePage = () => {
     setFormError('');
 
     try {
-      const createdPost = await createPost(user.userId, data.title, data.description, data.code, data.isVisible, data.tags);
+      var createdPost = await createPost(user.userId, data.title, data.description, data.code, data.isVisible, data.tags);
       
-      if (createdPost && createdPost.postId) {
-        await toggleFavourite(createdPost.postId, true);
-      }
-      
+      // add the post to the local state
+      setFavoritePosts(prev => [createdPost, ...prev]);
+
       setIsCreateModalOpen(false);
       setFormError('');
     } catch (err) {

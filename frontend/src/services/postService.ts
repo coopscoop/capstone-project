@@ -10,6 +10,14 @@ export const postService = {
     return response.json();
   },
 
+  async getAllUserFavourites(userId: number): Promise<Post[]> {
+    const response = await apiRequest(`/Posts/userfavourites/${userId}`);
+    if (!response.ok) {
+      throw new Error('Failed to load posts');
+    }
+    return response.json();
+  },
+
   async create(post: CreatePostRequest): Promise<Post> {
     const response = await apiRequest('/Posts', {
       method: 'POST',

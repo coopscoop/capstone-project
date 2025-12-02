@@ -10,12 +10,17 @@ const ExplorePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError, updatePost, updatePostLikes } = usePosts();
+  const { posts, loading: postsLoading, error: postsError, updatePost, updatePostLikes, loadPosts } = usePosts();
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
   const [searchFilters, setSearchFilters] = useState<string[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+
+  // On page load get all posts
+  useEffect(() => {
+    loadPosts();
+  }, []);
 
   // Filter posts based on search criteria
   useEffect(() => {
