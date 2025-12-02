@@ -4,6 +4,7 @@ import type {
   CodeExecutionResult,
   CodeExecutionRequest,
   LintResult,
+  CodeError,
 } from "@/types";
 
 export const useCodeExecution = () => {
@@ -117,6 +118,33 @@ export const useCodeExecution = () => {
     []
   );
 
+  const parseError = (errorString: string): CodeError => {
+    const result: CodeError = {
+      error: errorString,
+      line: 0,
+    };
+
+    if (!errorString) return result;
+
+    // Extract the error from the last line of the output
+    const lines = errorString.split("\n").filter((line) => line.trim());
+    const lastLine = lines[lines.length - 1];
+    if (
+      lastLine &&
+      !lastLine.includes("Traceback") &&
+      !lastLine.includes("File")
+    ) {
+      result.error = lastLine.trim();
+    }
+
+    // Extract line number from "<string>" file - this is the actual line number from the code we've executed
+    const stringLineMatch = errorString.match(/"<string>", line (\d+)/);
+    if (stringLineMatch) {
+      result.line = parseInt(stringLineMatch[1], 10);
+    }
+    return result;
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -139,6 +167,9 @@ export const useCodeExecution = () => {
     lintResult,
     isLinting,
     lintError,
+
+    // Error parsing
+    parseError,
 
     // State management
     clearResults: useCallback(() => {

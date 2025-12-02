@@ -24,6 +24,7 @@ interface ProjectCardProps {
   onFavoriteToggle?: (postId: number, isFavorited: boolean) => Promise<void>;
   onOpen?: () => void;
   onUpdate?: (postId: number, data: any) => Promise<void>;
+  onDelete?: (postId: number) => Promise<void>;
 }
 
 const ProjectCard = ({
@@ -40,6 +41,7 @@ const ProjectCard = ({
   onFavoriteToggle,
   onOpen = () => {},
   onUpdate,
+  onDelete,
 }: ProjectCardProps) => {
   const { user } = useAuth();
   const [favorited, setFavorited] = useState(initialFavorited);
@@ -48,6 +50,8 @@ const ProjectCard = ({
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [editorHeight, setEditorHeight] = useState("200px");
   const [formattedCode, setFormattedCode] = useState(code);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const editorRef = useRef<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement>(null);
@@ -76,6 +80,23 @@ const ProjectCard = ({
       console.error("Failed to toggle favorite:", error);
     } finally {
       setIsTogglingFavorite(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!onDelete) return;
+    
+    setIsDeleting(true);
+    setDeleteError("");
+    
+    try {
+      await onDelete(postId);
+      setIsModalOpen(false);
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete post");
+      throw err; // re-throw error to show in PostForm
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -258,6 +279,9 @@ const ProjectCard = ({
         onCancel={handleCancelEdit}
         loading={false}
         error=""
+        onDelete={onDelete ? handleDeletePost : undefined}
+        deleteLoading={isDeleting}
+        deleteError={deleteError}
       />
     </div>
   );

@@ -20,6 +20,9 @@ interface PostFormProps {
   onCancel: () => void;
   loading: boolean;
   error: string;
+  onDelete?: () => Promise<void>;
+  deleteLoading?: boolean;
+  deleteError?: string;
 }
 
 export const PostForm = ({
@@ -29,6 +32,9 @@ export const PostForm = ({
   onCancel,
   loading,
   error,
+  onDelete,
+  deleteLoading = false,
+  deleteError = '',
 }: PostFormProps) => {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -36,6 +42,7 @@ export const PostForm = ({
   const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [tagInput, setTagInput] = useState('');
   const [isVisible, setIsVisible] = useState(initialData?.isVisible ?? false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // debug print on load
   useEffect(() => {
@@ -71,6 +78,13 @@ export const PostForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSubmit({ title, description, code, tags, isVisible });
+  };
+
+  const handleDelete = async () => {
+    if (onDelete) {
+      await onDelete();
+    }
+    setShowDeleteConfirm(false);
   };
 
   return (
@@ -152,30 +166,101 @@ export const PostForm = ({
           </label>
         </div>
 
-        {error && (
-          <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg">
-            <p className="text-sm text-red-300">{error}</p>
+        {(error || deleteError) && (
+          <div className={`p-3 ${error ? 'bg-red-900/30 border-red-700' : 'bg-red-900/20 border-red-800'} border rounded-lg`}>
+            <p className={`text-sm ${error ? 'text-red-300' : 'text-red-400'}`}>
+              {error || deleteError}
+            </p>
           </div>
         )}
 
-        <div className="flex gap-3">
+        {/* Buttons section - using same flex pattern as ProjectCard */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Update/Save Button */}
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ flexGrow: 4 }}
           >
             {loading ? (mode === 'create' ? 'Creating...' : 'Updating...') : (mode === 'create' ? 'Create Post' : 'Update Post')}
           </button>
-          {mode === 'edit' && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 px-4 py-3 bg-zinc-600 text-white rounded-lg hover:bg-zinc-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-            >
-              Cancel
-            </button>
+
+          {/* Cancel Button */}
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={loading}
+            className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ flexGrow: 4 }}
+          >
+            Cancel
+          </button>
+
+          {/* Delete Button */}
+          {mode === 'edit' && onDelete && (
+            showDeleteConfirm ? (
+              <div className="flex-1 flex flex-col gap-2" style={{ flexGrow: 2 }}>
+                <div className="text-xs text-red-300 mb-1 text-center">Confirm delete?</div>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleteLoading}
+                    className="flex-1 bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm disabled:opacity-50"
+                  >
+                    {deleteLoading ? 'Deleting...' : 'Yes'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={deleteLoading}
+                    className="flex-1 bg-zinc-600 hover:bg-zinc-500 text-zinc-100 font-semibold py-2 px-4 rounded-lg transition-colors text-sm disabled:opacity-50"
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={loading || deleteLoading}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ flexGrow: 2 }}
+              >
+                Delete
+              </button>
+            )
           )}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {mode === 'edit' && onDelete && showDeleteConfirm && (
+          <div className="mt-3 p-4 bg-red-900/20 border border-red-800 rounded-lg">
+            <p className="text-sm text-red-300 mb-3 text-center">
+              Are you sure you want to delete this post? This action cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteLoading}
+                className="flex-1 bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {deleteLoading ? 'Deleting...' : 'Yes, Delete Post'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleteLoading}
+                className="flex-1 bg-zinc-600 hover:bg-zinc-500 text-zinc-100 font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

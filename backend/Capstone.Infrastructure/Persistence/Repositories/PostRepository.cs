@@ -131,8 +131,8 @@ public class PostRepository : IPostRepository
             FROM posts p
             LEFT JOIN users u ON p.user_id = u.user_id
             LEFT JOIN tags t ON p.post_id = t.post_id
-            WHERE p.post_id = @PostId
-                AND (@isAdmin = true OR p.is_visible = true OR p.user_id = @currentUserId)
+            WHERE p.post_id = @postId
+                AND (@isAdmin = true OR p.user_id = @currentUserId)
             GROUP BY p.post_id, u.display_name";
 
         await using var connection = _dbConnection.CreateConnection();

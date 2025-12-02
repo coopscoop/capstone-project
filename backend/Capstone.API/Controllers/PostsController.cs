@@ -27,15 +27,6 @@ public class PostsController : ControllerBase
     }
 
     /// <summary>
-    /// Helper method to get current user info from claims
-    /// </summary>
-    /// <returns></returns>
-    private (int userId, bool isAdmin) GetCurrentUserInfo()
-    {
-        return (_userContext.UserId ?? 0, _userContext.IsAdmin);
-    }
-
-    /// <summary>
     /// Get all posts
     /// Automatically applies visibility rules based on current user status
     /// If the user is an admin, all posts are returned
@@ -45,10 +36,9 @@ public class PostsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
-        var posts = await _postsService.GetAllAsync(currentUserId, isAdmin);
+        var posts = await _postsService.GetAllAsync(_userContext.UserId, _userContext.IsAdmin);
 
-        _logger.LogInformation("Retrieved {Count} posts for user {UserId} (IsAdmin: {IsAdmin})", posts.Count(), currentUserId, isAdmin);
+        _logger.LogInformation("Retrieved {Count} posts for user {UserId} (IsAdmin: {IsAdmin})", posts.Count(), _userContext.UserId, _userContext.IsAdmin);
 
         return Ok(posts);
     }
@@ -57,10 +47,9 @@ public class PostsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetAllUserFavourites(int userId)
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
         var posts = await _postsService.GetAllUserFavouritesAsync(userId);
 
-        _logger.LogInformation("Retrieved {Count} posts for user {UserId} (IsAdmin: {IsAdmin})", posts.Count(), currentUserId, isAdmin);
+        _logger.LogInformation("Retrieved {Count} posts for user {UserId} (IsAdmin: {IsAdmin})", posts.Count(), _userContext.UserId, _userContext.IsAdmin);
 
         return Ok(posts);
     }
@@ -73,8 +62,7 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PostDto>> GetById(int id)
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
-        var post = await _postsService.GetByIdAsync(id, currentUserId, isAdmin);
+        var post = await _postsService.GetByIdAsync(id, _userContext.UserId, _userContext.IsAdmin);
         
         if (post == null)
             return NotFound(new { error = $"Post with ID '{id}' not found or access denied" });
@@ -90,9 +78,7 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PostDto>> Create([FromBody] PostDto postDto)
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
-
-        _logger.LogInformation("User {UserId} (IsAdmin: {IsAdmin}) is attempting to create a post for User {PostUserId}", currentUserId, isAdmin, postDto.UserId);
+        _logger.LogInformation("User {UserId} (IsAdmin: {IsAdmin}) is attempting to create a post for User {PostUserId}", _userContext.UserId, _userContext.IsAdmin, postDto.UserId);
 
         try
         {
@@ -114,22 +100,20 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<PostDto>> Update(int id, [FromBody] PostDto postDto)
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
-
         // Check if user owns the post or is admin
-        var existingPost = await _postsService.GetByIdAsync(id, currentUserId, isAdmin);
+        var existingPost = await _postsService.GetByIdAsync(id, _userContext.UserId, _userContext.IsAdmin);
         if (existingPost == null)
             return NotFound(new { error = $"Post with ID '{id}' not found" });
 
-        if (existingPost.UserId != currentUserId && !isAdmin)
+        if (existingPost.UserId != _userContext.UserId && !_userContext.IsAdmin)
             return Forbid();
 
-        var post = await _postsService.UpdateAsync(id, postDto, currentUserId, isAdmin);
+        var post = await _postsService.UpdateAsync(id, postDto, _userContext.UserId, _userContext.IsAdmin);
         
         if (post == null)
             return NotFound(new { error = $"Post with ID '{id}' not found" });
         
-        _logger.LogInformation("Updated post {PostId} by user {UserId}", post.PostId, currentUserId);
+        _logger.LogInformation("Updated post {PostId} by user {UserId}", post.PostId, _userContext.UserId);
 
         return Ok(post);
     }
@@ -143,18 +127,17 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> Delete(int id)
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
-        
-        if (currentUserId == 0)
-            return Unauthorized(new { error = "Authentication required to delete posts" });
+        _logger.LogWarning("User {UserId} is not authorized to delete post {PostId}", _userContext.UserId, id);
 
         // Check if user owns the post or is admin
-        var existingPost = await _postsService.GetByIdAsync(id);
+        var existingPost = await _postsService.GetByIdAsync(id, _userContext.UserId, _userContext.IsAdmin);
         if (existingPost == null)
             return NotFound(new { error = $"Post with ID '{id}' not found" });
 
-        if (existingPost.UserId != currentUserId && !isAdmin)
+        if (existingPost.UserId != _userContext.UserId && !_userContext.IsAdmin)
+        {
             return Forbid();
+        }
 
         var deleted = await _postsService.DeleteAsync(id);
 
@@ -171,8 +154,7 @@ public class PostsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetByUserId(int userId)
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
-        var posts = await _postsService.GetByUserIdAsync(userId, currentUserId, isAdmin);
+        var posts = await _postsService.GetByUserIdAsync(userId, _userContext.UserId, _userContext.IsAdmin);
         return Ok(posts);
     }
 
@@ -183,8 +165,7 @@ public class PostsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetByTag(string tagName)
     {
-        var (currentUserId, isAdmin) = GetCurrentUserInfo();
-        var posts = await _postsService.GetByTagAsync(tagName, currentUserId, isAdmin);
+        var posts = await _postsService.GetByTagAsync(tagName, _userContext.UserId, _userContext.IsAdmin);
         return Ok(posts);
     }
 }

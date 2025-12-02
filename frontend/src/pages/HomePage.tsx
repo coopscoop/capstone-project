@@ -18,7 +18,7 @@ const HomePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError, createPost, updatePost, updatePostLikes, loadFavouritePosts } = usePosts();
+  const { posts, loading: postsLoading, error: postsError, createPost, updatePost, updatePostLikes, loadFavouritePosts, deletePost } = usePosts();
   const [favoritePosts, setFavoritePosts] = useState<Post[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -38,6 +38,17 @@ const HomePage = () => {
       setFavoritePosts(filtered);
     }
   }, [posts, favourites]);
+
+  const handleDeletePost = async (postId: number) => {
+    if (!user) return;
+    
+    try {
+      await deletePost(postId);
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      throw err;
+    }
+  };
 
   const handleFavoriteToggle = async (postId: number, isFavorited: boolean) => {
     try {
@@ -215,6 +226,7 @@ const HomePage = () => {
                   code={post.code}
                   displayName={post.displayName}
                   isVisible={post.isVisible}
+                  onDelete={handleDeletePost}
                 />
               ))}
             </div>

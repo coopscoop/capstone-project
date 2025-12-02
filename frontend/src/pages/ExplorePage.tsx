@@ -10,7 +10,7 @@ const ExplorePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError, updatePost, updatePostLikes, loadPosts } = usePosts();
+  const { posts, loading: postsLoading, error: postsError, updatePost, updatePostLikes, loadPosts, deletePost } = usePosts();
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,6 +58,17 @@ const ExplorePage = () => {
       });
     } catch (err) {
       console.error('Error toggling favorite:', err);
+    }
+  };
+
+  const handleDeletePost = async (postId: number) => {
+    if (!user) return;
+    
+    try {
+      await deletePost(postId);
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      throw err;
     }
   };
 
@@ -245,6 +256,7 @@ const ExplorePage = () => {
                   code={post.code}
                   displayName={post.displayName}
                   isVisible={post.isVisible}
+                  onDelete={handleDeletePost}
                 />
               ))}
             </div>

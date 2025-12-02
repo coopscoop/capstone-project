@@ -28,7 +28,7 @@ const ProfilePage = () => {
     refetch: fetchUserPosts, 
     toggleFavorite 
   } = useUserPostsWithFavorites(user?.userId);
-  const { updatePost } = usePosts();
+  const { updatePost, deletePost } = usePosts();
   const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -97,6 +97,17 @@ const ProfilePage = () => {
       );
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: number) => {
+    if (!user) return;
+    
+    try {
+      await deletePost(postId);
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      throw err;
     }
   };
 
@@ -472,6 +483,7 @@ const ProfilePage = () => {
                   code={post.code}
                   displayName={displayName}
                   isVisible={post.isVisible}
+                  onDelete={handleDeletePost}
                 />
               ))}
             </div>

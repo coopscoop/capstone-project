@@ -24,12 +24,12 @@ const EditorPage = () => {
     startLintInterval,
     stopLintInterval,
     lintResult,
+    parseError,
+    clearResults,
   } = useCodeExecution();
 
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
-  const [activeTab, setActiveTab] = useState<"editor" | "output" | "info">(
-    "editor"
-  );
+  const [activeTab, setActiveTab] = useState<"editor" | "output" | "info">("editor");
   const [editorWidth, setEditorWidth] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
   const editorRef = useRef<any>(null);
@@ -76,17 +76,17 @@ const EditorPage = () => {
     };
   }, [code, startLintInterval, stopLintInterval]);
 
-  // Update editor markers when lint results change
+  // Update editor markers for linter results
   useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
 
     const editor = editorRef.current;
     const monaco = monacoRef.current;
 
-    // Show live linter results
-    const allIssues = lintResult?.issues || [];
+    // Show only linter results (not execution errors)
+    const lintIssues = lintResult?.issues || [];
 
-    const markers = allIssues.map((issue) => ({
+    const markers = lintIssues.map((issue) => ({
       severity:
         issue.severity === "error"
           ? monaco.MarkerSeverity.Error
@@ -101,15 +101,50 @@ const EditorPage = () => {
       source: "Linter",
     }));
 
+    // Only set linter markers, keep execution markers separate
     monaco.editor.setModelMarkers(editor.getModel(), "linter", markers);
   }, [lintResult]);
 
+  // Handle execution errors in editor
+  useEffect(() => {
+    if (!editorRef.current || !monacoRef.current || !executionResult?.error) return;
+
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    
+    const error = parseError(executionResult.error);
+    
+    if (error.line > 0) {
+      const markers = [{
+        severity: monaco.MarkerSeverity.Error,
+        message: error.error,
+        startLineNumber: error.line,
+        startColumn: 1,
+        endLineNumber: error.line,
+        endColumn: 100,
+        source: "Execution",
+      }];
+
+      monaco.editor.setModelMarkers(editor.getModel(), "execution", markers);
+    }
+  }, [executionResult?.error]);
+
   const handleRunCode = async () => {
     try {
+      // Clear previous execution results and errors
+      clearResults();
+      
+      // Clear editor markers for previous execution errors
+      if (monacoRef.current && editorRef.current) {
+        // Clear only execution markers, keep linter markers
+        monacoRef.current.editor.setModelMarkers(editorRef.current.getModel(), "execution", []);
+      }
+
       await executeCode({
         code,
         timeoutSeconds: 30,
       });
+
       if (!isDesktop) {
         setActiveTab("output");
       }
@@ -234,9 +269,22 @@ const EditorPage = () => {
   }, [isDragging]);
 
   // Get all issues grouped by severity
-  // Show live linter results
-  const allIssues = lintResult?.issues || [];
-
+  // Combine linter issues and execution error
+  const linterIssues = lintResult?.issues || [];
+  const executionErrorData = executionResult?.error ? parseError(executionResult.error) : null;
+  
+  // Create combined issues array for the info panel
+  const allIssues = [
+    ...linterIssues,
+    ...(executionErrorData ? [{
+      line: executionErrorData.line,
+      column: 0,
+      message: executionErrorData.error,
+      severity: "error" as const,
+      rule: "Execution Error",
+    }] : [])
+  ];
+  
   const errorIssues = allIssues.filter((i) => i.severity === "error");
   const warningIssues = allIssues.filter((i) => i.severity === "warning");
   const infoIssues = allIssues.filter((i) => i.severity === "info");
@@ -341,6 +389,9 @@ const EditorPage = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-zinc-500 font-mono">
                       Line {issue.line}:{issue.column}
+                    </span>
+                    <span className="text-zinc-600 text-xs">
+                      ({issue.rule})
                     </span>
                   </div>
                   <p
@@ -657,7 +708,7 @@ const EditorPage = () => {
                       <Info className="mx-auto text-zinc-500 mb-4" size={48} />
                       <p className="text-zinc-400 mb-2">No issues found</p>
                       <p className="text-sm text-zinc-500">
-                        Your code looks good! Any linting issues will appear
+                        Your code looks good! Any linting or execution issues will appear
                         here.
                       </p>
                     </div>
@@ -714,6 +765,9 @@ const EditorPage = () => {
                               }`}
                             >
                               {issue.severity}
+                            </span>
+                            <span className="text-zinc-500 text-xs">
+                              ({issue.rule})
                             </span>
                           </div>
                           <p
