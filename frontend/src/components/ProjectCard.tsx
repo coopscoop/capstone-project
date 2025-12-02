@@ -211,7 +211,7 @@ const ProjectCard = ({
         <button 
           onClick={handleOpenProject}
           className="flex-1 bg-python-blue hover:bg-[#0092d4] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-          style={{ flex: canEdit ? '0 0 40%' : '0 0 50%' }}
+          style={{ flexGrow: canEdit ? '4' : '1' }}
         >
           Open Project
         </button>
@@ -220,7 +220,7 @@ const ProjectCard = ({
           <button 
             onClick={handleStartEdit}
             className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-            style={{ flex: '0 0 36%' }} // unsure why this is 36% instead of 40% but it works
+            style={{ flexGrow: '4' }}
           >
             <Edit size={16} className="inline mr-2" />
             Edit Properties
@@ -230,7 +230,7 @@ const ProjectCard = ({
         <button 
           onClick={() => setIsModalOpen(false)}
           className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-zinc-100 font-semibold py-3 px-6 rounded-lg transition-colors"
-          style={{ flex: canEdit ? '0 0 20%' : '0 0 50%' }}
+          style={{ flexGrow: canEdit ? '2' : '1' }}
         >
           Close
         </button>
