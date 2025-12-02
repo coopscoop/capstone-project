@@ -6,6 +6,7 @@ using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Domain;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text.Json;
 
 /// <summary>
 /// Post repository implementation using Dapper
@@ -59,6 +60,8 @@ public class PostRepository : IPostRepository
 
         post.Created = DateTime.UtcNow;
         post.LastEdited = DateTime.UtcNow;
+
+        _logger.LogInformation("Creating post with information: " + JsonSerializer.Serialize(post));
 
         await using var connection = _dbConnection.CreateConnection();
         return await connection.QuerySingleAsync<Post>(sql, post);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import type { Post } from '@/types';
 import { postService, tagService, favouriteService } from '@/services';
 
@@ -51,7 +51,7 @@ export const usePosts = () => {
     description: string,
     code: string,
     isVisible: boolean,
-    tags: string[]
+    tags: string[],
   ) => {
     try {
       const createdPost = await postService.create({
@@ -60,8 +60,8 @@ export const usePosts = () => {
         description,
         code,
         isVisible,
-        numberOfLikes: 0,
         tags: [],
+        numberOfLikes: 1,
       });
 
       // add tags if any
@@ -72,17 +72,10 @@ export const usePosts = () => {
       // auto-favorite the post
       await favouriteService.add(createdPost.postId, userId);
 
-      const likedPost = await postService.update(createdPost.postId, {
-        ...createdPost,
-        numberOfLikes: 1,
-      });
+      setPosts(prev => [createdPost, ...prev]);
+      setUserPosts(prev => [createdPost, ...prev]);
 
-      // update local state so that the like count is correct on the card
-      const finalPost = likedPost || { ...createdPost, numberOfLikes: 1 };
-      setPosts(prev => [finalPost, ...prev]);
-      setUserPosts(prev => [finalPost, ...prev]);
-
-      return finalPost;
+      return createdPost;
     } catch (err) {
       console.error('Error creating post:', err);
       throw err;
@@ -171,6 +164,7 @@ export const usePosts = () => {
     loading,
     error,
     userPosts,
+    setPosts,
     loadPosts,
     createPost,
     updatePost,

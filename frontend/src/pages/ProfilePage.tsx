@@ -105,6 +105,9 @@ const ProfilePage = () => {
     
     try {
       await deletePost(postId);
+      
+      // reload the page to remove the post from state
+      window.location.reload();
     } catch (err) {
       console.error('Failed to delete post:', err);
       throw err;

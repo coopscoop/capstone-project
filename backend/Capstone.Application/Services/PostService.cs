@@ -63,7 +63,7 @@ public class PostService : IPostService
             UserId = postDto.UserId,
             Title = postDto.Title,
             Description = postDto.Description,
-            NumberOfLikes = 0,
+            NumberOfLikes = postDto.NumberOfLikes,
             Code = postDto.Code,
             IsVisible = postDto.IsVisible
         };

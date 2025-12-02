@@ -18,8 +18,7 @@ const HomePage = () => {
   const { user } = useAuth();
   const { setCurrentProject } = useProject();
   const { favourites, toggleFavourite } = useFavourites(user?.userId);
-  const { posts, loading: postsLoading, error: postsError, createPost, updatePost, updatePostLikes, loadFavouritePosts, deletePost } = usePosts();
-  const [favoritePosts, setFavoritePosts] = useState<Post[]>([]);
+  const { posts, loading: postsLoading, error: postsError, createPost, updatePost, updatePostLikes, loadFavouritePosts, deletePost, setPosts } = usePosts();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -30,14 +29,6 @@ const HomePage = () => {
     if (!user) return;
     loadFavouritePosts(user?.userId || 0);
   }, [user?.userId]);
-
-  // Filter posts to only show favorites
-  useEffect(() => {
-    if (posts && favourites) {
-      const filtered = posts.filter(post => favourites.has(post.postId));
-      setFavoritePosts(filtered);
-    }
-  }, [posts, favourites]);
 
   const handleDeletePost = async (postId: number) => {
     if (!user) return;
@@ -111,10 +102,13 @@ const HomePage = () => {
       var createdPost = await createPost(user.userId, data.title, data.description, data.code, data.isVisible, data.tags);
       
       // add the post to the local state
-      setFavoritePosts(prev => [createdPost, ...prev]);
+      setPosts(prev => [createdPost, ...prev]);
 
       setIsCreateModalOpen(false);
       setFormError('');
+
+      // reload the page to see the new post
+      window.location.reload();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Failed to create post');
       throw err;
@@ -193,7 +187,7 @@ const HomePage = () => {
                 Error loading projects: {postsError}
               </p>
             </div>
-          ) : favoritePosts.length === 0 ? (
+          ) : posts.length === 0 ? (
             <div className="text-center py-12">
               <Star className="mx-auto text-zinc-300 mb-4" size={48} />
               <h3 className="text-xl font-semibold text-zinc-700 mb-2">No favorites yet</h3>
@@ -210,7 +204,7 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {favoritePosts.map((post) => (
+              {posts.map((post) => (
                 <ProjectCard
                   key={post.postId}
                   postId={post.postId}

@@ -6,7 +6,7 @@ public class PostDto
     public int UserId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public int? NumberOfLikes { get; set; } = 0;
+    public int? NumberOfLikes { get; set; }
     public string Code { get; set; } = string.Empty;
     public bool IsVisible { get; set; } = true;
     public string? DisplayName { get; set; }
