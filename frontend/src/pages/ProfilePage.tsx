@@ -476,7 +476,7 @@ const ProfilePage = () => {
                   key={post.postId}
                   postId={post.postId}
                   title={post.title}
-                  tags={post.tags || []}
+                  tags={post.tags}
                   description={post.description || "No description available"}
                   favorited={post.isFavorited}
                   userId={post.userId}

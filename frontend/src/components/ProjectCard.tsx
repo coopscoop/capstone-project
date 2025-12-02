@@ -61,7 +61,7 @@ const ProjectCard = ({
 
   // debug print on modal open
   useEffect(() => {
-    console.log("title:", title, " isVisible:", isVisible);
+    console.log("title:", title, "tags: ", tags);
   }, [isEditing]);
 
   const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
