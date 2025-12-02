@@ -107,7 +107,7 @@ public class PostRepository : IPostRepository
             LEFT JOIN tags pt ON p.post_id = pt.post_id
             LEFT JOIN tags t ON pt.post_id = t.post_id
             WHERE (@isAdmin = true OR p.is_visible = true OR p.user_id = @currentUserId)
-            GROUP BY p.post_id
+            GROUP BY p.post_id, u.display_name
             ORDER BY p.created DESC";
 
         await using var connection = _dbConnection.CreateConnection();
@@ -136,7 +136,7 @@ public class PostRepository : IPostRepository
             LEFT JOIN tags t ON p.post_id = t.post_id
             WHERE p.post_id = @postId
                 AND (@isAdmin = true OR p.user_id = @currentUserId)
-            GROUP BY p.post_id";
+            GROUP BY p.post_id, u.display_name";
 
         await using var connection = _dbConnection.CreateConnection();
         var result = await connection.QuerySingleOrDefaultAsync<Post>(sql, new { 
@@ -258,8 +258,8 @@ public class PostRepository : IPostRepository
             INNER JOIN users u ON p.user_id = u.user_id
             INNER JOIN favourites f ON p.post_id = f.post_id
             LEFT JOIN tags t ON p.post_id = t.post_id
-            WHERE f.user_id = 1 AND (p.is_visible = true OR p.user_id = 1)
-            GROUP BY p.post_id, u.user_id
+            WHERE f.user_id = @userId AND (p.is_visible = true OR p.user_id = @userId)
+            GROUP BY p.post_id, u.display_name
             ORDER BY p.created DESC";
 
         await using var connection = _dbConnection.CreateConnection();
