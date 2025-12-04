@@ -72,37 +72,73 @@ General structure is made up of 3 services:
 
 ## Deployment itself
 
+> [!NOTE]
+> Anything using docker requires the Docker Engine to be running. Make sure it's on or it'll just error out.
+
 This section is mostly for me and is just some quick notes on how I deployed this. Deploying locally, both the front, back and database are all in containers and can be run with docker-compose.
 
-To deploy the project you'll need to have docker and docker-compose installed, and there's 3 commands to know:
+To deploy the project you'll need to have docker and docker-compose installed, and there's 3 basic commands to know:
+- `docker-compose build --no-cache` to build the containers if you've made changes, the --no-cache flag is optional but it'll make sure that there's no cache vs what you have parity problems.
 - `docker-compose up` to start the containers
-- `docker-compose down` to stop the containers
-- `docker-compose build` to build the containers if you've made changes.
+
+If the containers are running you can use:
+- `docker-compose down -v` to stop the containers, -v is optional but it'll remove the volumes as well.
 
 Simply run those in the root of the project to start the containers.
 
 > [!NOTE]
 > Note: you can also add a `--build` flag to the `docker-compose up` command to build the containers if you've made changes.
 
-### Frontend
+### Building the containers
 
-To publish/update the frontend, we push from local (current working directory) to the remote google cloud run service. This is done with the following command:
+Initially docker needs to be enabled using `gcloud auth configure-docker`
 
-`cd frontend`
+The the containers are built using docker, then pushed to googles container registry.
 
-`gcloud run deploy capstone-frontend --source . --platform managed --region northamerica-northeast2 --allow-unauthenticated --memory 512Mi --cpu 1 --min-instances 0 --max-instances 1 --port 8080 --set-build-env-vars VITE_API_URL=https://capstone-backend-657482441130.northamerica-northeast2.run.app/api`
+To build the containers use the `docker build` command, to push then use `docker push`.
 
-Most the flags are self explainatory, but the `--allow-unauthenticated` flag is required to allow the frontend to be accessed without a login.
-Because this is on cloud run it scales to useage automatically. 0 minimum allows it to scale to 0, and 2 caps it so worst case I don't have a big bill to pay.
+General commands look like:
 
-### Backend
+`docker build -t gcr.io/[PROJECT-ID]/[IMAGE-NAME] .`
+`docker push gcr.io/[PROJECT-ID]/[IMAGE-NAME]`
 
-The backend is deployed to google cloud run as well, updated/pushed to the remote service (same as the frontend, it pushes the current working directory) with the following command:
+### What I used
 
-`cd backend`
+Following the above examples, I used the following:
 
-`gcloud run deploy capstone-backend --source . --region northamerica-northeast2 --env-vars-file env.yaml`
+For the backend:
+`docker build -t gcr.io/capstone-479500/capstone-backend .`
+`docker push gcr.io/capstone-479500/capstone-backend`
 
-The env.yaml file is a simple file that contains the environment variables for the backend instead of manually setting them in the command line.
+For the frontend:
+`docker build -t gcr.io/capstone-479500/capstone-frontend .`
+`docker push gcr.io/capstone-479500/capstone-frontend`
 
-This file simply looks like a regular .env file but isn't committed to the repo. Look at the env.yaml.example file for an example of what it should look like.
+### Set the VPC connector
+
+Inside google's systems they've got a private VPC network that we're allowed to use for routing. For the sake of secutiry and air gapping as much as possible I'm using the VPC for the backend and the database.
+
+The general idea is that the backend/database are hidden from the wider internet, but the frontend is exposed and as such the inputs to the system can be controlled.
+
+To set one up use the command:
+
+```bash
+gcloud compute networks vpc-access connectors create [NAME] \
+    --region=[YOUR_REGION] \
+    --network=default \
+    --range=[NETWORK_RANGE]
+```
+
+I used the following:
+
+```bash
+gcloud compute networks vpc-access connectors create capstone-connector --region=northamerica-northeast1 --network=default --range=172.16.2.0/28
+```
+Worst case it fails delete it:
+```bash
+gcloud compute networks vpc-access connectors delete capstone-connector --region=us-northamerica-northeast1 --async
+```
+
+- `us-central1` is a Toronto server
+- `default` is the default VPC network
+- `10.128.0.0/28` is the network range I'm using, it's an open ip that I've been given, you can check what open ones are available by running `gcloud compute networks subnets list --network=default --format="table(NAME,REGION,RANGE)"`

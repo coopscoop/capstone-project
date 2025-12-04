@@ -3,6 +3,7 @@ namespace Capstone.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 /// <summary>
 /// Controller for managing favourites
@@ -29,6 +30,7 @@ public class FavouriteController : ControllerBase
     /// Get all favourites for a specific user
     /// </summary>
     [HttpGet("user/{userId}")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<FavouriteDto>>> GetUserFavourites(int userId)
     {
         try
@@ -47,6 +49,7 @@ public class FavouriteController : ControllerBase
     /// Get all users who favourited a specific post
     /// </summary>
     [HttpGet("post/{postId}")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<FavouriteDto>>> GetPostFavourites(int postId)
     {
         try
@@ -65,6 +68,7 @@ public class FavouriteController : ControllerBase
     /// Check if a post is favourited by a user
     /// </summary>
     [HttpGet("check/{postId}/{userId}")]
+    [Authorize]
     public async Task<ActionResult<bool>> IsFavourited(int postId, int userId)
     {
         try
@@ -83,6 +87,7 @@ public class FavouriteController : ControllerBase
     /// Add a favourite
     /// </summary>
     [HttpPost("{postId}/{userId}")]
+    [Authorize]
     public async Task<ActionResult<FavouriteDto>> AddFavourite(int postId, int userId)
     {
         try
@@ -108,6 +113,7 @@ public class FavouriteController : ControllerBase
     /// Remove a favourite
     /// </summary>
     [HttpDelete("{postId}/{userId}")]
+    [Authorize]
     public async Task<ActionResult> RemoveFavourite(int postId, int userId)
     {
         try
@@ -130,6 +136,7 @@ public class FavouriteController : ControllerBase
     /// Get favourite count for a post
     /// </summary>
     [HttpGet("count/{postId}")]
+    [Authorize]
     public async Task<ActionResult<int>> GetFavouriteCount(int postId)
     {
         try

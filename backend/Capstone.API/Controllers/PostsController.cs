@@ -34,6 +34,7 @@ public class PostsController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
     {
         var posts = await _postsService.GetAllAsync(_userContext.UserId, _userContext.IsAdmin);
@@ -45,6 +46,7 @@ public class PostsController : ControllerBase
 
     [HttpGet("userfavourites/{userId:int}")]
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetAllUserFavourites(int userId)
     {
         var posts = await _postsService.GetAllUserFavouritesAsync(userId);
@@ -60,6 +62,7 @@ public class PostsController : ControllerBase
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public async Task<ActionResult<PostDto>> GetById(int id)
     {
         var post = await _postsService.GetByIdAsync(id, _userContext.UserId, _userContext.IsAdmin);
@@ -76,6 +79,7 @@ public class PostsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(PostDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize]
     public async Task<ActionResult<PostDto>> Create([FromBody] PostDto postDto)
     {
         _logger.LogInformation("User {UserId} (IsAdmin: {IsAdmin}) is attempting to create a post for User {PostUserId}", _userContext.UserId, _userContext.IsAdmin, postDto.UserId);
@@ -98,6 +102,7 @@ public class PostsController : ControllerBase
     [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [Authorize]
     public async Task<ActionResult<PostDto>> Update(int id, [FromBody] PostDto postDto)
     {
         // Check if user owns the post or is admin
@@ -125,6 +130,7 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [Authorize]
     public async Task<ActionResult> Delete(int id)
     {
         _logger.LogWarning("User {UserId} is not authorized to delete post {PostId}", _userContext.UserId, id);
@@ -152,6 +158,7 @@ public class PostsController : ControllerBase
     /// </summary>
     [HttpGet("user/{userId:int}")]
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetByUserId(int userId)
     {
         var posts = await _postsService.GetByUserIdAsync(userId, _userContext.UserId, _userContext.IsAdmin);
@@ -163,6 +170,7 @@ public class PostsController : ControllerBase
     /// </summary>
     [HttpGet("tag/{tagName}")]
     [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetByTag(string tagName)
     {
         var posts = await _postsService.GetByTagAsync(tagName, _userContext.UserId, _userContext.IsAdmin);

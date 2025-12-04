@@ -29,9 +29,9 @@ services:
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=Capstone;Username=postgres;Password=postgres"
       ASPNETCORE_ENVIRONMENT: Development
       Python__ScriptPath: "Python/python_worker.py"
-      ASPNETCORE_URLS: "http://+:5225"
+      ASPNETCORE_URLS: "http://+:8080"
     ports:
-      - "5225:5225"
+      - "5225:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # VITE_API_URL: http://localhost:5225/api
+        VITE_API_URL: http://localhost:5225/api
     environment:
       PORT: 8080
     ports:

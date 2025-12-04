@@ -32,10 +32,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy => policy
             .WithOrigins(
-                "https://capstone-frontend-657482441130.northamerica-northeast2.run.app",
-                "https://capstone-frontend-tkgjilqdma-pd.a.run.app",
-                "http://localhost:5173",  // For local dev
-                "http://localhost:5174"
+                "http://localhost:3000"
             )  // react front end
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -149,6 +146,7 @@ if (app.Environment.IsDevelopment())
 // Middleware
 app.UseCors("AllowReactApp");
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

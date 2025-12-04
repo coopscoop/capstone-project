@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Capstone.API.Controllers
 {
@@ -40,6 +41,7 @@ namespace Capstone.API.Controllers
         [HttpPost("execute")]
         [ProducesResponseType(typeof(CodeExecutionResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize]
         public async Task<ActionResult<CodeExecutionResult>> ExecuteCode(
             [FromBody] CodeExecutionRequest request,
             CancellationToken ct)
@@ -76,6 +78,7 @@ namespace Capstone.API.Controllers
         [HttpPost("lint")]
         [ProducesResponseType(typeof(LintResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize]
         public async Task<ActionResult<LintResult>> LintCode(
             [FromBody] LintRequest request,
             CancellationToken ct)
@@ -107,6 +110,7 @@ namespace Capstone.API.Controllers
         /// Health check endpoint
         /// </summary>
         [HttpGet("health")]
+        [Authorize]
         public IActionResult Health()
         {
             return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });

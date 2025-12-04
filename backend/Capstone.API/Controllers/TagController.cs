@@ -3,6 +3,7 @@ namespace Capstone.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Capstone.Core.Interfaces;
 using Capstone.Core.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 /// <summary>
 /// Controller for managing tags
@@ -26,6 +27,7 @@ public class TagController : ControllerBase
     /// Get all tags for a specific post
     /// </summary>
     [HttpGet("post/{postId}")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<TagDto>>> GetByPostId(int postId)
     {
         try
@@ -44,6 +46,7 @@ public class TagController : ControllerBase
     /// Get all unique tag names across all posts
     /// </summary>
     [HttpGet("all")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<string>>> GetAllUniqueTags()
     {
         try
@@ -62,6 +65,7 @@ public class TagController : ControllerBase
     /// Add a tag to a post
     /// </summary>
     [HttpPost("{postId}")]
+    [Authorize]
     public async Task<ActionResult<TagDto>> AddTagToPost(int postId, [FromBody] AddTagRequest request)
     {
         try
@@ -85,6 +89,7 @@ public class TagController : ControllerBase
     /// Remove a specific tag from a post
     /// </summary>
     [HttpDelete("{postId}/{tagName}")]
+    [Authorize]
     public async Task<ActionResult> RemoveTagFromPost(int postId, string tagName)
     {
         try
@@ -107,6 +112,7 @@ public class TagController : ControllerBase
     /// Remove all tags from a post
     /// </summary>
     [HttpDelete("post/{postId}")]
+    [Authorize]
     public async Task<ActionResult> RemoveAllTagsFromPost(int postId)
     {
         try

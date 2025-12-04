@@ -48,6 +48,7 @@ public class UserController : ControllerBase
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public async Task<ActionResult<UserDto>> GetById(int id)
     {
         var user = await _userService.GetByIdAsync(id);
@@ -64,6 +65,7 @@ public class UserController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize]
     public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto createDto)
     {
         if (string.IsNullOrWhiteSpace(createDto.Email))
@@ -92,19 +94,6 @@ public class UserController : ControllerBase
     {
         try
         {
-            // TODO: Fix this, for some reason it's throwing unauthorized
-            // Verify user is updating their own profile
-            // var userIdClaim = User.FindFirst("userId")?.Value;
-            // if (userIdClaim == null || !int.TryParse(userIdClaim, out var currentUserId))
-            // {
-            //     return Unauthorized();
-            // }
-
-            // if (currentUserId != id)
-            // {
-            //     return Forbid("You can only update your own profile");
-            // }
-
             var user = await _userService.GetByIdAsync(id);
             if (user == null)
             {
@@ -132,6 +121,7 @@ public class UserController : ControllerBase
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public async Task<ActionResult> Delete(int id)
     {
         var deleted = await _userService.DeleteAsync(id);
@@ -148,6 +138,7 @@ public class UserController : ControllerBase
     [HttpGet("email/{email}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public async Task<ActionResult<UserDto>> GetByEmail(string email)
     {
         var user = await _userService.GetByEmailAsync(email);

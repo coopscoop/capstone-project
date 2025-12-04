@@ -28,7 +28,7 @@ public class PasswordResetController : ControllerBase
     /// Get password reset request by user ID
     /// </summary>
     [HttpGet("user/{userId}")]
-    [AllowAnonymous] // Only authenticated users can check their own reset requests
+    [Authorize]
     public async Task<ActionResult<PasswordResetDto>> GetByUserId(int userId)
     {
         try
@@ -138,7 +138,7 @@ public class PasswordResetController : ControllerBase
     /// Delete a password reset request
     /// </summary>
     [HttpDelete("{userId}")]
-    [AllowAnonymous] // Only authenticated users can delete their own reset requests
+    [Authorize]
     public async Task<ActionResult> Delete(int userId)
     {
         try
@@ -161,7 +161,7 @@ public class PasswordResetController : ControllerBase
     /// Cleanup expired reset requests (typically called by a background job)
     /// </summary>
     [HttpPost("cleanup")]
-    [Authorize(Roles = "Admin")] // Only admins can trigger cleanup
+    [Authorize(Roles = "Admin")] // Only admins can trigger cleanup - done automatically for the rest of the users
     public async Task<ActionResult> CleanupExpired()
     {
         try
