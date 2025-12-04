@@ -93,7 +93,10 @@ export const usePosts = () => {
     tags: string[]
   ) => {
     try {
-      // Update the post and get the response
+      // First, always delete all existing tags for this post
+      await tagService.deletePostTags(postId);
+      
+      // Then, update the post
       const updatedPost = await postService.update(postId, {
         postId,
         userId,
@@ -102,22 +105,21 @@ export const usePosts = () => {
         code,
         isVisible,
         numberOfLikes,
-        tags,
+        tags, // Send tags array even if empty
       });
 
-      // Update tags
-      await tagService.deletePostTags(postId);
-      if (tags.length > 0) {
+      // Add new tags if any exist
+      if (tags && tags.length > 0) {
         await tagService.addMultipleTags(postId, tags);
       }
 
       // Update local state with the returned post data
       if (updatedPost != null) {
         setPosts(prev => prev.map(post => 
-          post.postId === postId ? updatedPost : post
+          post.postId === postId ? { ...updatedPost, tags } : post
         ));
         setUserPosts(prev => prev.map(post => 
-          post.postId === postId ? updatedPost : post
+          post.postId === postId ? { ...updatedPost, tags } : post
         ));
       } else {
         // If no post returned, refresh from server

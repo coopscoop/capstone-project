@@ -146,6 +146,7 @@ const ProjectCard = ({
   }) => {
     if (onUpdate) {
       await onUpdate(postId, data);
+      
       // Update local state immediately for instant UI feedback
       setTitle(data.title);
       setDescription(data.description);

@@ -67,10 +67,12 @@ const HomePage = () => {
     if (!user) return;
 
     try {
-      // Find the post to get its current numberOfLikes
       const postToUpdate = posts.find(post => post.postId === postId);
       if (!postToUpdate) return;
 
+      // even if there's no tags, we still need to update the tags array
+      const updatedTags = data.tags || [];
+      
       await updatePost(
         postId,
         user.userId,
@@ -79,10 +81,10 @@ const HomePage = () => {
         data.code,
         postToUpdate.numberOfLikes,
         data.isVisible,
-        data.tags
+        updatedTags
       );
       
-      // Update the post in local state
+      // update the post in local state - updates show instantly not after refresh
       setPosts(prev => prev.map(post => 
         post.postId === postId 
           ? { 
@@ -91,13 +93,13 @@ const HomePage = () => {
               description: data.description,
               code: data.code,
               isVisible: data.isVisible,
-              tags: data.tags
+              tags: updatedTags
             } 
           : post
       ));
     } catch (err) {
       console.error('Failed to update post:', err);
-      throw err; // will show error in the PostForm
+      throw err; // this will show error in the PostForm
     }
   };
 

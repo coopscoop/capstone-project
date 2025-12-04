@@ -15,7 +15,9 @@ export const tagService = {
     const response = await apiRequest(`/tag/post/${postId}`, {
       method: 'DELETE',
     });
-    if (!response.ok) {
+
+    // 400 errors are expected when no tags exist for this post
+    if (!response.ok && response.status >= 500) {
       throw new Error('Failed to delete tags');
     }
   },

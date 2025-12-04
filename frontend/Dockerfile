@@ -1,3 +1,7 @@
+# -----------------------------------------------------------------
+# STAGE 1: Build the React Application
+# -----------------------------------------------------------------
+# 
 FROM node:18-alpine as build
 WORKDIR /app
 
@@ -6,23 +10,25 @@ RUN npm install
 
 COPY . .
 
-# Hardcode the env var during build
-RUN echo "VITE_API_URL=https://capstone-backend-657482441130.northamerica-northeast2.run.app/api" > .env.production
-
 # Set production mode
 ENV NODE_ENV=production
 
-# Build
+# Build the app - should use the vite.config.ts file
 RUN npm run build
 
-# Verify it worked
-RUN grep -r "capstone-backend" dist/ && echo "SUCCESS!" || echo "FAILED - still has localhost"
+# -----------------------------------------------------------------
+# STAGE 2: Create the Final Runtime Image (Using Nginx)
+# Nginx is more performant for serving static files than 'serve'.
+# -----------------------------------------------------------------
+FROM nginx:alpine AS final
 
-FROM node:18-alpine
-WORKDIR /app
-RUN npm install -g serve
+# **CRITICAL CHANGE 2: Nginx Port Configuration**
+# We must instruct Nginx to listen on the Cloud Run required port (8080).
+# Add a custom Nginx configuration file for port 8080 and SPA routing.
+COPY nginx-cloudrun.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=build /app/dist ./dist
+# Copy the built React application (static files)
+COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 8080
-CMD ["sh", "-c", "serve -s dist -l ${PORT:-8080} --no-clipboard"]
+# the Nginx config with the internal backend URL at runtime.
+CMD ["/bin/sh", "-c", "envsubst < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
