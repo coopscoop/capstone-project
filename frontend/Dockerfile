@@ -8,15 +8,18 @@ COPY . .
 
 ENV NODE_ENV=production
 
+# Build with relative API URL since nginx will proxy
 RUN npm run build
 
 FROM nginx:alpine AS final
 
-# Copy the nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Install gettext for envsubst
+RUN apk add --no-cache gettext
 
-# Copy the built React application
+# Copy nginx config as template
+COPY nginx-cloudrun.conf /etc/nginx/templates/default.conf.template
+
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Substitute environment variables at runtime
+CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]

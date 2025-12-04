@@ -12,9 +12,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:5225',
-        // target: 'https://capstone-backend-657482441130.northamerica-northeast2.run.app',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     }
   },

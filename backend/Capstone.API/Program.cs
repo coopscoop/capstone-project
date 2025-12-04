@@ -18,21 +18,15 @@ using Capstone.API.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// listen to port 0.0.0.0 for cloud run
-/* var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(int.Parse(port));
-}) */;
-
 // CORS configuration for React frontend, used in middleware
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "http://localhost:3000";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy => policy
             .WithOrigins(
-                "http://localhost:3000"
+                "http://localhost:3000",
+                frontendUrl
             )  // react front end
             .AllowAnyMethod()
             .AllowAnyHeader()
