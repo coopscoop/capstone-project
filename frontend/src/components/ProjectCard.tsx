@@ -29,13 +29,13 @@ interface ProjectCardProps {
 
 const ProjectCard = ({
   postId,
-  title = "Project Title",
-  tags = ["tags"],
-  description = "A description of the project",
+  title: propTitle = "Project Title",
+  tags: propTags = ["tags"],
+  description: propDescription = "A description of the project",
   favorited: initialFavorited = false,
-  code,
+  code: propCode,
   userId,
-  numberOfLikes,
+  numberOfLikes: propNumberOfLikes,
   displayName,
   isVisible,
   onFavoriteToggle,
@@ -49,9 +49,17 @@ const ProjectCard = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [editorHeight, setEditorHeight] = useState("200px");
-  const [formattedCode, setFormattedCode] = useState(code);
+  const [formattedCode, setFormattedCode] = useState(propCode);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  
+  // Local state to manage the displayed data
+  const [title, setTitle] = useState(propTitle);
+  const [tags, setTags] = useState(propTags);
+  const [description, setDescription] = useState(propDescription);
+  const [code, setCode] = useState(propCode);
+  const [numberOfLikes, setNumberOfLikes] = useState(propNumberOfLikes);
+  
   const editorRef = useRef<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement>(null);
@@ -59,10 +67,19 @@ const ProjectCard = ({
   // Check if current user can edit this post (owner or admin)
   const canEdit = user && (user.isAdmin || user.userId === userId);
 
-  // debug print on modal open
+  // Update local state when props change
   useEffect(() => {
-    console.log("title:", title, "tags: ", tags);
-  }, [isEditing]);
+    setTitle(propTitle);
+    setTags(propTags);
+    setDescription(propDescription);
+    setCode(propCode);
+    setNumberOfLikes(propNumberOfLikes);
+  }, [propTitle, propTags, propDescription, propCode, propNumberOfLikes]);
+
+  // Update favorited state when prop changes
+  useEffect(() => {
+    setFavorited(initialFavorited);
+  }, [initialFavorited]);
 
   const toggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -129,8 +146,13 @@ const ProjectCard = ({
   }) => {
     if (onUpdate) {
       await onUpdate(postId, data);
+      // Update local state immediately for instant UI feedback
+      setTitle(data.title);
+      setDescription(data.description);
+      setCode(data.code);
+      setTags(data.tags);
+      setIsEditing(false);
     }
-    setIsEditing(false);
   };
 
   // Handle editor mount
@@ -141,7 +163,7 @@ const ProjectCard = ({
     }, 0);
   };
 
-  // Update editor height based on screen size
+  // Update editor height based on screen size and format code
   useEffect(() => {
     const updateEditorHeight = () => {
       if (window.innerWidth < 640) {
@@ -152,15 +174,15 @@ const ProjectCard = ({
     };
 
     if (code) {
-      const formattedCode = code.replace(/\\n/g, "\n");
-      setFormattedCode(formattedCode);
+      const formatted = code.replace(/\\n/g, "\n");
+      setFormattedCode(formatted);
     }
 
     updateEditorHeight();
     window.addEventListener("resize", updateEditorHeight);
 
     return () => window.removeEventListener("resize", updateEditorHeight);
-  }, []);
+  }, [code]); // Add code as dependency to re-format when code changes
 
   // Handle resize when modal opens
   useEffect(() => {

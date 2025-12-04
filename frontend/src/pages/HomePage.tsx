@@ -35,6 +35,7 @@ const HomePage = () => {
     
     try {
       await deletePost(postId);
+      setPosts(prev => prev.filter(post => post.postId !== postId));
     } catch (err) {
       console.error('Failed to delete post:', err);
       throw err;
@@ -80,9 +81,23 @@ const HomePage = () => {
         data.isVisible,
         data.tags
       );
+      
+      // Update the post in local state
+      setPosts(prev => prev.map(post => 
+        post.postId === postId 
+          ? { 
+              ...post, 
+              title: data.title,
+              description: data.description,
+              code: data.code,
+              isVisible: data.isVisible,
+              tags: data.tags
+            } 
+          : post
+      ));
     } catch (err) {
       console.error('Failed to update post:', err);
-      throw err; // This will show error in the PostForm
+      throw err; // will show error in the PostForm
     }
   };
 
