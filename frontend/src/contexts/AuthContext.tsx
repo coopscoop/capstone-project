@@ -10,7 +10,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5225/api';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
   console.log('API_BASE_URL:', API_BASE_URL);
 
   // Load user from localStorage on mount
