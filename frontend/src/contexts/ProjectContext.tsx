@@ -28,6 +28,21 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
+  // Listen for storage changes, gets triggered when user logs out
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'currentProject' && e.newValue === null) {
+        setCurrentProjectState(null);
+      } else if (e.key === 'accessToken' && e.newValue === null) {
+        // Clear project when user logs out
+        setCurrentProjectState(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const setCurrentProject = (project: Post) => {
     setCurrentProjectState(project);
     localStorage.setItem('currentProject', JSON.stringify(project));

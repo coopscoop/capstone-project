@@ -138,7 +138,7 @@ public class UserController : ControllerBase
     [HttpGet("email/{email}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<ActionResult<UserDto>> GetByEmail(string email)
     {
         var user = await _userService.GetByEmailAsync(email);

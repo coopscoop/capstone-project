@@ -18,6 +18,13 @@ using Capstone.API.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Kestrel for Cloud Run
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    options.ListenAnyIP(int.Parse(port));
+});
+
 // Build connection string from environment variables
 // For production: base connection string + password from Secret Manager
 // For local dev: full connection string from appsettings.json
@@ -38,8 +45,10 @@ builder.Services.AddCors(options =>
         policy => policy
             .WithOrigins(
                 "http://localhost:3000",
+                "https://frontend-tkgjilqdma-pd.a.run.app",
+                "https://frontend-657482441130.northamerica-northeast2.run.app",
                 frontendUrl
-            )  // react front end
+            )
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -143,6 +152,17 @@ builder.Services.AddSingleton<DatabaseConnection>();
 
 var app = builder.Build();
 
+// Health check endpoint for Cloud Run
+app.MapGet("/", () => Results.Ok(new { 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow 
+}));
+
+app.MapGet("/health", () => Results.Ok(new { 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow 
+}));
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
@@ -156,7 +176,6 @@ if (app.Environment.IsDevelopment())
 
 // Middleware
 app.UseCors("AllowReactApp");
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -175,7 +194,8 @@ try
 catch (Exception ex)
 {
     logger.LogError(ex, "Failed to initialize Python worker process");
-    throw;
+    // Don't throw - let the app start anyway
+    logger.LogWarning("Continuing without Python worker - will retry on first use");
 }
 
 // Graceful shutdown

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5225';
 
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
@@ -20,11 +20,15 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    const url = `${API_BASE_URL}/api/auth/refresh`;
+    console.log('Refreshing token at:', url);
+    
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ refreshToken }),
     });
 
@@ -55,9 +59,13 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}): P
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  let response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  // Construct the full URL - endpoint should start with /
+  const url = `${API_BASE_URL}/api${endpoint}`;
+
+  let response = await fetch(url, {
     ...options,
     headers,
+    credentials: 'include',
   });
 
   // If 401 and we have a refresh token, try to refresh
@@ -72,9 +80,10 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}): P
         
         // Retry the original request with new token
         headers['Authorization'] = `Bearer ${newToken}`;
-        response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        response = await fetch(url, {
           ...options,
           headers,
+          credentials: 'include',
         });
       } else {
         // Refresh failed, clear everything and redirect to login
@@ -91,9 +100,10 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}): P
       });
       
       headers['Authorization'] = `Bearer ${newToken}`;
-      response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      response = await fetch(url, {
         ...options,
         headers,
+        credentials: 'include',
       });
     }
   }

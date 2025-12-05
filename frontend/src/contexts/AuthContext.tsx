@@ -10,8 +10,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-  console.log('API_BASE_URL:', API_BASE_URL);
+  const API_BASE_URL = import.meta.env.VITE_API_URL + '/api' || '/api';
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -175,12 +174,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    
+    // Clear current project - ProjectContext will pick this up via storage listener
+    localStorage.removeItem('currentProject');
   };
 
   const clearTokens = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('currentProject');
     logout();
   };
 

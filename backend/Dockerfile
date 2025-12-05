@@ -23,4 +23,7 @@ RUN apt-get update && apt-get install -y python3 python3-pip && rm -rf /var/lib/
 COPY --from=publish /app/publish .
 COPY Capstone.Infrastructure/Python /app/Python
 
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
 ENTRYPOINT ["dotnet", "Capstone.API.dll"]

@@ -142,3 +142,16 @@ gcloud compute networks vpc-access connectors delete capstone-connector --region
 - `us-central1` is a Toronto server
 - `default` is the default VPC network
 - `10.128.0.0/28` is the network range I'm using, it's an open ip that I've been given, you can check what open ones are available by running `gcloud compute networks subnets list --network=default --format="table(NAME,REGION,RANGE)"`
+
+gcloud run services logs read backend `
+>>   --region=northamerica-northeast2 `
+>>   --limit=300 `
+>>   --format=json | Select-String -Pattern "error|Error|exception|Exception|failed|Failed|502|500" -Context 2
+
+docker build -t gcr.io/capstone-479500/frontend --build-arg VITE_API_URL=https://backend-657482441130.northamerica-northeast2.run.app .
+docker push gcr.io/capstone-479500/frontend
+gcloud run deploy frontend --image gcr.io/capstone-479500/frontend --region northamerica-northeast2
+
+docker build -t gcr.io/capstone-479500/capstone-backend .
+docker push gcr.io/capstone-479500/capstone-backend
+gcloud run deploy backend --image gcr.io/capstone-479500/backend --region northamerica-northeast2
