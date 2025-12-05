@@ -101,18 +101,6 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* temp just login with default admin user */}
-          <button onClick={() => login('admin@example.com', 'password123')} className="w-full flex items-center justify-center gap-2 px-4 py-3 mt-4 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-            <LogIn size={20} />
-            Login as Admin
-          </button>
-
-          {/* temp just login with default user */}
-          <button onClick={() => login('user@example.com', 'password123')} className="w-full flex items-center justify-center gap-2 px-4 py-3 mt-4 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-            <LogIn size={20} />
-            Login as User
-          </button>
-
           <div className="mt-6 text-center">
             <p className="text-sm text-zinc-600">
               Don't have an account?{' '}

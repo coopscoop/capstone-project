@@ -1,5 +1,11 @@
 -- Each of these users won't ever be deleted so we can use them for testing. Just dummy data to have something to show with the more social searching features.
--- 30 Test Posts: 10 per user (user_id 1, 2, 3)
+
+-- 3 users
+INSERT INTO users (user_id, email, password, is_admin, display_name, bio) VALUES
+(1, 'admin@example.com', '$2a$11$XxhFP1u/bc0ocwVEmXo.JONv/cS6s8JIRTGJgewmo7MV71oGKRFda', TRUE, 'CodeMaster', 'I love algorithms and data structures'),
+(2, 'user@example.com', '$2a$11$IMkYkaUjsFRp.6Ahd9zXS.OaYQ7D7oMrzs4HTe9nAkfOWSwYBR2Oi', FALSE, 'MathWizard', 'Mathematics and problem solving enthusiast'),
+(3, 'coopscoop8515@example.com', '$2a$11$yRNEs5BGNDJ/9jrvHe7/Q.F0A5QARhWoXealDC8p/MeV/7QndV9RC', FALSE, 'PythonPro', 'Python developer and coding instructor');
+
 
 -- User 1 Posts (5 visible, 5 hidden)
 INSERT INTO posts (user_id, title, description, number_of_likes, code, is_visible) VALUES

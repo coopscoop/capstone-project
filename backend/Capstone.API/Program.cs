@@ -18,6 +18,18 @@ using Capstone.API.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Build connection string from environment variables
+// For production: base connection string + password from Secret Manager
+// For local dev: full connection string from appsettings.json
+var connStringBase = builder.Configuration.GetConnectionString("DefaultConnection");
+var dbPassword = builder.Configuration["ConnectionStrings:Password"];
+
+if (!string.IsNullOrEmpty(dbPassword))
+{
+    // Production: append password from Secret Manager
+    builder.Configuration["ConnectionStrings:DefaultConnection"] = $"{connStringBase};Password={dbPassword}";
+}
+
 // CORS configuration for React frontend, used in middleware
 var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "http://localhost:3000";
 builder.Services.AddCors(options =>
@@ -49,7 +61,12 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 
 // configure JWT auth
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
-var key = Encoding.UTF8.GetBytes(jwtSettings!.Key);
+if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
+{
+    throw new InvalidOperationException("JWT settings are not properly configured");
+}
+
+var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 
 builder.Services.AddAuthentication(options =>
 {
