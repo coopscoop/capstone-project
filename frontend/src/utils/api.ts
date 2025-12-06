@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5225';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
@@ -21,7 +21,6 @@ async function refreshAccessToken(): Promise<string | null> {
 
   try {
     const url = `${API_BASE_URL}/api/auth/refresh`;
-    console.log('Refreshing token at:', url);
     
     const response = await fetch(url, {
       method: 'POST',

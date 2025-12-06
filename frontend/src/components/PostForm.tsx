@@ -44,11 +44,6 @@ export const PostForm = ({
   const [isVisible, setIsVisible] = useState(initialData?.isVisible ?? false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // debug print on load
-  useEffect(() => {
-    console.log('PostForm initialData:', initialData);
-  }, [initialData]);
-
   // Add this useEffect to update form state when initialData changes
   useEffect(() => {
     if (initialData) {

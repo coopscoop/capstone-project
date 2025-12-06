@@ -104,54 +104,36 @@ General commands look like:
 
 ### What I used
 
+I used Google Cloud Run for the backend and frontend, and CloudSQL for the database. The backend is fully private, the frontend is public. For pushing to the google cloud, i used their artifact registry, then pushed those containers to my services.
+
 Following the above examples, I used the following:
 
 For the backend:
 `docker build -t gcr.io/capstone-479500/capstone-backend .`
 `docker push gcr.io/capstone-479500/capstone-backend`
+`gcloud run deploy backend --image gcr.io/capstone-479500/capstone-backend --region northamerica-northeast2`
 
 For the frontend:
 `docker build -t gcr.io/capstone-479500/capstone-frontend .`
 `docker push gcr.io/capstone-479500/capstone-frontend`
+`gcloud run deploy frontend --image gcr.io/capstone-479500/capstone-frontend --region northamerica-northeast2`
 
-### Set the VPC connector
-
-Inside google's systems they've got a private VPC network that we're allowed to use for routing. For the sake of secutiry and air gapping as much as possible I'm using the VPC for the backend and the database.
-
-The general idea is that the backend/database are hidden from the wider internet, but the frontend is exposed and as such the inputs to the system can be controlled.
-
-To set one up use the command:
-
+General logs:
 ```bash
-gcloud compute networks vpc-access connectors create [NAME] \
-    --region=[YOUR_REGION] \
-    --network=default \
-    --range=[NETWORK_RANGE]
-```
-
-I used the following:
-
-```bash
-gcloud compute networks vpc-access connectors create capstone-connector --region=northamerica-northeast1 --network=default --range=172.16.2.0/28
-```
-Worst case it fails delete it:
-```bash
-gcloud compute networks vpc-access connectors delete capstone-connector --region=us-northamerica-northeast1 --async
-```
-
-- `us-central1` is a Toronto server
-- `default` is the default VPC network
-- `10.128.0.0/28` is the network range I'm using, it's an open ip that I've been given, you can check what open ones are available by running `gcloud compute networks subnets list --network=default --format="table(NAME,REGION,RANGE)"`
-
 gcloud run services logs read backend `
->>   --region=northamerica-northeast2 `
->>   --limit=300 `
->>   --format=json | Select-String -Pattern "error|Error|exception|Exception|failed|Failed|502|500" -Context 2
+   --region=northamerica-northeast2 `
+   --limit=300 `
+   --format=json | Select-String -Pattern "error|Error|exception|Exception|failed|Failed|502|500" -Context 2
+```
+```bash
+gcloud run services logs read frontend `
+   --region=northamerica-northeast2 `
+   --limit=300 `
+   --format=json | Select-String -Pattern "error|Error|exception|Exception|failed|Failed|502|500" -Context 2
+```
 
-docker build -t gcr.io/capstone-479500/frontend --build-arg VITE_API_URL=https://backend-657482441130.northamerica-northeast2.run.app .
-docker push gcr.io/capstone-479500/frontend
-gcloud run deploy frontend --image gcr.io/capstone-479500/frontend --region northamerica-northeast2
+### Future steps/Wants
 
-docker build -t gcr.io/capstone-479500/capstone-backend .
-docker push gcr.io/capstone-479500/capstone-backend
-gcloud run deploy backend --image gcr.io/capstone-479500/backend --region northamerica-northeast2
+I initially wanted to use VPC's in the google cloud services for communicaiton between the frontend and backend, but I couldn't get it to work. I'd just get a vague "error 13, try again". Looking online, it tended to be either the servers were at capacity, or it wasn't setup correctly.
+
+Restructure of the python service. Ideally it'd be a container that has a python instance, using web sockets or something similar to have a live console for interaction. This would allow for a more interactive experience, and worst case scenario the container can just be restarted if it crashes, or the user breaks it.

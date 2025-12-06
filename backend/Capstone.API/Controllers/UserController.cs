@@ -48,7 +48,7 @@ public class UserController : ControllerBase
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<ActionResult<UserDto>> GetById(int id)
     {
         var user = await _userService.GetByIdAsync(id);
@@ -65,7 +65,7 @@ public class UserController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto createDto)
     {
         if (string.IsNullOrWhiteSpace(createDto.Email))

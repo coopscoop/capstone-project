@@ -28,20 +28,32 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  // Listen for storage changes, gets triggered when user logs out
+  // Not the most graceful solution, clears current project when it's cleared in localStorage
   useEffect(() => {
+    const checkProjectCleared = () => {
+      const savedProject = localStorage.getItem('currentProject');
+      if (!savedProject && currentProject !== null) {
+        setCurrentProjectState(null);
+      }
+    };
+
+    // Check periodically (this handles same-window changes)
+    const interval = setInterval(checkProjectCleared, 100);
+
+    // Also listen to storage events (this handles other-window changes)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'currentProject' && e.newValue === null) {
-        setCurrentProjectState(null);
-      } else if (e.key === 'accessToken' && e.newValue === null) {
-        // Clear project when user logs out
         setCurrentProjectState(null);
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [currentProject]);
 
   const setCurrentProject = (project: Post) => {
     setCurrentProjectState(project);

@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tokenData = JSON.parse(atob(token.split('.')[1]));
     const expiresAt = tokenData.exp * 1000; // Convert to milliseconds
 
-    console.log('Token expiration time:', new Date(expiresAt));
     const now = Date.now();
     const timeUntilExpiry = expiresAt - now;
 
@@ -74,7 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('refreshToken', data.refreshToken);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        console.log('Refreshed token:', data);
       } else {
         // Refresh failed, logout user
         logout();

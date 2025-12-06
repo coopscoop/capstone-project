@@ -140,7 +140,6 @@ const ProfilePage = () => {
         logout();
         navigate("/login");
       } else {
-        console.log("Failed to delete account:", response.status);
       }
     } catch (err) {
       console.error("Failed to delete account:", err);
@@ -180,7 +179,6 @@ const ProfilePage = () => {
       const postToUpdate = userPostsWithFavorites.find((post) => post.postId === postId);
       if (!postToUpdate) return;
 
-      console.log('Sending update with isVisible:', data.isVisible);
       
       const updatedPost = await updatePost(
         postId,
@@ -193,11 +191,9 @@ const ProfilePage = () => {
         data.tags
       );
 
-      console.log('Received updated post:', updatedPost);
 
       // If still undefined, force refresh
       if (!updatedPost) {
-        console.log('Updated post was undefined, forcing refresh...');
         await fetchUserPosts();
       }
 
