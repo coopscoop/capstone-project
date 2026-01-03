@@ -1,12 +1,8 @@
-> [!NOTE]
-> Massive first commits were because I was working in another repo unintentionally, moved things over so it's massive chunks at once.
-> The majority of the templating for the project was also auto generated so it's very large
-
 > [!WARNING]
 > The cloud run deployment as a generous free tier so it shouldn't ever exceed the free tier limits.
 > The database however will only be up for ~3 months as of 2025/11/26, it will stop working on 2026/02/16ish
 >
-> Past this date hosting locally would be the easiest solution to run the project.
+> Past this date hosting locally would be the easiest solution to run the project. This was made to work with postgreSQL, there is template and full schemas available
 
 # Capstone - Online Python IDE
 
