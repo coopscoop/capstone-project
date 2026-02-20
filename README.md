@@ -1,12 +1,14 @@
 > [!WARNING]
 > The cloud run deployment as a generous free tier so it shouldn't ever exceed the free tier limits.
-> The database however will only be up for ~3 months as of 2025/11/26, it will stop working on 2026/02/16ish
+> The database however will only be up for ~3 months as of 2025/11/26, it will stop working on 2026/02/25ish
 >
 > Past this date hosting locally would be the easiest solution to run the project. This was made to work with postgreSQL, there is template and full schemas available
 
 # Capstone - Online Python IDE
 
 Welcome! This is my capstone project, it's effectively a simplified [replit](https://replit.com/) clone, but just for python with a custom made linter.
+
+Check it out [here](https://frontend-657482441130.northamerica-northeast2.run.app/).
 
 ## Setup (subject to change)
 
@@ -15,7 +17,7 @@ Welcome! This is my capstone project, it's effectively a simplified [replit](htt
 - `npm start` to run the frontend
   -   `npm install` is required for a first time run
 
-If you'd like to use containerized deployment, check out the [Development](#development) section below.
+If you'd like to use containerized deployment, check out the [Deployment](https://github.com/coopscoop/capstone-project?tab=readme-ov-file#deployment-itself) section below.
 
 ### Backend
 
@@ -27,7 +29,7 @@ If you'd like to use containerized deployment, check out the [Development](#deve
 
 Both create a `/swagger page` to test the API
 
-Like the frontend, you can also run the backend with containerized deployment, check out the [Development](#development) section below.
+Like the frontend, you can also run the backend with containerized deployment, check out the [Deployment](https://github.com/coopscoop/capstone-project?tab=readme-ov-file#deployment-itself) section below.
 
 ### Tests
 - `cd backend` to go to the backend
@@ -74,16 +76,13 @@ General structure is made up of 3 services:
 This section is mostly for me and is just some quick notes on how I deployed this. Deploying locally, both the front, back and database are all in containers and can be run with docker-compose.
 
 To deploy the project you'll need to have docker and docker-compose installed, and there's 3 basic commands to know:
-- `docker-compose build --no-cache` to build the containers if you've made changes, the --no-cache flag is optional but it'll make sure that there's no cache vs what you have parity problems.
+- `docker-compose build --no-cache` to build the containers if you've made changes, the `--no-cache` flag is optional but it'll make sure that there's no cache parity problems.
 - `docker-compose up` to start the containers
 
 If the containers are running you can use:
-- `docker-compose down -v` to stop the containers, -v is optional but it'll remove the volumes as well.
+- `docker-compose down -v` to stop the containers, `-v` is optional but it'll remove the volumes as well.
 
 Simply run those in the root of the project to start the containers.
-
-> [!NOTE]
-> Note: you can also add a `--build` flag to the `docker-compose up` command to build the containers if you've made changes.
 
 ### Building the containers
 
@@ -114,7 +113,7 @@ For the frontend:
 `docker push gcr.io/capstone-479500/capstone-frontend`
 `gcloud run deploy frontend --image gcr.io/capstone-479500/capstone-frontend --region northamerica-northeast2`
 
-General logs:
+General logs (from powershell):
 ```bash
 gcloud run services logs read backend `
    --region=northamerica-northeast2 `
@@ -130,6 +129,6 @@ gcloud run services logs read frontend `
 
 ### Future steps/Wants
 
-I initially wanted to use VPC's in the google cloud services for communicaiton between the frontend and backend, but I couldn't get it to work. I'd just get a vague "error 13, try again". Looking online, it tended to be either the servers were at capacity, or it wasn't setup correctly.
+I initially wanted to use VPC's in the google cloud services for communicaiton between the frontend and backend, but I couldn't get it to work. I'd just get a vague "error 13, try again". Looking through google's docs, I couldn't find anything that I had done incorrectly and with the time I had given myself for this section I didn't get it done exactly how I'd like. Ideally this would be revisited and all services/DB were handled internally rather than having public facing IP's and rely on whitelists.
 
 Restructure of the python service. Ideally it'd be a container that has a python instance, using web sockets or something similar to have a live console for interaction. This would allow for a more interactive experience, and worst case scenario the container can just be restarted if it crashes, or the user breaks it.
